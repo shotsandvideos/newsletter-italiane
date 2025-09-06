@@ -174,7 +174,7 @@ export default function CalendarPage() {
   const days = getDaysInMonth(currentDate)
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen">
       {/* Sidebar */}
       <Sidebar 
         isMobileOpen={isMobileMenuOpen}

@@ -131,7 +131,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen">
       {/* Success Message */}
       {showSuccess && (
         <div className="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-md p-4 z-50">

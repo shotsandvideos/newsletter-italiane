@@ -200,7 +200,7 @@ export default function CollaborationsPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen">
         <Sidebar 
           isMobileOpen={isMobileMenuOpen}
           onMobileClose={() => setIsMobileMenuOpen(false)}
@@ -213,7 +213,7 @@ export default function CollaborationsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen">
       {/* Sidebar */}
       <Sidebar 
         isMobileOpen={isMobileMenuOpen}

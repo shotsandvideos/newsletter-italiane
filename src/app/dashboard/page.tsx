@@ -2,30 +2,17 @@
 
 import { useAuth } from '../../hooks/useAuth'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, Suspense } from 'react'
 import Link from 'next/link'
 import { Mail, Euro, TrendingUp, MessageSquare, CheckCircle, Users, Calendar, Home, Menu, XCircle, Clock } from 'lucide-react'
 import { Newsletter, ApiResponse } from '../lib/validations'
 import Sidebar from '../components/Sidebar'
 import { cachedFetch } from '../lib/api-cache'
 
-export default function DashboardPage() {
-  const { user, profile, loading: authLoading } = useAuth()
-  const router = useRouter()
+function SuccessMessage() {
   const searchParams = useSearchParams()
-  const [newsletters, setNewsletters] = useState<Newsletter[]>([])
-  const [loading, setLoading] = useState(true)
   const [showSuccess, setShowSuccess] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [stats, setStats] = useState({
-    totalEarnings: 0,
-    nextCommitment: null as { title: string, date: string, type: string } | null,
-    unreadMessages: 3
-  })
 
-  console.log('Dashboard render - user:', user, 'authLoading:', authLoading, 'loading:', loading)
-
-  // Check for success message from onboarding
   useEffect(() => {
     if (searchParams.get('success') === 'newsletter-created') {
       setShowSuccess(true)
@@ -34,6 +21,39 @@ export default function DashboardPage() {
       setTimeout(() => setShowSuccess(false), 5000)
     }
   }, [searchParams])
+
+  if (!showSuccess) return null
+
+  return (
+    <div className="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-md p-4 z-50">
+      <div className="flex">
+        <CheckCircle className="h-5 w-5 text-green-400" />
+        <div className="ml-3">
+          <p className="text-sm font-medium text-green-800">
+            Newsletter registrata con successo!
+          </p>
+          <p className="text-sm text-green-700">
+            Ti contatteremo appena ci saranno opportunità.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function DashboardPage() {
+  const { user, profile, loading: authLoading } = useAuth()
+  const router = useRouter()
+  const [newsletters, setNewsletters] = useState<Newsletter[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [stats, setStats] = useState({
+    totalEarnings: 0,
+    nextCommitment: null as { title: string, date: string, type: string } | null,
+    unreadMessages: 3
+  })
+
+  console.log('Dashboard render - user:', user, 'authLoading:', authLoading, 'loading:', loading)
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -124,21 +144,9 @@ export default function DashboardPage() {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Success Message */}
-      {showSuccess && (
-        <div className="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-md p-4 z-50">
-          <div className="flex">
-            <CheckCircle className="h-5 w-5 text-green-400" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-green-800">
-                Newsletter registrata con successo!
-              </p>
-              <p className="text-sm text-green-700">
-                Ti contatteremo appena ci saranno opportunità.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      <Suspense fallback={null}>
+        <SuccessMessage />
+      </Suspense>
 
       {/* Sidebar */}
       <Sidebar 

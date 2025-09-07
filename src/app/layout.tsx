@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="it">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#eff8ff" />
+        <meta name="theme-color" content="#fcfcfc" />
       </head>
       <body
         className={`${plusJakartaSans.variable} font-sans antialiased`}
@@ -33,7 +33,7 @@ export default function RootLayout({
         {/* Skip to main content link for accessibility */}
         <a 
           href="#main-content" 
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-emerald-600 text-white px-4 py-2 rounded-lg z-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-lg z-50 focus:outline-none focus:ring-2 focus:ring-ring"
         >
           Vai al contenuto principale
         </a>

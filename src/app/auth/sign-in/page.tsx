@@ -81,7 +81,7 @@ export default function SignInPage() {
             {/* Left side - Welcome content */}
             <section className="text-center lg:text-left order-2 lg:order-1" aria-labelledby="welcome-heading">
               <h2 id="welcome-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
-                Benvenuto in <span className="text-emerald-600">Newsletter Italiane</span>
+                Benvenuto in <span className="text-primary">Newsletter Italiane</span>
               </h2>
               <p className="text-base sm:text-lg text-gray-600 mb-8">
                 La piattaforma italiana che connette autori di newsletter con brand per sponsorizzazioni trasparenti e misurabili.
@@ -91,11 +91,11 @@ export default function SignInPage() {
               <div className="grid grid-cols-2 gap-4 mb-8" role="group" aria-labelledby="stats-heading">
                 <h3 id="stats-heading" className="sr-only">Statistiche piattaforma</h3>
                 <div className="text-center p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                  <div className="text-xl sm:text-2xl font-bold text-emerald-600 mb-1" aria-label="Oltre 50 newsletter registrate">50+</div>
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-1" aria-label="Oltre 50 newsletter registrate">50+</div>
                   <div className="text-sm text-gray-600">Newsletter</div>
                 </div>
                 <div className="text-center p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                  <div className="text-xl sm:text-2xl font-bold text-emerald-600 mb-1" aria-label="Prezzo medio di 150 euro">€150</div>
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-1" aria-label="Prezzo medio di 150 euro">€150</div>
                   <div className="text-sm text-gray-600">Prezzo medio</div>
                 </div>
               </div>
@@ -104,20 +104,20 @@ export default function SignInPage() {
               <ul className="space-y-4 text-left" role="list" aria-labelledby="features-heading">
                 <h3 id="features-heading" className="sr-only">Vantaggi della piattaforma</h3>
                 <li className="flex items-center gap-3">
-                  <div className="bg-emerald-100 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" role="img" aria-hidden="true">
-                    <Mail className="h-4 w-4 text-emerald-600" />
+                  <div className="bg-primary/10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" role="img" aria-hidden="true">
+                    <Mail className="h-4 w-4 text-primary" />
                   </div>
                   <span className="text-gray-700">Monetizza la tua newsletter</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="bg-emerald-100 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" role="img" aria-hidden="true">
-                    <Users className="h-4 w-4 text-emerald-600" />
+                  <div className="bg-primary/10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" role="img" aria-hidden="true">
+                    <Users className="h-4 w-4 text-primary" />
                   </div>
                   <span className="text-gray-700">Connetti con brand italiani</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="bg-emerald-100 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" role="img" aria-hidden="true">
-                    <Euro className="h-4 w-4 text-emerald-600" />
+                  <div className="bg-primary/10 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" role="img" aria-hidden="true">
+                    <Euro className="h-4 w-4 text-primary" />
                   </div>
                   <span className="text-gray-700">Pagamenti garantiti</span>
                 </li>
@@ -126,15 +126,15 @@ export default function SignInPage() {
 
             {/* Right side - Sign In Form */}
             <section className="flex justify-center order-1 lg:order-2">
-              <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-lg shadow-lg border border-gray-200">
+              <div className="w-full max-w-md bg-card p-6 sm:p-8 rounded-lg shadow-md border border-border">
                 <header className="text-center mb-6 sm:mb-8">
                   <h2 className="text-xl sm:text-2xl font-bold mb-2">Accedi alla Piattaforma</h2>
                   <p className="text-gray-600">Gestisci le tue newsletter e collaborazioni</p>
                 </header>
 
                 {error && (
-                  <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200" role="alert" aria-live="polite">
-                    <p className="text-sm text-red-600">{error}</p>
+                  <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20" role="alert" aria-live="polite">
+                    <p className="text-sm text-destructive">{error}</p>
                   </div>
                 )}
 
@@ -142,7 +142,7 @@ export default function SignInPage() {
                   <button
                     onClick={handleGoogleSignIn}
                     disabled={googleLoading || loading}
-                    className="w-full bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                    className="w-full bg-card border border-border text-foreground px-4 py-3 rounded-lg font-medium hover:bg-accent transition-colors flex items-center justify-center disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                     aria-label="Accedi con Google"
                     type="button"
                   >
@@ -157,10 +157,10 @@ export default function SignInPage() {
 
                   <div className="relative" role="separator" aria-label="Oppure accedi con email">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300" />
+                      <div className="w-full border-t border-border" />
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">oppure</span>
+                      <span className="px-2 bg-card text-muted-foreground">oppure</span>
                     </div>
                   </div>
                 </div>
@@ -168,8 +168,8 @@ export default function SignInPage() {
                 {/* Email/Password Form */}
                 <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      Email <span className="text-red-500" aria-label="campo obbligatorio">*</span>
+                    <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                      Email <span className="text-destructive" aria-label="campo obbligatorio">*</span>
                     </label>
                     <input
                       id="email"
@@ -179,15 +179,15 @@ export default function SignInPage() {
                       required
                       aria-required="true"
                       aria-invalid={error ? 'true' : 'false'}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
+                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors text-foreground"
                       placeholder="tu@esempio.com"
                       autoComplete="email"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                      Password <span className="text-red-500" aria-label="campo obbligatorio">*</span>
+                    <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+                      Password <span className="text-destructive" aria-label="campo obbligatorio">*</span>
                     </label>
                     <input
                       id="password"
@@ -197,7 +197,7 @@ export default function SignInPage() {
                       required
                       aria-required="true"
                       aria-invalid={error ? 'true' : 'false'}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
+                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors text-foreground"
                       placeholder="La tua password"
                       autoComplete="current-password"
                       minLength={6}
@@ -207,12 +207,12 @@ export default function SignInPage() {
                   <button
                     type="submit"
                     disabled={loading || googleLoading}
-                    className="w-full bg-emerald-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-emerald-700 focus:bg-emerald-700 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                    className="w-full bg-primary text-primary-foreground px-4 py-3 rounded-lg font-medium hover:bg-primary/90 focus:bg-primary/90 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                   >
                     {loading ? (
                       <>
                         <span className="inline-flex items-center">
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
@@ -227,11 +227,11 @@ export default function SignInPage() {
                 </form>
 
                 <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Non hai un account?{' '}
                     <Link 
                       href="/auth/sign-up" 
-                      className="text-emerald-600 hover:text-emerald-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded"
+                      className="text-primary hover:text-primary/80 font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
                     >
                       Registrati
                     </Link>

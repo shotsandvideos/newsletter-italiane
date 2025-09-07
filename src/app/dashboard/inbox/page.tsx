@@ -132,9 +132,8 @@ export default function InboxPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [messages, setMessages] = useState<Message[]>(mockMessages)
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(mockMessages[0]) // Select first message by default
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [viewMode, setViewMode] = useState<'list' | 'detail'>('list')
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -151,19 +150,19 @@ export default function InboxPage() {
 
   const getTypeIcon = (type: Message['type']) => {
     switch (type) {
-      case 'sponsorship': return <DollarSign className="w-4 h-4 text-green-600" />
-      case 'collaboration': return <Users className="w-4 h-4 text-blue-600" />
-      case 'approval': return <CheckCircle className="w-4 h-4 text-purple-600" />
-      case 'notification': return <Mail className="w-4 h-4 text-gray-600" />
+      case 'sponsorship': return <DollarSign className="w-4 h-4 text-chart-5" />
+      case 'collaboration': return <Users className="w-4 h-4 text-chart-2" />
+      case 'approval': return <CheckCircle className="w-4 h-4 text-chart-3" />
+      case 'notification': return <Mail className="w-4 h-4 text-muted-foreground" />
     }
   }
 
   const getTypeBadge = (type: Message['type']) => {
     const configs = {
-      sponsorship: { color: 'bg-green-100 text-green-800', label: 'Sponsorizzazione' },
-      collaboration: { color: 'bg-blue-100 text-blue-800', label: 'Collaborazione' },
-      approval: { color: 'bg-purple-100 text-purple-800', label: 'Approvazione' },
-      notification: { color: 'bg-gray-100 text-gray-800', label: 'Notifica' }
+      sponsorship: { color: 'bg-chart-5/10 text-chart-5', label: 'Sponsorizzazione' },
+      collaboration: { color: 'bg-chart-2/10 text-chart-2', label: 'Collaborazione' },
+      approval: { color: 'bg-chart-3/10 text-chart-3', label: 'Approvazione' },
+      notification: { color: 'bg-muted text-muted-foreground', label: 'Notifica' }
     }
     
     const config = configs[type]
@@ -176,11 +175,11 @@ export default function InboxPage() {
 
   const getStatusBadge = (status: Message['status']) => {
     const configs = {
-      unread: { color: 'bg-red-100 text-red-800', label: 'Non letto' },
-      read: { color: 'bg-gray-100 text-gray-800', label: 'Letto' },
-      replied: { color: 'bg-blue-100 text-blue-800', label: 'Risposto' },
-      accepted: { color: 'bg-green-100 text-green-800', label: 'Accettato' },
-      declined: { color: 'bg-red-100 text-red-800', label: 'Rifiutato' }
+      unread: { color: 'bg-destructive/10 text-destructive', label: 'Non letto' },
+      read: { color: 'bg-muted text-muted-foreground', label: 'Letto' },
+      replied: { color: 'bg-chart-2/10 text-chart-2', label: 'Risposto' },
+      accepted: { color: 'bg-chart-5/10 text-chart-5', label: 'Accettato' },
+      declined: { color: 'bg-destructive/10 text-destructive', label: 'Rifiutato' }
     }
     
     const config = configs[status]
@@ -214,7 +213,7 @@ export default function InboxPage() {
   if (authLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     )
   }
@@ -230,218 +229,202 @@ export default function InboxPage() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <header className="bg-card border-b border-border px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
+                className="lg:hidden p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md"
               >
                 <Menu className="w-5 h-5" />
               </button>
               <div className="flex items-center gap-3">
-                {viewMode === 'detail' && selectedMessage && (
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                )}
-                <h1 className="text-xl font-semibold text-gray-900">Inbox</h1>
-                <Mail className="w-5 h-5 text-gray-400" />
+                <h1 className="text-xl font-semibold text-foreground">Inbox</h1>
+                <Mail className="w-5 h-5 text-muted-foreground" />
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 {messages.filter(m => m.status === 'unread').length} messaggi non letti
               </p>
             </div>
           </div>
         </header>
 
-        {/* Content */}
-        <main className="flex-1 overflow-auto">
-          {viewMode === 'list' ? (
-            /* Messages List */
-            <div className="p-6">
-              <div className="bg-white rounded-lg border border-gray-200">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Messaggi ({messages.length})
-                  </h3>
-                </div>
-
-                {messages.length === 0 ? (
-                  <div className="px-6 py-12 text-center">
-                    <Mail className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-                    <h3 className="text-base font-medium text-gray-900 mb-2">Nessun messaggio</h3>
-                    <p className="text-sm text-gray-500">I nuovi messaggi appariranno qui</p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-gray-200">
-                    {messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`p-6 hover:bg-gray-50 cursor-pointer transition-colors ${
-                          message.status === 'unread' ? 'bg-blue-50' : ''
-                        }`}
-                        onClick={() => {
-                          setSelectedMessage(message)
-                          setViewMode('detail')
-                          if (message.status === 'unread') {
-                            markAsRead(message.id)
-                          }
-                        }}
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            {getTypeIcon(message.type)}
-                            <div>
-                              <h4 className={`text-base ${message.status === 'unread' ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
-                                {message.from}
-                              </h4>
-                              <p className="text-sm text-gray-500 capitalize">{message.from_type}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {getTypeBadge(message.type)}
-                            {getStatusBadge(message.status)}
-                          </div>
-                        </div>
-                        
-                        <h5 className={`text-sm mb-2 ${message.status === 'unread' ? 'font-semibold' : 'font-normal'}`}>
-                          {message.subject}
-                        </h5>
-                        
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                          {message.content.split('\n')[0]}
-                        </p>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <span>{formatDate(message.created_at)}</span>
-                            {message.metadata?.amount && (
-                              <span className="font-semibold text-green-600">€{message.metadata.amount}</span>
-                            )}
-                            {message.metadata?.newsletter_name && (
-                              <span>Newsletter: {message.metadata.newsletter_name}</span>
-                            )}
-                          </div>
-                          
-                          <div className="flex items-center gap-2">
-                            <button className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg">
-                              <Eye className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+        {/* Split Pane Content */}
+        <main className="flex-1 flex overflow-hidden">
+          {/* Messages List - Left Pane */}
+          <div className="w-1/3 border-r border-border bg-card overflow-hidden flex flex-col">
+            <div className="px-4 py-3 border-b border-border">
+              <h3 className="text-base font-medium text-foreground">
+                Messaggi ({messages.length})
+              </h3>
             </div>
-          ) : (
-            /* Message Detail View */
-            selectedMessage && (
-              <div className="p-6">
-                <div className="bg-white rounded-lg border border-gray-200">
-                  {/* Header */}
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          {selectedMessage.subject}
-                        </h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                          <span>Da: <span className="font-medium text-gray-900">{selectedMessage.from}</span></span>
-                          <span>•</span>
-                          <span className="capitalize">{selectedMessage.from_type}</span>
-                          <span>•</span>
-                          <span>{formatDate(selectedMessage.created_at)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {getTypeBadge(selectedMessage.type)}
-                          {getStatusBadge(selectedMessage.status)}
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Metadata */}
-                    {selectedMessage.metadata && Object.keys(selectedMessage.metadata).length > 0 && (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
-                        {selectedMessage.metadata.amount && (
-                          <div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wide">Budget</span>
-                            <p className="text-sm font-semibold text-green-600">€{selectedMessage.metadata.amount}</p>
-                          </div>
-                        )}
-                        {selectedMessage.metadata.newsletter_name && (
-                          <div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wide">Newsletter</span>
-                            <p className="text-sm font-medium text-gray-900">{selectedMessage.metadata.newsletter_name}</p>
-                          </div>
-                        )}
-                        {selectedMessage.metadata.deadline && (
-                          <div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wide">Deadline</span>
-                            <p className="text-sm font-medium text-gray-900">
-                              {new Date(selectedMessage.metadata.deadline).toLocaleDateString('it-IT')}
-                            </p>
-                          </div>
-                        )}
-                        {selectedMessage.metadata.collaboration_details && (
-                          <div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wide">Dettagli</span>
-                            <p className="text-sm font-medium text-gray-900">{selectedMessage.metadata.collaboration_details}</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6">
-                    <div className="prose max-w-none">
-                      <pre className="whitespace-pre-wrap font-sans text-sm text-gray-700 leading-relaxed">
-                        {selectedMessage.content}
-                      </pre>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <button className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
-                          Rispondi
-                        </button>
-                        {(selectedMessage.type === 'sponsorship' || selectedMessage.type === 'collaboration') && (
-                          <>
-                            <button className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700">
-                              Accetta
-                            </button>
-                            <button className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700">
-                              Rifiuta
-                            </button>
-                          </>
-                        )}
-                        <button className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50">
-                          Archivia
-                        </button>
-                      </div>
-                      <button
-                        onClick={() => setViewMode('list')}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50"
-                      >
-                        Torna alla lista
-                      </button>
-                    </div>
-                  </div>
+            {messages.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center p-6">
+                <div className="text-center">
+                  <Mail className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-base font-medium text-foreground mb-2">Nessun messaggio</h3>
+                  <p className="text-sm text-muted-foreground">I nuovi messaggi appariranno qui</p>
                 </div>
               </div>
-            )
-          )}
+            ) : (
+              <div className="flex-1 overflow-y-auto divide-y divide-border">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`p-4 cursor-pointer transition-colors hover:bg-accent ${
+                      selectedMessage?.id === message.id 
+                        ? 'bg-primary/10 border-r-2 border-primary' 
+                        : message.status === 'unread' 
+                        ? 'bg-accent/50' 
+                        : ''
+                    }`}
+                    onClick={() => {
+                      setSelectedMessage(message)
+                      if (message.status === 'unread') {
+                        markAsRead(message.id)
+                      }
+                    }}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        {getTypeIcon(message.type)}
+                        <div className="min-w-0 flex-1">
+                          <h4 className={`text-sm truncate ${message.status === 'unread' ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}>
+                            {message.from}
+                          </h4>
+                          <p className="text-xs text-muted-foreground capitalize">{message.from_type}</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        {getTypeBadge(message.type)}
+                        {message.status === 'unread' && (
+                          <div className="w-2 h-2 bg-primary rounded-full ml-auto" />
+                        )}
+                      </div>
+                    </div>
+                    
+                    <h5 className={`text-xs mb-1 truncate ${message.status === 'unread' ? 'font-semibold text-foreground' : 'font-normal text-muted-foreground'}`}>
+                      {message.subject}
+                    </h5>
+                    
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                      {message.content.split('\n')[0]}
+                    </p>
+                    
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">{formatDate(message.created_at)}</span>
+                      {message.metadata?.amount && (
+                        <span className="font-semibold text-chart-5">€{message.metadata.amount}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Message Detail - Right Pane */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {selectedMessage ? (
+              <>
+                {/* Message Header */}
+                <div className="px-6 py-4 border-b border-border bg-card">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-foreground mb-2 truncate">
+                        {selectedMessage.subject}
+                      </h3>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
+                        <span>Da: <span className="font-medium text-foreground">{selectedMessage.from}</span></span>
+                        <span>•</span>
+                        <span className="capitalize">{selectedMessage.from_type}</span>
+                        <span>•</span>
+                        <span>{formatDate(selectedMessage.created_at)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {getTypeBadge(selectedMessage.type)}
+                        {getStatusBadge(selectedMessage.status)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Metadata */}
+                  {selectedMessage.metadata && Object.keys(selectedMessage.metadata).length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted rounded-lg">
+                      {selectedMessage.metadata.amount && (
+                        <div>
+                          <span className="text-xs text-muted-foreground uppercase tracking-wide">Budget</span>
+                          <p className="text-sm font-semibold text-chart-5">€{selectedMessage.metadata.amount}</p>
+                        </div>
+                      )}
+                      {selectedMessage.metadata.newsletter_name && (
+                        <div>
+                          <span className="text-xs text-muted-foreground uppercase tracking-wide">Newsletter</span>
+                          <p className="text-sm font-medium text-foreground">{selectedMessage.metadata.newsletter_name}</p>
+                        </div>
+                      )}
+                      {selectedMessage.metadata.deadline && (
+                        <div>
+                          <span className="text-xs text-muted-foreground uppercase tracking-wide">Deadline</span>
+                          <p className="text-sm font-medium text-foreground">
+                            {new Date(selectedMessage.metadata.deadline).toLocaleDateString('it-IT')}
+                          </p>
+                        </div>
+                      )}
+                      {selectedMessage.metadata.collaboration_details && (
+                        <div>
+                          <span className="text-xs text-muted-foreground uppercase tracking-wide">Dettagli</span>
+                          <p className="text-sm font-medium text-foreground">{selectedMessage.metadata.collaboration_details}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Message Content */}
+                <div className="flex-1 overflow-y-auto p-6 bg-background">
+                  <div className="prose max-w-none">
+                    <pre className="whitespace-pre-wrap font-sans text-sm text-foreground leading-relaxed">
+                      {selectedMessage.content}
+                    </pre>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="px-6 py-4 border-t border-border bg-card">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90">
+                      Rispondi
+                    </button>
+                    {(selectedMessage.type === 'sponsorship' || selectedMessage.type === 'collaboration') && (
+                      <>
+                        <button className="px-4 py-2 bg-chart-5 text-white text-sm font-medium rounded-lg hover:bg-chart-5/90">
+                          Accetta
+                        </button>
+                        <button className="px-4 py-2 bg-destructive text-destructive-foreground text-sm font-medium rounded-lg hover:bg-destructive/90">
+                          Rifiuta
+                        </button>
+                      </>
+                    )}
+                    <button className="px-4 py-2 border border-border text-foreground text-sm font-medium rounded-lg hover:bg-accent">
+                      Archivia
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <Mail className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">Seleziona un messaggio</h3>
+                  <p className="text-sm text-muted-foreground">Scegli un messaggio dalla lista per visualizzarlo</p>
+                </div>
+              </div>
+            )}
+          </div>
         </main>
       </div>
     </div>

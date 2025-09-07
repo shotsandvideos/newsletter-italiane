@@ -14,14 +14,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-slate-900 text-slate-50 hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200",
-        destructive: "bg-red-500 text-slate-50 hover:bg-red-600 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-800",
-        outline: "border border-slate-200 bg-white hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50",
-        secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-700",
-        ghost: "hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-50",
-        link: "text-slate-900 underline-offset-4 hover:underline dark:text-slate-50",
-        success: "bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700",
-        warning: "bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border border-border bg-card hover:bg-accent hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+        success: "bg-chart-5 text-white hover:bg-chart-5/90",
+        warning: "bg-chart-4 text-white hover:bg-chart-4/90"
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -65,7 +65,7 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
     <div
       ref={ref}
       className={cn(
-        "rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950",
+        "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
         className
       )}
       {...props}
@@ -94,7 +94,7 @@ CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => (
-    <p ref={ref} className={cn("text-sm text-slate-500 dark:text-slate-400", className)} {...props} />
+    <p ref={ref} className={cn("text-sm text-muted-foreground", className)} {...props} />
   )
 )
 CardDescription.displayName = "CardDescription"
@@ -119,13 +119,13 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-transparent bg-slate-900 text-slate-50 hover:bg-slate-900/80 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/80",
-        secondary: "border-transparent bg-slate-100 text-slate-900 hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80",
-        destructive: "border-transparent bg-red-500 text-slate-50 hover:bg-red-500/80 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/80",
-        outline: "text-slate-950 dark:text-slate-50",
-        success: "border-transparent bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400",
-        warning: "border-transparent bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400",
-        pending: "border-transparent bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        outline: "text-foreground border-border",
+        success: "border-transparent bg-chart-5/10 text-chart-5 dark:bg-chart-5/20",
+        warning: "border-transparent bg-chart-4/10 text-chart-4 dark:bg-chart-4/20",
+        pending: "border-transparent bg-chart-2/10 text-chart-2 dark:bg-chart-2/20"
       }
     },
     defaultVariants: {
@@ -181,7 +181,7 @@ function StatusBadge({ status, children, className }: StatusBadgeProps) {
 function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800", className)}
+      className={cn("animate-pulse rounded-lg bg-muted", className)}
       {...props}
     />
   )
@@ -193,10 +193,10 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50",
-        destructive: "border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-400 [&>svg]:text-red-600 dark:[&>svg]:text-red-400",
-        success: "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-400 [&>svg]:text-emerald-600 dark:[&>svg]:text-emerald-400",
-        warning: "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400 [&>svg]:text-amber-600 dark:[&>svg]:text-amber-400"
+        default: "bg-card text-card-foreground border-border",
+        destructive: "border-destructive/20 bg-destructive/10 text-destructive [&>svg]:text-destructive",
+        success: "border-chart-5/20 bg-chart-5/10 text-chart-5 [&>svg]:text-chart-5",
+        warning: "border-chart-4/20 bg-chart-4/10 text-chart-4 [&>svg]:text-chart-4"
       }
     },
     defaultVariants: {
@@ -234,7 +234,7 @@ AlertDescription.displayName = "AlertDescription"
 function LoadingSpinner({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={cn("flex items-center justify-center", className)} {...props}>
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900 dark:border-slate-600 dark:border-t-slate-50" />
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-foreground" />
     </div>
   )
 }
@@ -258,24 +258,24 @@ function StatsCard({ title, value, description, trend, icon, className }: StatsC
     <Card className={cn("p-6", className)}>
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
           <div className="flex items-baseline space-x-2">
-            <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">{value}</p>
+            <p className="text-2xl font-bold text-foreground">{value}</p>
             {trend && (
               <span className={cn(
                 "text-sm font-medium",
-                trend.positive ? "text-emerald-600" : "text-red-600"
+                trend.positive ? "text-chart-5" : "text-destructive"
               )}>
                 {trend.positive ? "+" : "-"}{Math.abs(trend.value)}% {trend.label}
               </span>
             )}
           </div>
           {description && (
-            <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
+            <p className="text-sm text-muted-foreground">{description}</p>
           )}
         </div>
         {icon && (
-          <div className="h-12 w-12 rounded-lg bg-slate-100 p-3 dark:bg-slate-800">
+          <div className="h-12 w-12 rounded-lg bg-muted p-3">
             {icon}
           </div>
         )}

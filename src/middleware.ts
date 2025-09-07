@@ -4,6 +4,8 @@ import { NextResponse, type NextRequest } from 'next/server'
 const isPublicRoute = (pathname: string) => {
   const publicRoutes = [
     '/',
+    '/homepage',
+    '/test-page',
     '/auth/sign-in',
     '/auth/sign-up',
     '/auth/sign-out',

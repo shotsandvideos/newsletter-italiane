@@ -34,7 +34,7 @@ const mockPayments = [
     id: '1',
     type: 'earning' as const,
     brand: 'TechStartup Italia',
-    brandLogo: '🚀',
+    brandLogo: '',
     newsletter: 'Marketing Espresso',
     collaborationId: 'collab-001',
     amount: 300,
@@ -50,7 +50,7 @@ const mockPayments = [
     id: '2',
     type: 'earning' as const,
     brand: 'EcoProducts',
-    brandLogo: '🌱',
+    brandLogo: '',
     newsletter: 'Marketing Espresso',
     collaborationId: 'collab-002',
     amount: 250,
@@ -66,7 +66,7 @@ const mockPayments = [
     id: '3',
     type: 'earning' as const,
     brand: 'Fintech Solutions',
-    brandLogo: '💰',
+    brandLogo: '',
     newsletter: 'Marketing Espresso',
     collaborationId: 'collab-003',
     amount: 150,
@@ -82,7 +82,7 @@ const mockPayments = [
     id: '4',
     type: 'commission' as const,
     brand: 'Newsletter Italiane',
-    brandLogo: '📧',
+    brandLogo: '',
     newsletter: 'Marketing Espresso',
     collaborationId: 'collab-001',
     amount: -45, // 15% commission
@@ -98,7 +98,7 @@ const mockPayments = [
     id: '5',
     type: 'earning' as const,
     brand: 'HealthCare Pro',
-    brandLogo: '⚕️',
+    brandLogo: '',
     newsletter: 'Marketing Espresso',
     collaborationId: 'collab-004',
     amount: 400,
@@ -187,9 +187,9 @@ export default function PaymentsPage() {
 
   const getTypeIcon = (type: PaymentType) => {
     switch (type) {
-      case 'earning': return <ArrowUpRight className="w-4 h-4 text-green-600" />
-      case 'commission': return <ArrowDownRight className="w-4 h-4 text-red-600" />
-      case 'refund': return <ArrowUpRight className="w-4 h-4 text-blue-600" />
+      case 'earning': return <ArrowUpRight className="w-4 h-4" style={{color: '#72e3ad'}} />
+      case 'commission': return <ArrowDownRight className="w-4 h-4" style={{color: '#72e3ad'}} />
+      case 'refund': return <ArrowUpRight className="w-4 h-4" style={{color: '#72e3ad'}} />
       default: return <Euro className="w-4 h-4" />
     }
   }
@@ -283,7 +283,7 @@ export default function PaymentsPage() {
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
                   <div className="p-2 bg-green-50 rounded-lg">
-                    <Wallet className="w-5 h-5 text-green-600" />
+                    <Wallet className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.totalEarnings}</p>
@@ -294,8 +294,8 @@ export default function PaymentsPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Banknote className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <Banknote className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.thisMonth}</p>
@@ -306,8 +306,8 @@ export default function PaymentsPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-yellow-50 rounded-lg">
-                    <Clock className="w-5 h-5 text-yellow-600" />
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <Clock className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.pendingPayments}</p>
@@ -318,8 +318,8 @@ export default function PaymentsPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-red-50 rounded-lg">
-                    <AlertCircle className="w-5 h-5 text-red-600" />
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <AlertCircle className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.overduePayments}</p>
@@ -480,8 +480,7 @@ export default function PaymentsPage() {
                         <div key={payment.id} className="px-6 py-4 hover:bg-gray-50">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <span className="text-lg">{payment.brandLogo}</span>
-                              <div>
+                                              <div>
                                 <h4 className="text-sm font-medium text-gray-900">
                                   {payment.brand}
                                 </h4>

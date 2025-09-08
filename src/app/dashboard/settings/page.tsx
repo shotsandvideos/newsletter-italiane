@@ -137,7 +137,7 @@ export default function SettingsPage() {
         <div className="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-md p-4 z-50">
           <div className="flex">
             <div className="flex-shrink-0">
-              <Save className="h-5 w-5 text-green-400" />
+              <Save className="h-5 w-5" style={{color: '#72e3ad'}} />
             </div>
             <div className="ml-3">
               <p className="text-sm font-medium text-green-800">

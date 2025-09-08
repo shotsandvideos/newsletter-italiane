@@ -138,7 +138,7 @@ export default function CalendarPage() {
   const getStatusColor = (status: CalendarEvent['status']) => {
     switch (status) {
       case 'confirmed': return 'bg-green-50 border-green-200'
-      case 'pending': return 'bg-yellow-50 border-yellow-200'
+      case 'pending': return 'bg-green-50 border-green-200'
       case 'completed': return 'bg-gray-50 border-gray-200'
     }
   }
@@ -324,10 +324,7 @@ export default function CalendarPage() {
                     onClick={() => handleEventClick(event)}
                     className="w-full flex items-center gap-4 p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors text-left"
                   >
-                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                      event.type === 'newsletter' ? 'bg-blue-500' :
-                      event.type === 'payment' ? 'bg-green-500' : 'bg-purple-500'
-                    }`} />
+                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{backgroundColor: '#72e3ad'}} />
                     
                     <div className="flex-1">
                       <div className="flex items-center gap-2">

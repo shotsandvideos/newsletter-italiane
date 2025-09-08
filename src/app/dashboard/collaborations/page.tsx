@@ -253,8 +253,8 @@ export default function CollaborationsPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Users className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <Users className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">{stats.active}</p>
@@ -265,8 +265,8 @@ export default function CollaborationsPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-yellow-50 rounded-lg">
-                    <Clock className="w-5 h-5 text-yellow-600" />
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <Clock className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">{stats.pending}</p>
@@ -278,7 +278,7 @@ export default function CollaborationsPage() {
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
                   <div className="p-2 bg-green-50 rounded-lg">
-                    <Euro className="w-5 h-5 text-green-600" />
+                    <Euro className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.totalEarnings}</p>
@@ -289,8 +289,8 @@ export default function CollaborationsPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-purple-50 rounded-lg">
-                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <TrendingUp className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.pendingEarnings}</p>
@@ -382,8 +382,8 @@ export default function CollaborationsPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="p-2 bg-blue-50 rounded-lg">
-                            <collaboration.brandIcon className="w-5 h-5 text-blue-600" />
+                          <div className="p-2 bg-green-50 rounded-lg">
+                            <collaboration.brandIcon className="w-5 h-5" style={{color: '#72e3ad'}} />
                           </div>
                           <div>
                             <h4 className="text-base font-medium text-gray-900">
@@ -438,9 +438,9 @@ export default function CollaborationsPage() {
 
                         {/* Next deliverable */}
                         {collaboration.status === 'active' && (
-                          <div className="bg-blue-50 rounded-lg p-3">
+                          <div className="bg-green-50 rounded-lg p-3">
                             <div className="flex items-center gap-2">
-                              <AlertCircle className="w-4 h-4 text-blue-600" />
+                              <AlertCircle className="w-4 h-4" style={{color: '#72e3ad'}} />
                               <span className="text-sm font-medium text-blue-900">
                                 Prossima scadenza:
                               </span>
@@ -491,8 +491,8 @@ export default function CollaborationsPage() {
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <selectedCollaboration.brandIcon className="w-6 h-6 text-blue-600" />
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <selectedCollaboration.brandIcon className="w-6 h-6" style={{color: '#72e3ad'}} />
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">{selectedCollaboration.brand}</h2>
@@ -520,13 +520,13 @@ export default function CollaborationsPage() {
                   <div className="text-2xl font-bold text-green-600 mb-1">€{selectedCollaboration.value}</div>
                   <div className="text-sm text-green-700">Valore collaborazione</div>
                 </div>
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-center p-4 bg-green-50 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600 mb-1">
                     {new Date(selectedCollaboration.deadline).toLocaleDateString('it-IT')}
                   </div>
                   <div className="text-sm text-blue-700">Scadenza</div>
                 </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <div className="text-center p-4 bg-green-50 rounded-lg">
                   <div className="text-2xl font-bold text-purple-600 mb-1">
                     {Math.round((selectedCollaboration.deliverables.filter(d => d.completed).length / selectedCollaboration.deliverables.length) * 100)}%
                   </div>
@@ -548,8 +548,8 @@ export default function CollaborationsPage() {
               {selectedCollaboration.trackingUrl && (
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">URL di tracciamento</h3>
-                  <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
-                    <LinkIcon className="w-4 h-4 text-blue-600" />
+                  <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
+                    <LinkIcon className="w-4 h-4" style={{color: '#72e3ad'}} />
                     <a 
                       href={selectedCollaboration.trackingUrl} 
                       target="_blank" 
@@ -676,7 +676,7 @@ export default function CollaborationsPage() {
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-red-100 rounded-lg">
-                <Trash2 className="w-5 h-5 text-red-600" />
+                <Trash2 className="w-5 h-5" style={{color: '#72e3ad'}} />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Elimina Collaborazione</h3>

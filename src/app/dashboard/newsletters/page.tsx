@@ -361,7 +361,7 @@ export default function NewslettersPage() {
       {showUpdateSuccess && (
         <div className="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-md p-4 z-50">
           <div className="flex">
-            <CheckCircle className="h-5 w-5 text-green-400" />
+            <CheckCircle className="h-5 w-5" style={{color: '#72e3ad'}} />
             <div className="ml-3">
               <p className="text-sm font-medium text-green-800">
                 Newsletter aggiornata!
@@ -736,8 +736,8 @@ export default function NewslettersPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Mail className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <Mail className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
@@ -749,7 +749,7 @@ export default function NewslettersPage() {
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
                   <div className="p-2 bg-green-50 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <CheckCircle className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">{stats.approved}</p>
@@ -760,8 +760,8 @@ export default function NewslettersPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-yellow-50 rounded-lg">
-                    <Clock className="w-5 h-5 text-yellow-600" />
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <Clock className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">{stats.pending}</p>
@@ -772,8 +772,8 @@ export default function NewslettersPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-purple-50 rounded-lg">
-                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <TrendingUp className="w-5 h-5" style={{color: '#72e3ad'}} />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.totalEarnings}</p>
@@ -937,7 +937,7 @@ export default function NewslettersPage() {
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <Trash2 className="w-5 h-5 text-red-600" />
+                <Trash2 className="w-5 h-5" style={{color: '#72e3ad'}} />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Elimina Newsletter</h3>

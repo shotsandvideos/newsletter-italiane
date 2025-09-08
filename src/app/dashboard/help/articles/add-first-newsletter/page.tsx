@@ -300,7 +300,7 @@ export default function AddFirstNewsletterPage() {
                   </p>
                   <div className="bg-muted rounded-lg p-4 mb-6">
                     <p className="text-foreground text-sm">
-                      💡 <strong>Suggerimento:</strong> Se è la tua prima newsletter, vedrai un messaggio di benvenuto 
+                      <strong>Suggerimento:</strong> Se è la tua prima newsletter, vedrai un messaggio di benvenuto 
                       con tips per iniziare.
                     </p>
                   </div>
@@ -323,7 +323,7 @@ export default function AddFirstNewsletterPage() {
                       5,000+ professionisti tech con analisi approfondite e trend emergenti."
                     </p>
                     <p className="text-foreground text-sm">
-                      ✅ <strong>Perché funziona:</strong> Chiara, specifica, mostra il valore e include metriche concrete.
+                      <strong>Perché funziona:</strong> Chiara, specifica, mostra il valore e include metriche concrete.
                     </p>
                   </div>
 
@@ -369,10 +369,10 @@ export default function AddFirstNewsletterPage() {
                         <h4 className="font-medium text-foreground">Open Rate tipici</h4>
                       </div>
                       <ul className="text-sm text-muted-foreground space-y-1">
-                        <li>• Tech/Business: 20-25%</li>
-                        <li>• Lifestyle: 18-22%</li>
-                        <li>• Marketing: 15-20%</li>
-                        <li>• News: 22-28%</li>
+                        <li>Tech/Business: 20-25%</li>
+                        <li>Lifestyle: 18-22%</li>
+                        <li>Marketing: 15-20%</li>
+                        <li>News: 22-28%</li>
                       </ul>
                     </div>
                     <div className="bg-card border border-border rounded-lg p-4">
@@ -381,10 +381,10 @@ export default function AddFirstNewsletterPage() {
                         <h4 className="font-medium text-foreground">CTR tipici</h4>
                       </div>
                       <ul className="text-sm text-muted-foreground space-y-1">
-                        <li>• Tech/Business: 2-4%</li>
-                        <li>• Lifestyle: 1.5-3%</li>
-                        <li>• Marketing: 3-5%</li>
-                        <li>• News: 1-2%</li>
+                        <li>Tech/Business: 2-4%</li>
+                        <li>Lifestyle: 1.5-3%</li>
+                        <li>Marketing: 3-5%</li>
+                        <li>News: 1-2%</li>
                       </ul>
                     </div>
                   </div>
@@ -438,10 +438,10 @@ export default function AddFirstNewsletterPage() {
                       <div>
                         <p className="text-foreground font-medium mb-1">Checklist finale</p>
                         <ul className="text-muted-foreground text-sm space-y-1">
-                          <li>✓ Tutte le informazioni sono accurate e aggiornate</li>
-                          <li>✓ Le metriche riflettono i dati reali</li>
-                          <li>✓ I prezzi sono competitivi per il tuo mercato</li>
-                          <li>✓ La descrizione è chiara e professionale</li>
+                          <li>Tutte le informazioni sono accurate e aggiornate</li>
+                          <li>Le metriche riflettono i dati reali</li>
+                          <li>I prezzi sono competitivi per il tuo mercato</li>
+                          <li>La descrizione è chiara e professionale</li>
                         </ul>
                       </div>
                     </div>

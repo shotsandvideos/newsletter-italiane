@@ -178,7 +178,53 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-screen bg-white">
+      <section className="relative overflow-hidden min-h-screen">
+        {/* Animated Background with Floating Gradient Blobs */}
+        <div className="absolute inset-0 w-full bg-white relative">
+          {/* Subtle Moving Background Gradient */}
+          <div 
+            className="absolute inset-0 opacity-40"
+            style={{
+              background: 'linear-gradient(45deg, #10b981, #06d6a0, #118ab2, #073b4c)',
+              backgroundSize: '400% 400%',
+              animation: 'gradientShift 20s ease infinite'
+            }}
+          />
+          
+          {/* Subtle Floating Gradient Blobs */}
+          <div className="absolute inset-0">
+            <div 
+              className="absolute w-80 h-80 rounded-full blur-3xl"
+              style={{
+                background: 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, rgba(6,214,160,0.1) 50%, transparent 100%)',
+                top: '15%',
+                left: '12%',
+                transform: 'translate3d(0, 0, 0)',
+                animation: 'subtleFloat 25s ease-in-out infinite'
+              }}
+            />
+            <div 
+              className="absolute w-64 h-64 rounded-full blur-2xl"
+              style={{
+                background: 'radial-gradient(circle, rgba(17,138,178,0.15) 0%, rgba(7,59,76,0.1) 50%, transparent 100%)',
+                top: '55%',
+                right: '18%',
+                animation: 'subtleFloat 30s ease-in-out infinite reverse',
+                animationDelay: '8s'
+              }}
+            />
+            <div 
+              className="absolute w-96 h-96 rounded-full blur-3xl"
+              style={{
+                background: 'radial-gradient(circle, rgba(6,214,160,0.1) 0%, rgba(16,185,129,0.08) 50%, transparent 100%)',
+                bottom: '25%',
+                left: '25%',
+                animation: 'subtleFloat 35s ease-in-out infinite',
+                animationDelay: '15s'
+              }}
+            />
+          </div>
+        </div>
         
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
@@ -228,11 +274,11 @@ export default function HomePage() {
             <div className="mt-16 py-6 px-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden max-w-4xl mx-auto">
               {/* Scrolling logos container with fade out */}
               <div className="relative">
-                {/* Left fade out - increased fade width */}
-                <div className="absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-white/80 to-transparent pointer-events-none"></div>
+                {/* Left fade out - gradual fade */}
+                <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-white via-white/70 via-white/40 to-transparent pointer-events-none"></div>
                 
-                {/* Right fade out - increased fade width */}
-                <div className="absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-white/80 to-transparent pointer-events-none"></div>
+                {/* Right fade out - gradual fade */}
+                <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-white via-white/70 via-white/40 to-transparent pointer-events-none"></div>
                 
                 {/* Scrolling content */}
                 <div 
@@ -245,7 +291,7 @@ export default function HomePage() {
                   {/* Duplicate logos for continuous scroll */}
                   {[...clientLogos, ...clientLogos].map((client, index) => (
                     <div key={index} className="flex-shrink-0">
-                      <div className="relative w-14 h-14 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                      <div className="relative w-18 h-18 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
                         <Image
                           src={client.logo}
                           alt={`${client.name} logo`}

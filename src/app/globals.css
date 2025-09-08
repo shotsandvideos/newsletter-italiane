@@ -442,6 +442,15 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

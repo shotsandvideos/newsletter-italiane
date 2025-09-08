@@ -26,7 +26,8 @@ const featuredNewsletters = [
   { name: 'Marketing Caffè', subscribers: '8,9k', category: 'Marketing', engagement: '3.8%' },
   { name: 'StartupScene', subscribers: '15,2k', category: 'Business', engagement: '5.1%' },
   { name: 'Design Daily', subscribers: '6,7k', category: 'Design', engagement: '4.7%' },
-  { name: 'Crypto Italia', subscribers: '22,3k', category: 'Finance', engagement: '3.9%' }
+  { name: 'Crypto Italia', subscribers: '22,3k', category: 'Finance', engagement: '3.9%' },
+  { name: 'Food & Wine Italia', subscribers: '18,7k', category: 'Lifestyle', engagement: '4.8%' }
 ]
 
 const clientLogos = [
@@ -103,7 +104,7 @@ const features = [
 const pricingPlans = [
   {
     type: 'Creator',
-    title: 'Per Newsletter Creator',
+    title: 'Per i Creator',
     description: 'Monetizza la tua newsletter con brand di qualità',
     price: 'Gratuito',
     features: [
@@ -113,7 +114,7 @@ const pricingPlans = [
       'Supporto via email',
       'Commissione 15% sui guadagni'
     ],
-    cta: 'Inizia Gratis',
+    cta: 'Iscriviti',
     href: '/auth/sign-up',
     popular: false
   },
@@ -170,7 +171,7 @@ export default function HomePage() {
                 href="/auth/sign-up"
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
               >
-                Inizia Gratis
+                Iscriviti
               </Link>
             </div>
           </div>
@@ -183,7 +184,7 @@ export default function HomePage() {
         <div className="absolute inset-0 w-full bg-white relative">
           {/* Subtle Moving Background Gradient */}
           <div 
-            className="absolute inset-0 opacity-40"
+            className="absolute inset-0 opacity-50"
             style={{
               background: 'linear-gradient(45deg, #10b981, #06d6a0, #118ab2, #073b4c)',
               backgroundSize: '400% 400%',
@@ -191,12 +192,12 @@ export default function HomePage() {
             }}
           />
           
-          {/* Subtle Floating Gradient Blobs */}
+          {/* Enhanced Floating Gradient Blobs */}
           <div className="absolute inset-0">
             <div 
-              className="absolute w-80 h-80 rounded-full blur-3xl"
+              className="absolute w-96 h-96 rounded-full blur-3xl"
               style={{
-                background: 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, rgba(6,214,160,0.1) 50%, transparent 100%)',
+                background: 'radial-gradient(circle, rgba(16,185,129,0.3) 0%, rgba(6,214,160,0.2) 50%, transparent 100%)',
                 top: '15%',
                 left: '12%',
                 transform: 'translate3d(0, 0, 0)',
@@ -204,9 +205,9 @@ export default function HomePage() {
               }}
             />
             <div 
-              className="absolute w-64 h-64 rounded-full blur-2xl"
+              className="absolute w-80 h-80 rounded-full blur-2xl"
               style={{
-                background: 'radial-gradient(circle, rgba(17,138,178,0.15) 0%, rgba(7,59,76,0.1) 50%, transparent 100%)',
+                background: 'radial-gradient(circle, rgba(17,138,178,0.25) 0%, rgba(7,59,76,0.15) 50%, transparent 100%)',
                 top: '55%',
                 right: '18%',
                 animation: 'subtleFloat 30s ease-in-out infinite reverse',
@@ -214,9 +215,9 @@ export default function HomePage() {
               }}
             />
             <div 
-              className="absolute w-96 h-96 rounded-full blur-3xl"
+              className="absolute w-[28rem] h-[28rem] rounded-full blur-3xl"
               style={{
-                background: 'radial-gradient(circle, rgba(6,214,160,0.1) 0%, rgba(16,185,129,0.08) 50%, transparent 100%)',
+                background: 'radial-gradient(circle, rgba(6,214,160,0.2) 0%, rgba(16,185,129,0.15) 50%, transparent 100%)',
                 bottom: '25%',
                 left: '25%',
                 animation: 'subtleFloat 35s ease-in-out infinite',
@@ -258,7 +259,7 @@ export default function HomePage() {
                 href="/auth/sign-up"
                 className="inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg"
               >
-                Inizia Gratis
+                Iscriviti
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
               <Link
@@ -271,27 +272,27 @@ export default function HomePage() {
             </div>
 
             {/* Client Logos in Hero */}
-            <div className="mt-16 py-6 px-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden max-w-4xl mx-auto">
-              {/* Scrolling logos container with fade out */}
+            <div className="mt-16 py-8 px-8 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden max-w-5xl mx-auto">
+              {/* Scrolling logos container with proper fade */}
               <div className="relative">
-                {/* Left fade out - gradual fade */}
-                <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-white via-white/70 via-white/40 to-transparent pointer-events-none"></div>
+                {/* Left fade out - smooth disappearing effect */}
+                <div className="absolute left-0 top-0 z-10 h-full w-40 bg-gradient-to-r from-white/80 via-white/60 via-white/30 via-white/10 to-transparent pointer-events-none"></div>
                 
-                {/* Right fade out - gradual fade */}
-                <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-white via-white/70 via-white/40 to-transparent pointer-events-none"></div>
+                {/* Right fade out - smooth disappearing effect */}
+                <div className="absolute right-0 top-0 z-10 h-full w-40 bg-gradient-to-l from-white/80 via-white/60 via-white/30 via-white/10 to-transparent pointer-events-none"></div>
                 
                 {/* Scrolling content */}
                 <div 
-                  className="flex items-center space-x-10"
+                  className="flex items-center space-x-12"
                   style={{
                     animation: 'scrollRight 30s linear infinite',
                     width: 'max-content'
                   }}
                 >
-                  {/* Duplicate logos for continuous scroll */}
-                  {[...clientLogos, ...clientLogos].map((client, index) => (
+                  {/* Triple logos for smoother infinite scroll */}
+                  {[...clientLogos, ...clientLogos, ...clientLogos].map((client, index) => (
                     <div key={index} className="flex-shrink-0">
-                      <div className="relative w-18 h-18 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                      <div className="relative w-20 h-20 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
                         <Image
                           src={client.logo}
                           alt={`${client.name} logo`}
@@ -322,27 +323,79 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {featuredNewsletters.map((newsletter, index) => (
-              <div key={index} className="p-6 bg-card border border-border rounded-lg hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-foreground">{newsletter.name}</h3>
-                  <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                    {newsletter.category}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Iscritti</span>
-                    <div className="font-semibold text-foreground">{newsletter.subscribers}</div>
+          {/* Scrolling Newsletter Cards */}
+          <div className="space-y-6 mb-12 overflow-hidden">
+            {/* First row - normal speed */}
+            <div className="relative">
+              <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-white via-white/60 via-white/30 to-transparent pointer-events-none"></div>
+              <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-white via-white/60 via-white/30 to-transparent pointer-events-none"></div>
+              <div 
+                className="flex items-center space-x-6"
+                style={{
+                  animation: 'scrollRight 40s linear infinite',
+                  width: 'max-content'
+                }}
+              >
+                {[...featuredNewsletters.slice(0, 3), ...featuredNewsletters.slice(0, 3)].map((newsletter, index) => (
+                  <div key={index} className="flex-shrink-0 w-80">
+                    <div className="p-6 bg-card border border-border rounded-lg hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-foreground">{newsletter.name}</h3>
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                          {newsletter.category}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Iscritti</span>
+                          <div className="font-semibold text-foreground">{newsletter.subscribers}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Engagement</span>
+                          <div className="font-semibold text-chart-5">{newsletter.engagement}</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">Engagement</span>
-                    <div className="font-semibold text-chart-5">{newsletter.engagement}</div>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
+            </div>
+            
+            {/* Second row - slower speed, opposite direction */}
+            <div className="relative">
+              <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-white via-white/60 via-white/30 to-transparent pointer-events-none"></div>
+              <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-white via-white/60 via-white/30 to-transparent pointer-events-none"></div>
+              <div 
+                className="flex items-center space-x-6"
+                style={{
+                  animation: 'scrollLeft 50s linear infinite',
+                  width: 'max-content'
+                }}
+              >
+                {[...featuredNewsletters.slice(3), ...featuredNewsletters.slice(3)].map((newsletter, index) => (
+                  <div key={index} className="flex-shrink-0 w-80">
+                    <div className="p-6 bg-card border border-border rounded-lg hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-foreground">{newsletter.name}</h3>
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                          {newsletter.category}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Iscritti</span>
+                          <div className="font-semibold text-foreground">{newsletter.subscribers}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Engagement</span>
+                          <div className="font-semibold text-chart-5">{newsletter.engagement}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="text-center">
@@ -551,7 +604,7 @@ export default function HomePage() {
               href="/auth/sign-up"
               className="inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg"
             >
-              Inizia Gratis Oggi
+              Iscriviti Oggi
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
             <Link

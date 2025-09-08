@@ -202,15 +202,15 @@ export default function AdminPagamentiPage() {
   const getPaymentTypeInfo = (type: string) => {
     switch (type) {
       case 'newsletter_revenue':
-        return { label: 'Revenue Newsletter', icon: '📧', color: 'text-emerald-600' }
+        return { label: 'Revenue Newsletter', icon: Mail, color: 'text-red-600' }
       case 'collaboration_payment':
-        return { label: 'Pagamento Collaborazione', icon: '🤝', color: 'text-blue-600' }
+        return { label: 'Pagamento Collaborazione', icon: Users, color: 'text-red-600' }
       case 'refund':
-        return { label: 'Rimborso', icon: '↩️', color: 'text-red-600' }
+        return { label: 'Rimborso', icon: ArrowDownRight, color: 'text-red-600' }
       case 'platform_fee':
-        return { label: 'Commissione Piattaforma', icon: '⚙️', color: 'text-purple-600' }
+        return { label: 'Commissione Piattaforma', icon: Shield, color: 'text-red-600' }
       default:
-        return { label: type, icon: '💳', color: 'text-slate-600' }
+        return { label: type, icon: CreditCard, color: 'text-red-600' }
     }
   }
 
@@ -381,8 +381,11 @@ export default function AdminPagamentiPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start gap-4">
                             <div className="flex-shrink-0">
-                              <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
-                                <span className="text-lg">{typeInfo.icon}</span>
+                              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                                {(() => {
+                                  const IconComponent = typeInfo.icon
+                                  return <IconComponent className="w-6 h-6 text-red-600" />
+                                })()}
                               </div>
                             </div>
                             

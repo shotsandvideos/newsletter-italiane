@@ -147,12 +147,12 @@ export default function AdminInboxPage() {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'payment': return '💳'
-      case 'technical': return '🔧'
-      case 'business': return '💼'
-      case 'support': return '❓'
-      case 'moderation': return '🔍'
-      default: return '📧'
+      case 'payment': return CreditCard
+      case 'technical': return AlertCircle
+      case 'business': return Users
+      case 'support': return HelpCircle
+      case 'moderation': return Search
+      default: return Mail
     }
   }
 
@@ -283,7 +283,10 @@ export default function AdminInboxPage() {
                             <span className="text-xs text-slate-500">
                               {new Date(message.timestamp).toLocaleString('it-IT')}
                             </span>
-                            <span className="text-lg">{getCategoryIcon(message.category)}</span>
+                            {(() => {
+                              const IconComponent = getCategoryIcon(message.category)
+                              return <IconComponent className="w-4 h-4 text-red-600" />
+                            })()}
                           </div>
                           
                           <div className="flex items-center gap-2 mb-2">

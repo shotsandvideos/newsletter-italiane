@@ -41,7 +41,6 @@ const settingsNavigation = [
 ]
 
 const bottomNavigation = [
-  { name: 'Aiuto', href: '/admin/help', icon: HelpCircle, description: 'Documentazione admin' },
   { name: 'Dashboard Creator', href: '/dashboard', icon: FileText, description: 'Vista creator' },
 ]
 

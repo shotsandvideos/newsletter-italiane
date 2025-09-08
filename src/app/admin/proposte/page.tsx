@@ -56,7 +56,7 @@ export default function AdminPropostePage() {
       title: 'Campagna di Lancio App Fintech',
       brand: {
         name: 'FinanceFlow',
-        logo: '💰',
+        logo: 'FF',
         website: 'financeflow.com',
         sector: 'Fintech'
       },
@@ -92,7 +92,7 @@ export default function AdminPropostePage() {
       title: 'Promozione Corso Marketing Digitale',
       brand: {
         name: 'MarketingPro Academy',
-        logo: '🎯',
+        logo: 'MP',
         website: 'marketingpro.academy',
         sector: 'Education'
       },
@@ -130,7 +130,7 @@ export default function AdminPropostePage() {
       title: 'Partnership E-commerce Summit Milano',
       brand: {
         name: 'E-commerce Events',
-        logo: '🛍️',
+        logo: 'EE',
         website: 'ecommerceevents.it',
         sector: 'Events'
       },
@@ -169,7 +169,7 @@ export default function AdminPropostePage() {
       title: 'Lancio Piattaforma SaaS B2B',
       brand: {
         name: 'CloudTech Solutions',
-        logo: '☁️',
+        logo: 'CT',
         website: 'cloudtech.solutions',
         sector: 'SaaS'
       },
@@ -386,7 +386,7 @@ export default function AdminPropostePage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start gap-4">
-                            <div className="text-3xl flex-shrink-0">
+                            <div className="w-12 h-12 bg-red-100 text-red-600 font-bold text-lg rounded-xl flex items-center justify-center flex-shrink-0">
                               {proposal.brand.logo}
                             </div>
                             

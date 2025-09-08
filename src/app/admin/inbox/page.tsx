@@ -16,7 +16,10 @@ import {
   Filter,
   Menu,
   Star,
-  Archive
+  Archive,
+  CreditCard,
+  Users,
+  HelpCircle
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
 

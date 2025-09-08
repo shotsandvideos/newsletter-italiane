@@ -15,6 +15,8 @@ import {
   Inbox,
   Shield,
   CheckCircle,
+  BarChart3,
+  ShoppingBag,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { cn } from '../../lib/utils'
@@ -28,6 +30,8 @@ const navigation = [
   { name: 'Home', href: '/dashboard', icon: Home, description: 'Dashboard principale' },
   { name: 'Inbox', href: '/dashboard/inbox', icon: Inbox, description: 'Messaggi e notifiche' },
   { name: 'Newsletter', href: '/dashboard/newsletters', icon: Mail, description: 'Gestisci le tue newsletter' },
+  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3, description: 'Statistiche e performance' },
+  { name: 'Marketplace', href: '/dashboard/marketplace', icon: ShoppingBag, description: 'Campagne brand e collaborazioni' },
   { name: 'Collaborazioni', href: '/dashboard/collaborations', icon: Users, description: 'Partnership e progetti' },
   { name: 'Pagamenti', href: '/dashboard/payments', icon: CreditCard, description: 'Transazioni e guadagni' },
   { name: 'Calendario', href: '/dashboard/calendar', icon: Calendar, description: 'Scadenze e appuntamenti' },

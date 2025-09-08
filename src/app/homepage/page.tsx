@@ -1,10 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { 
   ArrowRight,
-  Search,
   Users,
   Mail,
   TrendingUp,
@@ -21,6 +19,7 @@ import {
   MessageSquare,
   Target
 } from 'lucide-react'
+import Image from 'next/image'
 
 const featuredNewsletters = [
   { name: 'TechWeek Italia', subscribers: '12,5k', category: 'Technology', engagement: '4.2%' },
@@ -31,14 +30,16 @@ const featuredNewsletters = [
 ]
 
 const clientLogos = [
-  { name: 'Salesforce', logo: '🌐' },
-  { name: 'Talent Garden', logo: '🌱' },
-  { name: 'BIP', logo: '💼' },
-  { name: 'Learnn', logo: '📚' },
-  { name: 'Notion', logo: '📝' },
-  { name: 'GetResponse', logo: '📧' },
-  { name: 'Hotwire', logo: '🔥' },
-  { name: 'Qonto', logo: '💳' }
+  { name: 'Salesforce', logo: '/images/salesforce.png' },
+  { name: 'Talent Garden', logo: '/images/talent.png' },
+  { name: 'BIP', logo: '/images/bip.png' },
+  { name: 'Learnn', logo: '/images/learnn.png' },
+  { name: 'Notion', logo: '/images/notion.png' },
+  { name: 'GetResponse', logo: '/images/getresponse.png' },
+  { name: 'Hotwire', logo: '/images/hotwire.png' },
+  { name: 'Qonto', logo: '/images/qonto.png' },
+  { name: 'Pomilio Blumm', logo: '/images/pomilio.png' },
+  { name: 'WeMakeFuture', logo: '/images/wemakefuture.png' }
 ]
 
 const testimonials = [
@@ -135,15 +136,6 @@ const pricingPlans = [
 ]
 
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('Tutte')
-
-  const categories = ['Tutte', 'Technology', 'Marketing', 'Business', 'Design', 'Finance']
-
-  const filteredNewsletters = featuredNewsletters.filter(newsletter =>
-    (selectedCategory === 'Tutte' || newsletter.category === selectedCategory) &&
-    newsletter.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -186,20 +178,84 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-chart-2/5" />
-        <div className="absolute inset-0 bg-grid-white/10 bg-grid-16 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]" />
+      <section className="relative overflow-hidden min-h-screen">
+        {/* Animated Background with Floating Gradient Blobs */}
+        <div className="absolute inset-0 w-full bg-white relative">
+          {/* Emerald Glow Background */}
+          <div
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage: `
+                radial-gradient(125% 125% at 50% 90%, #ffffff 40%, #10b981 100%)
+              `,
+              backgroundSize: "100% 100%",
+            }}
+          />
+          {/* Subtle Moving Background Gradient */}
+          <div 
+            className="absolute inset-0 opacity-40"
+            style={{
+              background: 'linear-gradient(45deg, #10b981, #06d6a0, #118ab2, #073b4c)',
+              backgroundSize: '400% 400%',
+              animation: 'gradientShift 20s ease infinite'
+            }}
+          />
+          
+          {/* Subtle Floating Gradient Blobs */}
+          <div className="absolute inset-0">
+            <div 
+              className="absolute w-80 h-80 rounded-full blur-3xl"
+              style={{
+                background: 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, rgba(6,214,160,0.1) 50%, transparent 100%)',
+                top: '15%',
+                left: '12%',
+                transform: 'translate3d(0, 0, 0)',
+                animation: 'subtleFloat 25s ease-in-out infinite'
+              }}
+            />
+            <div 
+              className="absolute w-64 h-64 rounded-full blur-2xl"
+              style={{
+                background: 'radial-gradient(circle, rgba(17,138,178,0.15) 0%, rgba(7,59,76,0.1) 50%, transparent 100%)',
+                top: '55%',
+                right: '18%',
+                animation: 'subtleFloat 30s ease-in-out infinite reverse',
+                animationDelay: '8s'
+              }}
+            />
+            <div 
+              className="absolute w-96 h-96 rounded-full blur-3xl"
+              style={{
+                background: 'radial-gradient(circle, rgba(6,214,160,0.1) 0%, rgba(16,185,129,0.08) 50%, transparent 100%)',
+                bottom: '25%',
+                left: '25%',
+                animation: 'subtleFloat 35s ease-in-out infinite',
+                animationDelay: '15s'
+              }}
+            />
+          </div>
+        </div>
+        
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 bg-primary/20 text-primary px-4 py-2 rounded-full text-sm font-bold mb-6 border border-primary/30">
               <Star className="w-4 h-4" />
               La #1 piattaforma italiana per newsletter advertising
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight">
-              Dove i <span className="text-primary">Brand</span> incontrano le <span className="text-primary">Newsletter</span>
+              Dove i <span style={{
+                background: 'linear-gradient(135deg, #32c2db 0%, #67e294 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>brand</span> incontrano le <span style={{
+                background: 'linear-gradient(135deg, #32c2db 0%, #67e294 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>Newsletter</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
@@ -224,45 +280,43 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Search Section */}
-            <div className="max-w-2xl mx-auto">
-              <p className="text-muted-foreground mb-4">Esplora le newsletter disponibili per la tua campagna</p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Cerca newsletter per nome o settore..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-lg"
-                  />
-                </div>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-4 bg-card border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-lg"
+            {/* Client Logos in Hero */}
+            <div className="mt-16 py-8 px-8 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
+              {/* Scrolling logos container with fade out */}
+              <div className="relative">
+                {/* Left fade out */}
+                <div className="absolute left-0 top-0 z-10 h-full w-16 bg-gradient-to-r from-white/80 to-transparent pointer-events-none"></div>
+                
+                {/* Right fade out */}
+                <div className="absolute right-0 top-0 z-10 h-full w-16 bg-gradient-to-l from-white/80 to-transparent pointer-events-none"></div>
+                
+                {/* Scrolling content */}
+                <div 
+                  className="flex items-center space-x-12"
+                  style={{
+                    animation: 'scrollRight 30s linear infinite',
+                    width: 'max-content'
+                  }}
                 >
-                  {categories.map((category) => (
-                    <option key={category} value={category}>{category}</option>
+                  {/* Duplicate logos for continuous scroll */}
+                  {[...clientLogos, ...clientLogos].map((client, index) => (
+                    <div key={index} className="flex-shrink-0">
+                      <div className="relative w-16 h-16 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                        <Image
+                          src={client.logo}
+                          alt={`${client.name} logo`}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                    </div>
                   ))}
-                </select>
+                </div>
               </div>
             </div>
+
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-lg text-primary mb-4">
-                  {stat.icon}
-                </div>
-                <div className="text-3xl md:text-4xl font-bold text-foreground mb-2">{stat.value}</div>
-                <div className="text-muted-foreground font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -271,7 +325,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Newsletter Partner di Qualità
+              Newsletter partner di qualità
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Raggiungi pubblici altamente coinvolti attraverso newsletter curate e verificate dal nostro team
@@ -279,7 +333,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {filteredNewsletters.map((newsletter, index) => (
+            {featuredNewsletters.map((newsletter, index) => (
               <div key={index} className="p-6 bg-card border border-border rounded-lg hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-foreground">{newsletter.name}</h3>
@@ -313,29 +367,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Client Logos */}
-      <section className="py-16 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-muted-foreground font-medium">Trusted by leading Italian brands</p>
-          </div>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            {clientLogos.map((client, index) => (
-              <div key={index} className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">
-                <span className="text-2xl">{client.logo}</span>
-                <span className="font-semibold">{client.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Features */}
       <section id="come-funziona" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Perché Scegliere Newsletter Italiane
+              Perché scegliere newsletter Italiane
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               La soluzione completa per il newsletter advertising in Italia, con strumenti professionali 
@@ -343,28 +381,73 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-24">
             {features.map((feature, index) => (
-              <div key={index} className="flex gap-6">
-                <div className="flex-shrink-0 w-16 h-16 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
-                  {feature.icon}
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">{feature.title}</h3>
-                  <p className="text-muted-foreground mb-4">{feature.description}</p>
-                  <ul className="space-y-2">
+              <div 
+                key={index} 
+                className={`flex flex-col lg:flex-row items-center gap-12 ${
+                  index % 2 === 1 ? 'lg:flex-row-reverse' : ''
+                } opacity-0`}
+                style={{ 
+                  animation: `fadeInUp 0.8s ease-out ${index * 200}ms forwards`
+                }}
+              >
+                {/* Content */}
+                <div className="flex-1 space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-chart-2/20 text-primary rounded-2xl flex items-center justify-center shadow-lg">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-2xl font-bold text-foreground">{feature.title}</h3>
+                  </div>
+                  <p className="text-lg text-muted-foreground leading-relaxed">{feature.description}</p>
+                  <ul className="space-y-3">
                     {feature.benefits.map((benefit, bIndex) => (
-                      <li key={bIndex} className="flex items-center gap-2 text-sm">
-                        <CheckCircle className="w-4 h-4 text-chart-5" />
-                        <span className="text-foreground">{benefit}</span>
+                      <li key={bIndex} className="flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-chart-5 flex-shrink-0" />
+                        <span className="text-foreground font-medium">{benefit}</span>
                       </li>
                     ))}
                   </ul>
+                </div>
+                
+                {/* Placeholder Image */}
+                <div className="flex-1 max-w-md">
+                  <div 
+                    className="relative h-80 bg-gradient-to-br from-primary/10 to-chart-2/10 rounded-2xl border border-border/20 shadow-lg overflow-hidden group cursor-pointer card-tilt"
+                    onMouseMove={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = e.clientX - rect.left;
+                      const y = e.clientY - rect.top;
+                      const centerX = rect.width / 2;
+                      const centerY = rect.height / 2;
+                      const rotateX = (y - centerY) / 4;
+                      const rotateY = (centerX - x) / 4;
+                      
+                      e.currentTarget.style.setProperty('--rotate-x', `${rotateX}deg`);
+                      e.currentTarget.style.setProperty('--rotate-y', `${rotateY}deg`);
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.setProperty('--rotate-x', '0deg');
+                      e.currentTarget.style.setProperty('--rotate-y', '0deg');
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-chart-2/20 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center space-y-3 opacity-50 group-hover:opacity-80 transition-all duration-300">
+                        {feature.icon && <div className="mx-auto w-12 h-12 text-primary group-hover:text-primary/90 transition-colors duration-300">{feature.icon}</div>}
+                        <p className="text-sm text-muted-foreground font-medium group-hover:text-foreground/80 transition-colors duration-300">{feature.title}</p>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 ring-2 ring-transparent group-hover:ring-primary/20 rounded-2xl transition-all duration-300"></div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
+        
       </section>
 
       {/* Testimonials */}
@@ -372,7 +455,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Quello che Dicono i Nostri Clienti
+              Quello che dicono i nostri clienti
             </h2>
             <p className="text-xl text-muted-foreground">
               Brand e creator che hanno trasformato il loro business con Newsletter Italiane
@@ -412,7 +495,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Piani Semplici e Trasparenti
+              Piani semplici e trasparenti
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Nessun costo nascosto, nessun impegno a lungo termine. Paga solo quando guadagni.
@@ -428,12 +511,6 @@ export default function HomePage() {
                   : 'border-border bg-card'
                 }`}
               >
-                {plan.popular && (
-                  <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium mb-6">
-                    <Star className="w-4 h-4" />
-                    Più Richiesto
-                  </div>
-                )}
                 
                 <h3 className="text-2xl font-bold text-foreground mb-2">{plan.title}</h3>
                 <p className="text-muted-foreground mb-6">{plan.description}</p>
@@ -474,7 +551,7 @@ export default function HomePage() {
       <section className="py-20 bg-gradient-to-r from-primary/10 via-chart-2/10 to-primary/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-            Pronto a Iniziare la Tua Crescita?
+            Pronto a iniziare la tua crescita?
           </h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Unisciti a centinaia di creator e brand che stanno già crescendo con Newsletter Italiane
@@ -491,7 +568,7 @@ export default function HomePage() {
               href="/contact-sales"
               className="inline-flex items-center justify-center px-8 py-4 border border-border bg-card text-foreground rounded-lg hover:bg-accent transition-colors font-semibold text-lg"
             >
-              Parla con un Esperto
+              Parla con un esperto
             </Link>
           </div>
         </div>
@@ -507,24 +584,21 @@ export default function HomePage() {
                 <li><Link href="/features" className="text-muted-foreground hover:text-foreground">Funzionalità</Link></li>
                 <li><Link href="/pricing" className="text-muted-foreground hover:text-foreground">Prezzi</Link></li>
                 <li><Link href="/integrations" className="text-muted-foreground hover:text-foreground">Integrazioni</Link></li>
-                <li><Link href="/api" className="text-muted-foreground hover:text-foreground">API</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold text-foreground mb-4">Risorse</h3>
               <ul className="space-y-2">
-                <li><Link href="/dashboard/help" className="text-muted-foreground hover:text-foreground">Centro Assistenza</Link></li>
+                <li><Link href="/dashboard/help" className="text-muted-foreground hover:text-foreground">Centro assistenza</Link></li>
                 <li><Link href="/blog" className="text-muted-foreground hover:text-foreground">Blog</Link></li>
                 <li><Link href="/guides" className="text-muted-foreground hover:text-foreground">Guide</Link></li>
-                <li><Link href="/webinars" className="text-muted-foreground hover:text-foreground">Webinar</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold text-foreground mb-4">Azienda</h3>
               <ul className="space-y-2">
-                <li><Link href="/about" className="text-muted-foreground hover:text-foreground">Chi Siamo</Link></li>
-                <li><Link href="/careers" className="text-muted-foreground hover:text-foreground">Lavora con Noi</Link></li>
-                <li><Link href="/press" className="text-muted-foreground hover:text-foreground">Stampa</Link></li>
+                <li><Link href="/about" className="text-muted-foreground hover:text-foreground">Chi siamo</Link></li>
+                <li><Link href="/careers" className="text-muted-foreground hover:text-foreground">Lavora con noi</Link></li>
                 <li><Link href="/contact" className="text-muted-foreground hover:text-foreground">Contatti</Link></li>
               </ul>
             </div>
@@ -534,7 +608,6 @@ export default function HomePage() {
                 <li><Link href="/privacy" className="text-muted-foreground hover:text-foreground">Privacy</Link></li>
                 <li><Link href="/terms" className="text-muted-foreground hover:text-foreground">Termini</Link></li>
                 <li><Link href="/cookies" className="text-muted-foreground hover:text-foreground">Cookie</Link></li>
-                <li><Link href="/gdpr" className="text-muted-foreground hover:text-foreground">GDPR</Link></li>
               </ul>
             </div>
           </div>

@@ -130,7 +130,7 @@ const pricingPlans = [
       'Fatturazione mensile'
     ],
     cta: 'Contatta Vendite',
-    href: '/contact-sales',
+    href: '/contatti',
     popular: true
   }
 ]
@@ -178,63 +178,7 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-screen">
-        {/* Animated Background with Floating Gradient Blobs */}
-        <div className="absolute inset-0 w-full bg-white relative">
-          {/* Emerald Glow Background */}
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: `
-                radial-gradient(125% 125% at 50% 90%, #ffffff 40%, #10b981 100%)
-              `,
-              backgroundSize: "100% 100%",
-            }}
-          />
-          {/* Subtle Moving Background Gradient */}
-          <div 
-            className="absolute inset-0 opacity-40"
-            style={{
-              background: 'linear-gradient(45deg, #10b981, #06d6a0, #118ab2, #073b4c)',
-              backgroundSize: '400% 400%',
-              animation: 'gradientShift 20s ease infinite'
-            }}
-          />
-          
-          {/* Subtle Floating Gradient Blobs */}
-          <div className="absolute inset-0">
-            <div 
-              className="absolute w-80 h-80 rounded-full blur-3xl"
-              style={{
-                background: 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, rgba(6,214,160,0.1) 50%, transparent 100%)',
-                top: '15%',
-                left: '12%',
-                transform: 'translate3d(0, 0, 0)',
-                animation: 'subtleFloat 25s ease-in-out infinite'
-              }}
-            />
-            <div 
-              className="absolute w-64 h-64 rounded-full blur-2xl"
-              style={{
-                background: 'radial-gradient(circle, rgba(17,138,178,0.15) 0%, rgba(7,59,76,0.1) 50%, transparent 100%)',
-                top: '55%',
-                right: '18%',
-                animation: 'subtleFloat 30s ease-in-out infinite reverse',
-                animationDelay: '8s'
-              }}
-            />
-            <div 
-              className="absolute w-96 h-96 rounded-full blur-3xl"
-              style={{
-                background: 'radial-gradient(circle, rgba(6,214,160,0.1) 0%, rgba(16,185,129,0.08) 50%, transparent 100%)',
-                bottom: '25%',
-                left: '25%',
-                animation: 'subtleFloat 35s ease-in-out infinite',
-                animationDelay: '15s'
-              }}
-            />
-          </div>
-        </div>
+      <section className="relative overflow-hidden min-h-screen bg-white">
         
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
@@ -272,7 +216,7 @@ export default function HomePage() {
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
               <Link
-                href="/contact-sales"
+                href="/contatti"
                 className="inline-flex items-center justify-center px-8 py-4 border border-border bg-card text-foreground rounded-lg hover:bg-accent transition-colors font-semibold text-lg"
               >
                 <Play className="mr-2 w-5 h-5" />
@@ -281,18 +225,18 @@ export default function HomePage() {
             </div>
 
             {/* Client Logos in Hero */}
-            <div className="mt-16 py-8 px-8 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
+            <div className="mt-16 py-6 px-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden max-w-4xl mx-auto">
               {/* Scrolling logos container with fade out */}
               <div className="relative">
-                {/* Left fade out */}
-                <div className="absolute left-0 top-0 z-10 h-full w-16 bg-gradient-to-r from-white/80 to-transparent pointer-events-none"></div>
+                {/* Left fade out - increased fade width */}
+                <div className="absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-white/80 to-transparent pointer-events-none"></div>
                 
-                {/* Right fade out */}
-                <div className="absolute right-0 top-0 z-10 h-full w-16 bg-gradient-to-l from-white/80 to-transparent pointer-events-none"></div>
+                {/* Right fade out - increased fade width */}
+                <div className="absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-white/80 to-transparent pointer-events-none"></div>
                 
                 {/* Scrolling content */}
                 <div 
-                  className="flex items-center space-x-12"
+                  className="flex items-center space-x-10"
                   style={{
                     animation: 'scrollRight 30s linear infinite',
                     width: 'max-content'
@@ -301,7 +245,7 @@ export default function HomePage() {
                   {/* Duplicate logos for continuous scroll */}
                   {[...clientLogos, ...clientLogos].map((client, index) => (
                     <div key={index} className="flex-shrink-0">
-                      <div className="relative w-16 h-16 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                      <div className="relative w-14 h-14 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
                         <Image
                           src={client.logo}
                           alt={`${client.name} logo`}
@@ -565,7 +509,7 @@ export default function HomePage() {
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
             <Link
-              href="/contact-sales"
+              href="/contatti"
               className="inline-flex items-center justify-center px-8 py-4 border border-border bg-card text-foreground rounded-lg hover:bg-accent transition-colors font-semibold text-lg"
             >
               Parla con un esperto
@@ -583,7 +527,6 @@ export default function HomePage() {
               <ul className="space-y-2">
                 <li><Link href="/features" className="text-muted-foreground hover:text-foreground">Funzionalità</Link></li>
                 <li><Link href="/pricing" className="text-muted-foreground hover:text-foreground">Prezzi</Link></li>
-                <li><Link href="/integrations" className="text-muted-foreground hover:text-foreground">Integrazioni</Link></li>
               </ul>
             </div>
             <div>
@@ -591,15 +534,13 @@ export default function HomePage() {
               <ul className="space-y-2">
                 <li><Link href="/dashboard/help" className="text-muted-foreground hover:text-foreground">Centro assistenza</Link></li>
                 <li><Link href="/blog" className="text-muted-foreground hover:text-foreground">Blog</Link></li>
-                <li><Link href="/guides" className="text-muted-foreground hover:text-foreground">Guide</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold text-foreground mb-4">Azienda</h3>
               <ul className="space-y-2">
                 <li><Link href="/about" className="text-muted-foreground hover:text-foreground">Chi siamo</Link></li>
-                <li><Link href="/careers" className="text-muted-foreground hover:text-foreground">Lavora con noi</Link></li>
-                <li><Link href="/contact" className="text-muted-foreground hover:text-foreground">Contatti</Link></li>
+                <li><Link href="/contatti" className="text-muted-foreground hover:text-foreground">Contatti</Link></li>
               </ul>
             </div>
             <div>
@@ -607,7 +548,6 @@ export default function HomePage() {
               <ul className="space-y-2">
                 <li><Link href="/privacy" className="text-muted-foreground hover:text-foreground">Privacy</Link></li>
                 <li><Link href="/terms" className="text-muted-foreground hover:text-foreground">Termini</Link></li>
-                <li><Link href="/cookies" className="text-muted-foreground hover:text-foreground">Cookie</Link></li>
               </ul>
             </div>
           </div>

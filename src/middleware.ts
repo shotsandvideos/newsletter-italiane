@@ -10,6 +10,7 @@ const isPublicRoute = (pathname: string) => {
     '/auth/sign-up',
     '/auth/sign-out',
     '/onboarding',
+    '/admin/login',
   ]
   return publicRoutes.some(route => 
     pathname === route || pathname.startsWith(route + '/')
@@ -85,22 +86,15 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Redirect unauthenticated users to sign-in
-  if (!user) {
-    return NextResponse.redirect(new URL('/auth/sign-in', request.url))
+  // Handle admin routes separately
+  if (isAdminRoute(pathname)) {
+    // Admin routes don't require Supabase authentication - they use custom admin auth
+    return response
   }
 
-  // For admin routes, check if user has admin role
-  if (isAdminRoute(pathname)) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || profile.role !== 'admin') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
+  // Redirect unauthenticated users to sign-in for dashboard routes
+  if (!user && isProtectedRoute(pathname)) {
+    return NextResponse.redirect(new URL('/auth/sign-in', request.url))
   }
 
   return response

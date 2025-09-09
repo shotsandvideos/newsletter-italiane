@@ -715,6 +715,66 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="py-20 bg-slate-50 relative overflow-hidden">
+        {/* Section fade in/out */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-slate-50 via-slate-50/80 to-transparent pointer-events-none z-20"></div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent pointer-events-none z-20"></div>
+        
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Domande Frequenti
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Le risposte alle domande più comuni sui nostri servizi
+            </p>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
+              <h3 className="text-lg font-semibold text-foreground mb-3">
+                Come funziona la commissione del 15%?
+              </h3>
+              <p className="text-muted-foreground">
+                La commissione viene applicata solo sui guadagni effettivi. Non ci sono costi di registrazione, 
+                canoni mensili o costi nascosti. Paghi solo quando generi ricavi.
+              </p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
+              <h3 className="text-lg font-semibold text-foreground mb-3">
+                Quando ricevo i pagamenti?
+              </h3>
+              <p className="text-muted-foreground">
+                I pagamenti vengono elaborati automaticamente entro 7 giorni lavorativi dalla conclusione 
+                di ogni campagna, direttamente sul tuo conto bancario o PayPal.
+              </p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
+              <h3 className="text-lg font-semibold text-foreground mb-3">
+                Come vengono selezionate le newsletter?
+              </h3>
+              <p className="text-muted-foreground">
+                Il nostro team verifica ogni newsletter per qualità del contenuto, engagement rate, 
+                autenticità dell'audience e aderenza alle nostre linee guida.
+              </p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
+              <h3 className="text-lg font-semibold text-foreground mb-3">
+                Che tipo di analytics sono disponibili?
+              </h3>
+              <p className="text-muted-foreground">
+                Dashboard completa con metriche in tempo reale: impression, click, conversioni, 
+                engagement rate, performance per segmento demografico e molto altro.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-primary/10 via-chart-2/10 to-primary/10 relative overflow-hidden">
         {/* Section fade in/out */}

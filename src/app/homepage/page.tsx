@@ -200,7 +200,7 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-primary/20 text-primary px-4 py-2 rounded-full text-sm font-bold mb-6 border border-primary/30">
               <Star className="w-4 h-4" />
-              La #1 piattaforma italiana per newsletter advertising
+              <span className="text-slate-900 font-bold">La #1 piattaforma italiana per newsletter advertising</span>
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight">
@@ -411,7 +411,7 @@ export default function HomePage() {
               href="/auth/sign-up"
               className="inline-flex items-center px-6 py-3 border border-border bg-card text-foreground rounded-lg hover:bg-accent transition-colors font-medium"
             >
-              Esplora Tutte le Newsletter
+              Iscriviti
               <ChevronRight className="ml-2 w-4 h-4" />
             </Link>
           </div>
@@ -816,6 +816,14 @@ export default function HomePage() {
                 <div className="w-2 h-2 bg-chart-5 rounded-full"></div>
                 Tutti i servizi operativi
               </Link>
+              <a 
+                href="https://www.linkedin.com/company/newsletter-italiane" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                LinkedIn
+              </a>
             </div>
           </div>
         </div>

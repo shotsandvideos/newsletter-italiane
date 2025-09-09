@@ -180,7 +180,7 @@ export default function PricingPage() {
               href="/auth/sign-up"
               className="inline-flex items-center justify-center px-8 py-4 bg-white text-emerald-600 rounded-xl hover:bg-slate-50 transition-colors font-semibold text-lg"
             >
-              Inizia Gratis
+              Iscriviti
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
             <Link

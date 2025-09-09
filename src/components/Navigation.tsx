@@ -87,7 +87,7 @@ export default function Navigation() {
               href="/auth/sign-up"
               className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
             >
-              Inizia Gratis
+              Iscriviti
             </Link>
           </div>
 
@@ -142,7 +142,7 @@ export default function Navigation() {
                   className="block w-full text-center py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Inizia Gratis
+                  Iscriviti
                 </Link>
               </div>
             </div>

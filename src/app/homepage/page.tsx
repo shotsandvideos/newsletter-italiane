@@ -236,25 +236,30 @@ export default function HomePage() {
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight">
-              Dove i <span style={{
+              <span className="inline-block animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Dove i</span>{' '}
+              <span className="inline-block animate-fade-in-up" style={{
                 background: 'linear-gradient(135deg, #32c2db 0%, #67e294 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>brand</span> incontrano le <span style={{
+                backgroundClip: 'text',
+                animationDelay: '0.4s'
+              }}>brand</span>{' '}
+              <span className="inline-block animate-fade-in-up" style={{ animationDelay: '0.6s' }}>incontrano le</span>{' '}
+              <span className="inline-block animate-fade-in-up" style={{
                 background: 'linear-gradient(135deg, #32c2db 0%, #67e294 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
+                backgroundClip: 'text',
+                animationDelay: '0.8s'
               }}>Newsletter</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '1s' }}>
               La piattaforma che connette brand italiani con creator di newsletter per sponsorizzazioni 
               trasparenti, misurabili e ad alto ROI.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 animate-fade-in-up" style={{ animationDelay: '1.2s' }}>
               <Link
                 href="/auth/sign-up"
                 className="inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg"
@@ -271,28 +276,26 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Client Logos in Hero */}
-            <div className="mt-16 py-8 px-8 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden max-w-5xl mx-auto">
-              {/* Scrolling logos container with proper fade */}
-              <div className="relative">
-                {/* Left fade out - smooth disappearing effect */}
-                <div className="absolute left-0 top-0 z-10 h-full w-40 bg-gradient-to-r from-white/80 via-white/60 via-white/30 via-white/10 to-transparent pointer-events-none"></div>
-                
-                {/* Right fade out - smooth disappearing effect */}
-                <div className="absolute right-0 top-0 z-10 h-full w-40 bg-gradient-to-l from-white/80 via-white/60 via-white/30 via-white/10 to-transparent pointer-events-none"></div>
-                
-                {/* Scrolling content */}
+            {/* Client Logos Marquee */}
+            <div className="mt-8 overflow-hidden max-w-4xl mx-auto">
+              <div 
+                className="relative"
+                style={{
+                  maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+                  WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+                }}
+              >
                 <div 
-                  className="flex items-center space-x-12"
+                  className="flex items-center space-x-12 py-6"
                   style={{
-                    animation: 'scrollRight 30s linear infinite',
+                    animation: 'marqueeRTL 25s linear infinite',
                     width: 'max-content'
                   }}
                 >
-                  {/* Triple logos for smoother infinite scroll */}
-                  {[...clientLogos, ...clientLogos, ...clientLogos].map((client, index) => (
+                  {/* Logos for continuous scroll */}
+                  {[...clientLogos, ...clientLogos].map((client, index) => (
                     <div key={index} className="flex-shrink-0">
-                      <div className="relative w-20 h-20 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                      <div className="relative w-20 h-20 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300">
                         <Image
                           src={client.logo}
                           alt={`${client.name} logo`}
@@ -312,7 +315,41 @@ export default function HomePage() {
       </section>
 
       {/* Featured Newsletters */}
-      <section id="newsletter" className="py-20 border-t border-border">
+      <section id="newsletter" className="py-20 border-t border-border bg-white relative overflow-hidden">
+        {/* Dot Pattern Background */}
+        <div className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: 'radial-gradient(circle, #e5e7eb 1px, transparent 1px)',
+            backgroundSize: '20px 20px'
+          }}
+        ></div>
+        
+        {/* Gradient Blobs around cards */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div 
+            className="absolute w-96 h-96 rounded-full blur-3xl"
+            style={{
+              background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)',
+              top: '20%',
+              left: '10%',
+              animation: 'subtleFloat 20s ease-in-out infinite'
+            }}
+          />
+          <div 
+            className="absolute w-80 h-80 rounded-full blur-3xl"
+            style={{
+              background: 'radial-gradient(circle, rgba(6,214,160,0.08) 0%, transparent 70%)',
+              bottom: '20%',
+              right: '15%',
+              animation: 'subtleFloat 25s ease-in-out infinite reverse',
+              animationDelay: '10s'
+            }}
+          />
+        </div>
+        
+        {/* Fade in/out effects */}
+        <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-slate-50 to-transparent pointer-events-none z-10"></div>
+        <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none z-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -338,21 +375,21 @@ export default function HomePage() {
               >
                 {[...featuredNewsletters.slice(0, 3), ...featuredNewsletters.slice(0, 3)].map((newsletter, index) => (
                   <div key={index} className="flex-shrink-0 w-80">
-                    <div className="p-6 bg-card border border-border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="p-6 bg-white/90 backdrop-blur-sm border border-border rounded-lg shadow-sm hover:shadow-lg active:shadow-lg transition-all duration-300 hover:-translate-y-1 active:-translate-y-1">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-foreground">{newsletter.name}</h3>
-                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                        <h3 className="font-semibold text-slate-900">{newsletter.name}</h3>
+                        <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">
                           {newsletter.category}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-muted-foreground">Iscritti</span>
-                          <div className="font-semibold text-foreground">{newsletter.subscribers}</div>
+                          <span className="text-slate-600">Iscritti</span>
+                          <div className="font-semibold text-slate-900">{newsletter.subscribers}</div>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Engagement</span>
-                          <div className="font-semibold text-chart-5">{newsletter.engagement}</div>
+                          <span className="text-slate-600">Engagement</span>
+                          <div className="font-semibold text-emerald-600">{newsletter.engagement}</div>
                         </div>
                       </div>
                     </div>
@@ -374,21 +411,21 @@ export default function HomePage() {
               >
                 {[...featuredNewsletters.slice(3), ...featuredNewsletters.slice(3)].map((newsletter, index) => (
                   <div key={index} className="flex-shrink-0 w-80">
-                    <div className="p-6 bg-card border border-border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="p-6 bg-white/90 backdrop-blur-sm border border-border rounded-lg shadow-sm hover:shadow-lg active:shadow-lg transition-all duration-300 hover:-translate-y-1 active:-translate-y-1">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-foreground">{newsletter.name}</h3>
-                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                        <h3 className="font-semibold text-slate-900">{newsletter.name}</h3>
+                        <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">
                           {newsletter.category}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-muted-foreground">Iscritti</span>
-                          <div className="font-semibold text-foreground">{newsletter.subscribers}</div>
+                          <span className="text-slate-600">Iscritti</span>
+                          <div className="font-semibold text-slate-900">{newsletter.subscribers}</div>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Engagement</span>
-                          <div className="font-semibold text-chart-5">{newsletter.engagement}</div>
+                          <span className="text-slate-600">Engagement</span>
+                          <div className="font-semibold text-emerald-600">{newsletter.engagement}</div>
                         </div>
                       </div>
                     </div>
@@ -412,7 +449,18 @@ export default function HomePage() {
 
 
       {/* Features */}
-      <section id="come-funziona" className="py-20">
+      <section id="come-funziona" className="py-20 bg-white relative overflow-hidden">
+        {/* Dot Pattern Background */}
+        <div className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(circle, #e5e7eb 1px, transparent 1px)',
+            backgroundSize: '30px 30px'
+          }}
+        ></div>
+        
+        {/* Fade effects */}
+        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-white to-transparent pointer-events-none z-10"></div>
+        <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent pointer-events-none z-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -604,7 +652,7 @@ export default function HomePage() {
               href="/auth/sign-up"
               className="inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg"
             >
-              Iscriviti Oggi
+              Iscriviti
               <ArrowRight className="ml-2 w-5 h-5" />
             </Link>
             <Link

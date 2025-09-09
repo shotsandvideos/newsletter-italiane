@@ -451,6 +451,15 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
+@keyframes marqueeRTL {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -476,7 +485,8 @@ input:focus, textarea:focus, select:focus {
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.8s ease-out;
+  animation: fadeInUp 0.8s ease-out both;
+  opacity: 0;
 }
 
 /* Card tilt effect */

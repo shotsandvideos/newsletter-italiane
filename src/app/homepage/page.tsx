@@ -180,6 +180,9 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden min-h-screen">
+        {/* Section fade out at bottom */}
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-20"></div>
+        
         {/* Animated Background with Floating Gradient Blobs */}
         <div className="absolute inset-0 w-full bg-white relative">
           {/* Subtle Moving Background Gradient */}
@@ -292,8 +295,8 @@ export default function HomePage() {
                     width: 'max-content'
                   }}
                 >
-                  {/* Logos for seamless continuous scroll */}
-                  {[...clientLogos, ...clientLogos, ...clientLogos].map((client, index) => (
+                  {/* Logos for seamless continuous scroll - no gaps */}
+                  {[...clientLogos, ...clientLogos, ...clientLogos, ...clientLogos].map((client, index) => (
                     <div key={index} className="flex-shrink-0">
                       <div className="relative w-20 h-20 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300">
                         <Image
@@ -315,7 +318,10 @@ export default function HomePage() {
       </section>
 
       {/* Featured Newsletters */}
-      <section id="newsletter" className="py-20 border-t border-border bg-white relative overflow-hidden">
+      <section id="newsletter" className="py-20 bg-white relative overflow-hidden">
+        {/* Section fade in/out */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/80 to-transparent pointer-events-none z-20"></div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-20"></div>
         {/* Dot Pattern Background */}
         <div className="absolute inset-0 opacity-30"
           style={{
@@ -450,6 +456,9 @@ export default function HomePage() {
 
       {/* Features */}
       <section id="come-funziona" className="py-20 bg-white relative overflow-hidden">
+        {/* Section fade in/out */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/80 to-transparent pointer-events-none z-20"></div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-20"></div>
         {/* Animated Dot Pattern Background with Parallax */}
         <div 
           className="absolute inset-0 opacity-30 parallax-dots"
@@ -557,7 +566,10 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-slate-50 relative overflow-hidden">
+        {/* Section fade in/out */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-slate-50 via-slate-50/80 to-transparent pointer-events-none z-20"></div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent pointer-events-none z-20"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -644,7 +656,10 @@ export default function HomePage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20">
+      <section id="pricing" className="py-20 bg-white relative overflow-hidden">
+        {/* Section fade in/out */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/80 to-transparent pointer-events-none z-20"></div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-20"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -701,7 +716,10 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary/10 via-chart-2/10 to-primary/10">
+      <section className="py-20 bg-gradient-to-r from-primary/10 via-chart-2/10 to-primary/10 relative overflow-hidden">
+        {/* Section fade in/out */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary/10 via-primary/8 to-transparent pointer-events-none z-20"></div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-primary/10 via-primary/8 to-transparent pointer-events-none z-20"></div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
             Pronto a iniziare la tua crescita?
@@ -728,7 +746,9 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-16">
+      <footer className="bg-slate-100 py-16 relative overflow-hidden">
+        {/* Section fade in at top */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-slate-100 via-slate-100/80 to-transparent pointer-events-none z-20"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div>

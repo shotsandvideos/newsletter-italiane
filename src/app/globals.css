@@ -453,10 +453,10 @@ input:focus, textarea:focus, select:focus {
 
 @keyframes marqueeRTL {
   0% {
-    transform: translateX(100%);
+    transform: translateX(0);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-25%);
   }
 }
 

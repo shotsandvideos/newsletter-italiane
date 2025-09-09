@@ -2,9 +2,6 @@
 
 import { useState } from 'react'
 import { 
-  Mail,
-  Phone,
-  MapPin,
   Clock,
   Send,
   MessageSquare,
@@ -73,100 +70,12 @@ export default function ContattiPage() {
         </div>
       </section>
 
-      {/* Contact Info & Form */}
+      {/* Contact Form & Info */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             
-            {/* Contact Information */}
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-3xl font-bold text-slate-900 mb-8">
-                  Informazioni di Contatto
-                </h2>
-                
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-900 mb-1">Email</h3>
-                      <p className="text-slate-600">info@newsletteritaliane.com</p>
-                      <p className="text-slate-600">support@newsletteritaliane.com</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-900 mb-1">Telefono</h3>
-                      <p className="text-slate-600">+39 02 1234 5678</p>
-                      <p className="text-slate-500 text-sm">Lun-Ven: 9:00-18:00</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-900 mb-1">Sede</h3>
-                      <p className="text-slate-600">
-                        Via Milano, 123<br />
-                        20121 Milano, Italia
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-900 mb-1">Orari di Supporto</h3>
-                      <p className="text-slate-600">
-                        Lunedì - Venerdì: 9:00 - 18:00<br />
-                        Sabato: 10:00 - 14:00<br />
-                        Domenica: Chiuso
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Types */}
-              <div className="bg-slate-50 p-8 rounded-2xl">
-                <h3 className="text-xl font-bold text-slate-900 mb-6">
-                  Come possiamo aiutarti?
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="p-4 bg-white rounded-xl border border-slate-200">
-                    <div className="flex items-center gap-3 mb-2">
-                      <User className="w-5 h-5 text-emerald-600" />
-                      <h4 className="font-semibold text-slate-900">Creator</h4>
-                    </div>
-                    <p className="text-sm text-slate-600">
-                      Supporto per registrazione, monetizzazione e ottimizzazione della newsletter
-                    </p>
-                  </div>
-                  
-                  <div className="p-4 bg-white rounded-xl border border-slate-200">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Building className="w-5 h-5 text-emerald-600" />
-                      <h4 className="font-semibold text-slate-900">Brand</h4>
-                    </div>
-                    <p className="text-sm text-slate-600">
-                      Consulenza per campagne pubblicitarie e partnership strategiche
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Form */}
+            {/* Contact Form - LEFT SIDE */}
             <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-lg">
               <h2 className="text-3xl font-bold text-slate-900 mb-8">
                 Invia un Messaggio
@@ -265,6 +174,59 @@ export default function ContattiPage() {
                   Invia Messaggio
                 </button>
               </form>
+            </div>
+
+            {/* Contact Information - RIGHT SIDE - SIMPLIFIED */}
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-3xl font-bold text-slate-900 mb-8">
+                  Informazioni di Contatto
+                </h2>
+                
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900 mb-1">Orari di Supporto</h3>
+                      <p className="text-slate-600">
+                        Lunedì - Venerdì: 9:00 - 18:00<br />
+                        Sabato: 10:00 - 14:00<br />
+                        Domenica: Chiuso
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Types */}
+              <div className="bg-slate-50 p-8 rounded-2xl">
+                <h3 className="text-xl font-bold text-slate-900 mb-6">
+                  Come possiamo aiutarti?
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 bg-white rounded-xl border border-slate-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <User className="w-5 h-5 text-emerald-600" />
+                      <h4 className="font-semibold text-slate-900">Creator</h4>
+                    </div>
+                    <p className="text-sm text-slate-600">
+                      Supporto per registrazione, monetizzazione e ottimizzazione della newsletter
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-white rounded-xl border border-slate-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Building className="w-5 h-5 text-emerald-600" />
+                      <h4 className="font-semibold text-slate-900">Brand</h4>
+                    </div>
+                    <p className="text-sm text-slate-600">
+                      Consulenza per campagne pubblicitarie e partnership strategiche
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

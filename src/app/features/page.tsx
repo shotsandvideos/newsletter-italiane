@@ -272,14 +272,6 @@ export default function FeaturesPage() {
                 <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                 Tutti i servizi operativi
               </Link>
-              <a 
-                href="https://www.linkedin.com/company/newsletter-italiane" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-slate-400 hover:text-white transition-colors"
-              >
-                LinkedIn
-              </a>
             </div>
           </div>
         </div>

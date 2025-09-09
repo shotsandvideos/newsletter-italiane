@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { ChevronDown, Menu, X } from 'lucide-react'
 
 const navigationItems = [
@@ -31,6 +31,20 @@ const navigationItems = [
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (title: string) => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+    }
+    setActiveDropdown(title)
+  }
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 200) // 200ms delay
+  }
 
   return (
     <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
@@ -49,8 +63,8 @@ export default function Navigation() {
               <div
                 key={item.title}
                 className="relative"
-                onMouseEnter={() => setActiveDropdown(item.title)}
-                onMouseLeave={() => setActiveDropdown(null)}
+                onMouseEnter={() => handleMouseEnter(item.title)}
+                onMouseLeave={handleMouseLeave}
               >
                 <button className="flex items-center gap-1 text-slate-700 hover:text-slate-900 transition-colors font-medium">
                   {item.title}
@@ -59,7 +73,11 @@ export default function Navigation() {
                 
                 {/* Dropdown */}
                 {activeDropdown === item.title && (
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-2">
+                  <div 
+                    className="absolute top-full left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-2"
+                    onMouseEnter={() => handleMouseEnter(item.title)}
+                    onMouseLeave={handleMouseLeave}
+                  >
                     {item.items.map((subItem) => (
                       <Link
                         key={subItem.href}

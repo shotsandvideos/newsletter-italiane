@@ -406,15 +406,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="text-center">
-            <Link
-              href="/auth/sign-up"
-              className="inline-flex items-center px-6 py-3 border border-border bg-card text-foreground rounded-lg hover:bg-accent transition-colors font-medium"
-            >
-              Iscriviti
-              <ChevronRight className="ml-2 w-4 h-4" />
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -816,14 +807,6 @@ export default function HomePage() {
                 <div className="w-2 h-2 bg-chart-5 rounded-full"></div>
                 Tutti i servizi operativi
               </Link>
-              <a 
-                href="https://www.linkedin.com/company/newsletter-italiane" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                LinkedIn
-              </a>
             </div>
           </div>
         </div>

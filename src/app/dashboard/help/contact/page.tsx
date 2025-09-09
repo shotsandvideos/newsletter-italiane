@@ -534,7 +534,7 @@ export default function ContactPage() {
                   onClick={() => setShowChatWidget(false)}
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  ✕
+                  ×
                 </button>
               </div>
             </div>

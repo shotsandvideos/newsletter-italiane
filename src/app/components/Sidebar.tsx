@@ -27,22 +27,22 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: 'Home', href: '/dashboard', icon: Home, description: 'Dashboard principale' },
-  { name: 'Inbox', href: '/dashboard/inbox', icon: Inbox, description: 'Messaggi e notifiche' },
-  { name: 'Newsletter', href: '/dashboard/newsletters', icon: Mail, description: 'Gestisci le tue newsletter' },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3, description: 'Statistiche e performance' },
-  { name: 'Marketplace', href: '/dashboard/marketplace', icon: ShoppingBag, description: 'Campagne brand e collaborazioni' },
-  { name: 'Collaborazioni', href: '/dashboard/collaborations', icon: Users, description: 'Partnership e progetti' },
-  { name: 'Pagamenti', href: '/dashboard/payments', icon: CreditCard, description: 'Transazioni e guadagni' },
-  { name: 'Calendario', href: '/dashboard/calendar', icon: Calendar, description: 'Scadenze e appuntamenti' },
+  { name: 'Home', href: '/dashboard', icon: Home },
+  { name: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
+  { name: 'Newsletter', href: '/dashboard/newsletters', icon: Mail },
+  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+  { name: 'Marketplace', href: '/dashboard/marketplace', icon: ShoppingBag },
+  { name: 'Collaborazioni', href: '/dashboard/collaborations', icon: Users },
+  { name: 'Pagamenti', href: '/dashboard/payments', icon: CreditCard },
+  { name: 'Calendario', href: '/dashboard/calendar', icon: Calendar },
 ]
 
 const settingsNavigation = [
-  { name: 'Impostazioni', href: '/dashboard/settings', icon: Settings, description: 'Configurazioni account' },
+  { name: 'Impostazioni', href: '/dashboard/settings', icon: Settings },
 ]
 
 const bottomNavigation = [
-  { name: 'Aiuto', href: '/dashboard/help', icon: HelpCircle, description: 'Supporto e documentazione' },
+  { name: 'Aiuto', href: '/dashboard/help', icon: HelpCircle },
 ]
 
 export default function Sidebar({ isMobileOpen = false, onMobileClose }: SidebarProps) {
@@ -125,29 +125,17 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                    "group flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200",
                     "hover:bg-slate-50",
                     isActive
-                      ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100'
-                      : 'text-slate-700 hover:text-slate-900'
+                      ? 'bg-slate-100 text-slate-900'
+                      : 'text-slate-600 hover:text-slate-900'
                   )}
                 >
-                  <item.icon className={cn(
-                    "w-5 h-5 transition-colors",
-                    isActive ? 'text-emerald-600' : 'text-slate-500 group-hover:text-slate-700'
-                  )} />
+                  <item.icon className="w-4 h-4 text-slate-500" />
                   <div className="flex-1">
                     <div className="font-medium">{item.name}</div>
-                    <div className={cn(
-                      "text-xs",
-                      isActive ? 'text-emerald-600' : 'text-slate-500'
-                    )}>
-                      {item.description}
-                    </div>
                   </div>
-                  {isActive && (
-                    <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
-                  )}
                 </Link>
               )
             })}
@@ -163,29 +151,17 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                      "group flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200",
                       "hover:bg-slate-50",
                       isActive
-                        ? 'bg-emerald-50 text-emerald-700 shadow-sm border border-emerald-100'
-                        : 'text-slate-700 hover:text-slate-900'
+                        ? 'bg-slate-100 text-slate-900'
+                        : 'text-slate-600 hover:text-slate-900'
                     )}
                   >
-                    <item.icon className={cn(
-                      "w-5 h-5 transition-colors",
-                      isActive ? 'text-emerald-600' : 'text-slate-500 group-hover:text-slate-700'
-                    )} />
+                    <item.icon className="w-4 h-4 text-slate-500" />
                     <div className="flex-1">
                       <div className="font-medium">{item.name}</div>
-                      <div className={cn(
-                        "text-xs",
-                        isActive ? 'text-emerald-600' : 'text-slate-500'
-                      )}>
-                        {item.description}
-                      </div>
                     </div>
-                    {isActive && (
-                      <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
-                    )}
                   </Link>
                 )
               })}
@@ -199,12 +175,11 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
           {isAdmin && (
             <Link
               href="/admin"
-              className="flex items-center gap-3 px-4 py-3 mb-3 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors border border-red-100"
+              className="flex items-center gap-3 px-3 py-2 mb-2 text-xs font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
             >
-              <Shield className="w-5 h-5" />
+              <Shield className="w-4 h-4 text-slate-500" />
               <div className="flex-1">
                 <div className="font-medium">Admin Panel</div>
-                <div className="text-xs text-red-500">Pannello amministrativo</div>
               </div>
             </Link>
           )}
@@ -218,25 +193,16 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                    "group flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200",
                     "hover:bg-slate-50",
                     isActive
                       ? 'bg-slate-100 text-slate-900'
                       : 'text-slate-600 hover:text-slate-900'
                   )}
                 >
-                  <item.icon className={cn(
-                    "w-5 h-5 transition-colors",
-                    isActive ? 'text-slate-700' : 'text-slate-500 group-hover:text-slate-700'
-                  )} />
+                  <item.icon className="w-4 h-4 text-slate-500" />
                   <div className="flex-1">
                     <div className="font-medium">{item.name}</div>
-                    <div className={cn(
-                      "text-xs",
-                      isActive ? 'text-slate-600' : 'text-slate-500'
-                    )}>
-                      {item.description}
-                    </div>
                   </div>
                 </Link>
               )

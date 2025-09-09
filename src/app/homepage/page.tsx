@@ -288,12 +288,12 @@ export default function HomePage() {
                 <div 
                   className="flex items-center space-x-12 py-6"
                   style={{
-                    animation: 'marqueeRTL 25s linear infinite',
+                    animation: 'marqueeRTL 50s linear infinite',
                     width: 'max-content'
                   }}
                 >
-                  {/* Logos for continuous scroll */}
-                  {[...clientLogos, ...clientLogos].map((client, index) => (
+                  {/* Logos for seamless continuous scroll */}
+                  {[...clientLogos, ...clientLogos, ...clientLogos].map((client, index) => (
                     <div key={index} className="flex-shrink-0">
                       <div className="relative w-20 h-20 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300">
                         <Image
@@ -553,7 +553,54 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Scrolling Testimonials */}
+          <div className="overflow-hidden">
+            <div 
+              className="relative"
+              style={{
+                maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
+                WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)'
+              }}
+            >
+              <div 
+                className="flex items-center space-x-8 py-4"
+                style={{
+                  animation: 'marqueeTestimonials 45s linear infinite',
+                  width: 'max-content'
+                }}
+              >
+                {/* Testimonials for continuous scroll */}
+                {[...testimonials, ...testimonials].map((testimonial, index) => (
+                  <div key={index} className="flex-shrink-0 w-96">
+                    <div className="p-6 bg-card border border-border rounded-lg">
+                      <div className="flex items-center gap-1 mb-4">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-current text-chart-4" />
+                        ))}
+                      </div>
+                      <blockquote className="text-foreground mb-6 italic">
+                        "{testimonial.quote}"
+                      </blockquote>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center font-semibold text-sm">
+                          {testimonial.avatar}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-foreground">{testimonial.author}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {testimonial.role} at {testimonial.company}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Static grid as fallback for reduced motion */}
+          <div className="hidden motion-reduce:grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
               <div key={index} className="p-6 bg-card border border-border rounded-lg">
                 <div className="flex items-center gap-1 mb-4">

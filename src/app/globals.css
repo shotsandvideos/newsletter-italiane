@@ -469,6 +469,15 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
+@keyframes parallaxDots {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  100% {
+    transform: translateX(-25px) translateY(-25px);
+  }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

@@ -288,7 +288,7 @@ export default function HomePage() {
                 <div 
                   className="flex items-center space-x-12 py-6"
                   style={{
-                    animation: 'marqueeRTL 50s linear infinite',
+                    animation: 'marqueeRTL 80s linear infinite',
                     width: 'max-content'
                   }}
                 >
@@ -450,11 +450,14 @@ export default function HomePage() {
 
       {/* Features */}
       <section id="come-funziona" className="py-20 bg-white relative overflow-hidden">
-        {/* Dot Pattern Background */}
-        <div className="absolute inset-0 opacity-20"
+        {/* Animated Dot Pattern Background with Parallax */}
+        <div 
+          className="absolute inset-0 opacity-30 parallax-dots"
           style={{
-            backgroundImage: 'radial-gradient(circle, #e5e7eb 1px, transparent 1px)',
-            backgroundSize: '30px 30px'
+            backgroundImage: 'radial-gradient(circle, #000 0.5px, transparent 0.5px)',
+            backgroundSize: '25px 25px',
+            transform: 'translateZ(0)',
+            animation: 'parallaxDots 60s linear infinite'
           }}
         ></div>
         
@@ -502,10 +505,22 @@ export default function HomePage() {
                   </ul>
                 </div>
                 
-                {/* Placeholder Image */}
-                <div className="flex-1 max-w-md">
+                {/* Feature Card with Blob Background */}
+                <div className="flex-1 max-w-md relative">
+                  {/* Colored Blob Background */}
                   <div 
-                    className="relative h-80 bg-gradient-to-br from-primary/10 to-chart-2/10 rounded-2xl border border-border/20 shadow-lg overflow-hidden group cursor-pointer card-tilt"
+                    className="absolute inset-0 rounded-3xl blur-2xl opacity-60 -z-10 transform scale-110"
+                    style={{
+                      background: `linear-gradient(135deg, ${[
+                        'rgba(16,185,129,0.4), rgba(6,214,160,0.2)',
+                        'rgba(59,130,246,0.4), rgba(147,51,234,0.2)',
+                        'rgba(245,158,11,0.4), rgba(251,191,36,0.2)',
+                        'rgba(239,68,68,0.4), rgba(251,113,133,0.2)'
+                      ][index % 4]})`
+                    }}
+                  ></div>
+                  <div 
+                    className="relative h-80 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/40 shadow-lg overflow-hidden group cursor-pointer card-tilt"
                     onMouseMove={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();
                       const x = e.clientX - rect.left;
@@ -565,7 +580,7 @@ export default function HomePage() {
               <div 
                 className="flex items-center space-x-8 py-4"
                 style={{
-                  animation: 'marqueeTestimonials 45s linear infinite',
+                  animation: 'marqueeTestimonials 70s linear infinite',
                   width: 'max-content'
                 }}
               >

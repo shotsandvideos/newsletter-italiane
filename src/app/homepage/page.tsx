@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Navigation from '@/components/Navigation'
 import { 
   ArrowRight,
   Users,
@@ -140,43 +141,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center gap-8">
-              <Link href="/" className="text-2xl font-bold text-primary">
-                Newsletter Italiane
-              </Link>
-              <div className="hidden md:flex items-center gap-6">
-                <Link href="#come-funziona" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Come Funziona
-                </Link>
-                <Link href="#newsletter" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Newsletter
-                </Link>
-                <Link href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Prezzi
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link 
-                href="/auth/sign-in" 
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Accedi
-              </Link>
-              <Link 
-                href="/auth/sign-up"
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
-              >
-                Iscriviti
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden min-h-screen">

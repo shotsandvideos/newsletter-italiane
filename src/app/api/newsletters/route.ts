@@ -24,7 +24,19 @@ export async function GET() {
       return NextResponse.json({ success: false, error: 'Database error' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, data: newsletters || [] })
+    // Map English database field names back to Italian field names for frontend
+    const mappedNewsletters = newsletters?.map(newsletter => ({
+      ...newsletter,
+      nome_newsletter: newsletter.name,
+      descrizione: newsletter.description,
+      categoria: newsletter.category,
+      url_archivio: newsletter.website,
+      frequenza_invio: newsletter.frequency,
+      prezzo_sponsorizzazione: newsletter.price,
+      numero_iscritti: newsletter.subscribers
+    })) || []
+
+    return NextResponse.json({ success: true, data: mappedNewsletters })
   } catch (error) {
     console.error('Error in newsletters API:', error)
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
@@ -42,19 +54,34 @@ export async function POST(request: Request) {
     const body = await request.json()
     const supabase = await createSupabaseServerClient()
 
+    // Map Italian field names to English database field names
+    const newsletterData = {
+      user_id: currentUserData.user.id,
+      name: body.nome_newsletter,
+      description: body.descrizione,
+      category: body.categoria,
+      website: body.url_archivio,
+      frequency: body.frequenza_invio,
+      price: body.prezzo_sponsorizzazione,
+      subscribers: body.numero_iscritti,
+      // Store additional data as JSON or in separate fields if needed
+      open_rate: body.open_rate,
+      ctr: body.ctr,
+      email_contatto: body.email_contatto,
+      linkedin_profile: body.linkedin_profile
+    }
+
     // Create newsletter
     const { data: newsletter, error } = await supabase
       .from('newsletters')
-      .insert({
-        ...body,
-        user_id: currentUserData.user.id
-      })
+      .insert(newsletterData)
       .select()
       .single()
 
     if (error) {
       console.error('Error creating newsletter:', error)
-      return NextResponse.json({ success: false, error: 'Database error' }, { status: 500 })
+      console.error('Newsletter data being inserted:', newsletterData)
+      return NextResponse.json({ success: false, error: `Database error: ${error.message}` }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, data: newsletter })

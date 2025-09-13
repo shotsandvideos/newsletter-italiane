@@ -11,7 +11,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Newsletter Italiane - Platform for Newsletter Advertising",
+  title: "Frames - Platform for Newsletter Advertising",
   description: "The leading platform in Italy for newsletter advertising, connecting brands with creators.",
 };
 

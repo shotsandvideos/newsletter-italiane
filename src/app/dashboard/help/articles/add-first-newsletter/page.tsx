@@ -251,7 +251,7 @@ export default function AddFirstNewsletterPage() {
                 <section id="overview">
                   <h2 className="text-2xl font-semibold text-foreground mb-4">Panoramica</h2>
                   <p className="text-foreground mb-4">
-                    Registrare la tua newsletter su Newsletter Italiane è il primo passo fondamentale per iniziare a monetizzare i tuoi contenuti. 
+                    Registrare la tua newsletter su Frames è il primo passo fondamentale per iniziare a monetizzare i tuoi contenuti. 
                     In questa guida ti mostreremo come compilare correttamente tutte le informazioni necessarie per far approvare rapidamente 
                     la tua newsletter dal nostro team.
                   </p>
@@ -275,7 +275,7 @@ export default function AddFirstNewsletterPage() {
                   <ul className="space-y-2 mb-6">
                     <li className="flex items-start gap-3">
                       <CheckCircle className="w-5 h-5 text-chart-5 flex-shrink-0 mt-0.5" />
-                      <span className="text-foreground">Un account Newsletter Italiane verificato</span>
+                      <span className="text-foreground">Un account Frames verificato</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle className="w-5 h-5 text-chart-5 flex-shrink-0 mt-0.5" />

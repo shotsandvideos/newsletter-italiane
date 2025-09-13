@@ -208,9 +208,9 @@ export default function NewslettersPage() {
 
   const getStatusColor = (status: Newsletter['status']) => {
     switch (status) {
-      case 'approved': return 'text-green-700 bg-green-50 ring-green-600/20'
-      case 'rejected': return 'text-red-700 bg-red-50 ring-red-600/20'
-      default: return 'text-yellow-700 bg-yellow-50 ring-yellow-600/20'
+      case 'approved': return 'text-slate-700 bg-slate-100 ring-slate-600/20'
+      case 'rejected': return 'text-slate-700 bg-slate-100 ring-slate-600/20'
+      default: return 'text-slate-700 bg-slate-100 ring-slate-600/20'
     }
   }
 
@@ -349,19 +349,19 @@ export default function NewslettersPage() {
       <div className="flex h-screen">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-600"></div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-white">
       {/* Update Success Message */}
       {showUpdateSuccess && (
         <div className="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-md p-4 z-50">
           <div className="flex">
-            <CheckCircle className="h-5 w-5" style={{color: '#72e3ad'}} />
+            <CheckCircle className="h-5 w-5 text-slate-500" />
             <div className="ml-3">
               <p className="text-sm font-medium text-green-800">
                 Newsletter aggiornata!
@@ -396,7 +396,7 @@ export default function NewslettersPage() {
               </button>
               
               <h1 className="text-xl font-semibold text-gray-900">Le mie newsletter</h1>
-              <Mail className="w-5 h-5 text-gray-400" />
+              <Mail className="w-5 h-5 text-slate-500" />
             </div>
             <button
               onClick={() => setShowForm(true)}
@@ -851,80 +851,111 @@ export default function NewslettersPage() {
                 )}
               </div>
             ) : (
-              <div className="divide-y divide-gray-200">
-                {filteredNewsletters.map((newsletter) => (
-                  <div key={newsletter.id} className="px-6 py-4 hover:bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h4 className="text-base font-medium text-gray-900 truncate">
-                            {newsletter.nome_newsletter}
-                          </h4>
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusColor(newsletter.status)}`}>
-                            {getStatusIcon(newsletter.status)}
-                            {getStatusText(newsletter.status)}
-                          </span>
-                        </div>
-                        
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                          {newsletter.descrizione}
-                        </p>
-                        
-                        <div className="flex items-center gap-6 text-xs text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <Users className="w-3 h-3" />
-                            <span>{newsletter.numero_iscritti_tier}</span>
-                          </div>
-                          <span>{newsletter.categoria}</span>
-                          <span>OR: {newsletter.open_rate}%</span>
-                          <span>CTR: {newsletter.ctr}%</span>
-                          <span className="font-medium text-gray-900">€{newsletter.prezzo_sponsorizzazione}</span>
-                          {newsletter.frequenza_invio && (
-                            <span>{newsletter.frequenza_invio}</span>
-                          )}
-                        </div>
-                      </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Newsletter</th>
+                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Iscritti</th>
+                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Open Rate</th>
+                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">CTR</th>
+                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Ads Inventory</th>
+                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Status</th>
+                      <th className="text-right px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Azioni</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {filteredNewsletters.map((newsletter) => {
+                      // Mock ads inventory data - in real app this would come from API
+                      const adsInventory = [
+                        { type: 'Sponsored Text', cpc: '€0.15' },
+                        { type: 'Banner Header', cpc: '€0.25' },
+                        { type: 'Newsletter Footer', cpc: '€0.10' }
+                      ]
                       
-                      <div className="flex items-center gap-2 ml-6">
-                        <button 
-                          onClick={() => handleEditNewsletter(newsletter)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
-                        >
-                          <Edit className="w-4 h-4" />
-                          Modifica
-                        </button>
-                        
-                        <div className="relative group">
-                          <button className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </button>
-                          
-                          {/* Dropdown menu */}
-                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                            <div className="py-1">
-                              <a
-                                href={newsletter.url_archivio}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                              >
-                                <Eye className="w-4 h-4" />
-                                Visualizza archivio
-                              </a>
-                              <button
-                                onClick={() => handleDeleteNewsletter(newsletter)}
-                                className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Elimina newsletter
-                              </button>
+                      return (
+                        <tr key={newsletter.id} className="hover:bg-slate-50">
+                          <td className="px-6 py-3">
+                            <div className="flex items-center gap-3">
+                              <div>
+                                <h4 className="text-sm font-medium text-slate-900 truncate max-w-48">
+                                  {newsletter.nome_newsletter}
+                                </h4>
+                                <p className="text-xs text-slate-500">{newsletter.categoria}</p>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                          </td>
+                          <td className="px-6 py-3">
+                            <div className="flex items-center gap-1">
+                              <Users className="w-3 h-3 text-slate-400" />
+                              <span className="text-sm text-slate-900">{newsletter.numero_iscritti_tier}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-3">
+                            <span className="text-sm text-slate-900">{newsletter.open_rate}%</span>
+                          </td>
+                          <td className="px-6 py-3">
+                            <span className="text-sm text-slate-900">{newsletter.ctr}%</span>
+                          </td>
+                          <td className="px-6 py-3">
+                            <div className="space-y-1">
+                              {adsInventory.map((ad, index) => (
+                                <div key={index} className="flex items-center justify-between">
+                                  <span className="text-xs text-slate-600">{ad.type}</span>
+                                  <span className="text-xs font-medium text-slate-900">{ad.cpc}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-6 py-3">
+                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusColor(newsletter.status)}`}>
+                              {getStatusIcon(newsletter.status)}
+                              {getStatusText(newsletter.status)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-3 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button 
+                                onClick={() => handleEditNewsletter(newsletter)}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors"
+                              >
+                                <Edit className="w-3 h-3" />
+                                Modifica
+                              </button>
+                              
+                              <div className="relative group">
+                                <button className="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100">
+                                  <MoreHorizontal className="w-4 h-4" />
+                                </button>
+                                
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-slate-200 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                  <div className="py-1">
+                                    <a
+                                      href={newsletter.url_archivio}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                      Visualizza archivio
+                                    </a>
+                                    <button
+                                      onClick={() => handleDeleteNewsletter(newsletter)}
+                                      className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                      Elimina newsletter
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
@@ -937,7 +968,7 @@ export default function NewslettersPage() {
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <Trash2 className="w-5 h-5" style={{color: '#72e3ad'}} />
+                <Trash2 className="w-5 h-5 text-slate-500" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Elimina Newsletter</h3>

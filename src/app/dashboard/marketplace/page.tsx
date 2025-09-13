@@ -10,32 +10,29 @@ import {
   ChevronRight,
   ChevronLeft,
   Menu,
+  X,
+  Building,
+  CreditCard
 } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Sidebar from '../../components/Sidebar'
 
-// Simplified campaign data structure
+// Enhanced campaign data structure with payment types
 const campaigns = [
-  { id: 1, title: 'Lancia la Nuova App Fintech', brand: 'FinanceFlow', budget: '€2,500 - €5,000', category: 'fintech', deadline: '2024-03-15', applicants: 12 },
-  { id: 2, title: 'Promozione Corso Marketing Digitale', brand: 'MarketingPro Academy', budget: '€800 - €1,500', category: 'marketing', deadline: '2024-03-20', applicants: 8 },
-  { id: 3, title: 'Startup Week Milano 2024', brand: 'Startup Events', budget: '€1,200 - €2,000', category: 'startup', deadline: '2024-03-10', applicants: 15 },
-  { id: 4, title: 'E-commerce Platform Launch', brand: 'ShopTech', budget: '€3,000 - €6,000', category: 'tech', deadline: '2024-03-25', applicants: 6 },
-  { id: 5, title: 'Sustainable Fashion Week', brand: 'EcoStyle', budget: '€1,500 - €2,500', category: 'lifestyle', deadline: '2024-03-18', applicants: 18 },
-  { id: 6, title: 'Crypto Trading Course', brand: 'CryptoLearn', budget: '€2,000 - €4,000', category: 'fintech', deadline: '2024-03-22', applicants: 22 },
-  { id: 7, title: 'Remote Work Tools', brand: 'WorkFlow', budget: '€1,800 - €3,000', category: 'tech', deadline: '2024-03-28', applicants: 9 },
-  { id: 8, title: 'Health Tech Innovation', brand: 'MedTech Solutions', budget: '€4,000 - €8,000', category: 'tech', deadline: '2024-03-30', applicants: 11 },
-  { id: 9, title: 'Digital Marketing Summit', brand: 'MarketCon', budget: '€1,200 - €2,200', category: 'marketing', deadline: '2024-03-16', applicants: 25 },
-  { id: 10, title: 'Green Energy Startup', brand: 'EcoEnergy', budget: '€2,500 - €4,500', category: 'startup', deadline: '2024-04-02', applicants: 14 },
-  { id: 11, title: 'Food Delivery Innovation', brand: 'QuickEats', budget: '€3,500 - €5,500', category: 'startup', deadline: '2024-03-26', applicants: 31 },
-  { id: 12, title: 'EdTech Platform Beta', brand: 'LearnSmart', budget: '€1,600 - €2,800', category: 'tech', deadline: '2024-03-24', applicants: 8 },
-  { id: 13, title: 'Fitness App Launch', brand: 'FitTracker Pro', budget: '€2,200 - €3,800', category: 'lifestyle', deadline: '2024-04-01', applicants: 19 },
-  { id: 14, title: 'B2B SaaS Analytics', brand: 'DataInsight', budget: '€3,800 - €6,200', category: 'tech', deadline: '2024-04-05', applicants: 16 },
-  { id: 15, title: 'Travel Tech Startup', brand: 'WanderTech', budget: '€2,000 - €3,500', category: 'startup', deadline: '2024-03-27', applicants: 23 },
-  { id: 16, title: 'Cybersecurity Training', brand: 'SecureLearn', budget: '€3,200 - €5,000', category: 'tech', deadline: '2024-04-08', applicants: 12 },
-  { id: 17, title: 'Smart Home Solutions', brand: 'HomeAI', budget: '€2,800 - €4,200', category: 'tech', deadline: '2024-04-10', applicants: 7 },
-  { id: 18, title: 'Sustainable Finance Summit', brand: 'GreenFinance', budget: '€1,800 - €2,900', category: 'fintech', deadline: '2024-03-29', applicants: 20 }
+  { id: 1, title: 'Lancia la Nuova App Fintech', brand: 'FinanceFlow', budget: '€2,500 - €5,000', category: 'Fintech', paymentType: 'PPC', deadline: '2024-03-15', description: 'Promuovi la nostra innovativa app fintech che rivoluziona i pagamenti digitali per PMI e freelance.' },
+  { id: 2, title: 'Promozione Corso Marketing Digitale', brand: 'MarketingPro Academy', budget: '€800 - €1,500', category: 'Marketing', paymentType: 'Pay per Lead', deadline: '2024-03-20', description: 'Corsi di marketing digitale per professionisti. Cerchiamo newsletter nel settore business e formazione.' },
+  { id: 3, title: 'Startup Week Milano 2024', brand: 'Startup Events', budget: '€1,200 - €2,000', category: 'Eventi', paymentType: 'Pay per Action', deadline: '2024-03-10', description: 'Il più grande evento startup d\'Italia. Registrazioni aperte per partecipanti e sponsor.' },
+  { id: 4, title: 'E-commerce Platform Launch', brand: 'ShopTech', budget: '€3,000 - €6,000', category: 'Tech', paymentType: 'PPC', deadline: '2024-03-25', description: 'Piattaforma e-commerce next-gen con AI integrata per ottimizzare vendite e customer experience.' },
+  { id: 5, title: 'Sustainable Fashion Week', brand: 'EcoStyle', budget: '€1,500 - €2,500', category: 'Lifestyle', paymentType: 'Pay per Lead', deadline: '2024-03-18', description: 'Moda sostenibile e circolare. Evento dedicato a brand etici e consumatori consapevoli.' },
+  { id: 6, title: 'Crypto Trading Course', brand: 'CryptoLearn', budget: '€2,000 - €4,000', category: 'Fintech', paymentType: 'PPC', deadline: '2024-03-22', description: 'Corsi avanzati di trading crypto e DeFi. Target: investitori e trader esperti.' },
+  { id: 7, title: 'Remote Work Tools', brand: 'WorkFlow', budget: '€1,800 - €3,000', category: 'Tech', paymentType: 'Pay per Action', deadline: '2024-03-28', description: 'Suite completa per lavoro remoto e gestione team distribuiti. Aumenta produttività del 40%.' },
+  { id: 8, title: 'Health Tech Innovation', brand: 'MedTech Solutions', budget: '€4,000 - €8,000', category: 'Tech', paymentType: 'PPC', deadline: '2024-03-30', description: 'Tecnologie medicali innovative per telemedicina e monitoraggio pazienti IoT.' },
+  { id: 9, title: 'Digital Marketing Summit', brand: 'MarketCon', budget: '€1,200 - €2,200', category: 'Marketing', paymentType: 'Pay per Lead', deadline: '2024-03-16', description: 'Summit internazionale con i migliori esperti di marketing digitale e growth hacking.' },
+  { id: 10, title: 'Green Energy Startup', brand: 'EcoEnergy', budget: '€2,500 - €4,500', category: 'Startup', paymentType: 'Pay per Action', deadline: '2024-04-02', description: 'Startup cleantech che sviluppa soluzioni per energie rinnovabili e storage.' },
+  { id: 11, title: 'Food Delivery Innovation', brand: 'QuickEats', budget: '€3,500 - €5,500', category: 'Startup', paymentType: 'PPC', deadline: '2024-03-26', description: 'Delivery ultra-rapido con droni e AI per predizione domanda. Expansion in 10 città italiane.' },
+  { id: 12, title: 'EdTech Platform Beta', brand: 'LearnSmart', budget: '€1,600 - €2,800', category: 'Tech', paymentType: 'Pay per Lead', deadline: '2024-03-24', description: 'Piattaforma adaptive learning con AI che personalizza percorsi formativi per ogni studente.' }
 ]
 
 const categories = [
@@ -54,6 +51,8 @@ export default function MarketplacePage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [selectedCampaign, setSelectedCampaign] = useState(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
   const itemsPerPage = 12
 
   useEffect(() => {
@@ -64,11 +63,21 @@ export default function MarketplacePage() {
 
   // Filter and pagination
   const filteredCampaigns = campaigns.filter(campaign => {
-    const matchesCategory = selectedCategory === 'all' || campaign.category === selectedCategory
+    const matchesCategory = selectedCategory === 'all' || campaign.category.toLowerCase() === selectedCategory
     const matchesSearch = campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          campaign.brand.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
   })
+
+  const handleShowDetails = (campaign) => {
+    setSelectedCampaign(campaign)
+    setShowDetailsModal(true)
+  }
+
+  const handleCloseDetails = () => {
+    setSelectedCampaign(null)
+    setShowDetailsModal(false)
+  }
 
   const totalPages = Math.ceil(filteredCampaigns.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -89,7 +98,7 @@ export default function MarketplacePage() {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-white">
       <Sidebar 
         isMobileOpen={isMobileMenuOpen}
         onMobileClose={() => setIsMobileMenuOpen(false)}
@@ -154,9 +163,10 @@ export default function MarketplacePage() {
                 <thead className="bg-slate-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Campagna</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Budget</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Brand</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Categoria</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Payment Type</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Scadenza</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Candidati</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Azione</th>
                   </tr>
                 </thead>
@@ -164,12 +174,25 @@ export default function MarketplacePage() {
                   {paginatedCampaigns.map((campaign) => (
                     <tr key={campaign.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-4 py-3">
-                        <div>
-                          <div className="font-medium text-slate-900 text-sm">{campaign.title}</div>
-                          <div className="text-xs text-slate-500">{campaign.brand}</div>
+                        <div className="font-medium text-slate-900 text-sm">{campaign.title}</div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Building className="w-3 h-3 text-slate-400" />
+                          <span className="text-sm text-slate-600">{campaign.brand}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600">{campaign.budget}</td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                          {campaign.category}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1">
+                          <CreditCard className="w-3 h-3 text-slate-400" />
+                          <span className="text-xs text-slate-600">{campaign.paymentType}</span>
+                        </div>
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1 text-sm text-slate-600">
                           <Clock className="w-3 h-3" />
@@ -177,14 +200,11 @@ export default function MarketplacePage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1 text-sm text-slate-600">
-                          <Users className="w-3 h-3" />
-                          {campaign.applicants}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <button className="inline-flex items-center gap-1 px-3 py-1 bg-slate-600 text-white text-xs rounded-md hover:bg-slate-700 transition-colors">
-                          Applica
+                        <button 
+                          onClick={() => handleShowDetails(campaign)}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-slate-600 text-white text-xs rounded-md hover:bg-slate-700 transition-colors"
+                        >
+                          Dettagli
                           <ChevronRight className="w-3 h-3" />
                         </button>
                       </td>
@@ -238,6 +258,119 @@ export default function MarketplacePage() {
           )}
         </main>
       </div>
+
+      {/* Campaign Details Modal */}
+      {showDetailsModal && selectedCampaign && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">Dettagli Campagna</h3>
+              <button 
+                onClick={handleCloseDetails}
+                className="p-1 hover:bg-slate-100 rounded-md transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="px-6 py-6">
+              <div className="space-y-6">
+                {/* Campaign Title */}
+                <div>
+                  <h4 className="text-xl font-bold text-slate-900 mb-2">{selectedCampaign.title}</h4>
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <Building className="w-4 h-4" />
+                    <span>{selectedCampaign.brand}</span>
+                  </div>
+                </div>
+
+                {/* Campaign Info Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-slate-50 p-4 rounded-lg">
+                    <div className="text-xs text-slate-500 uppercase font-medium mb-1">Categoria</div>
+                    <div className="text-sm font-medium text-slate-900">{selectedCampaign.category}</div>
+                  </div>
+                  <div className="bg-slate-50 p-4 rounded-lg">
+                    <div className="text-xs text-slate-500 uppercase font-medium mb-1">Payment Type</div>
+                    <div className="text-sm font-medium text-slate-900">{selectedCampaign.paymentType}</div>
+                  </div>
+                  <div className="bg-slate-50 p-4 rounded-lg">
+                    <div className="text-xs text-slate-500 uppercase font-medium mb-1">Budget</div>
+                    <div className="text-sm font-medium text-slate-900">{selectedCampaign.budget}</div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <h5 className="text-sm font-medium text-slate-900 mb-2">Descrizione</h5>
+                  <p className="text-sm text-slate-600 leading-relaxed">{selectedCampaign.description}</p>
+                </div>
+
+                {/* Requirements */}
+                <div>
+                  <h5 className="text-sm font-medium text-slate-900 mb-2">Requisiti</h5>
+                  <ul className="text-sm text-slate-600 space-y-1">
+                    <li>• Newsletter attiva nel settore {selectedCampaign.category.toLowerCase()}</li>
+                    <li>• Minimo 1,000 iscritti attivi</li>
+                    <li>• Open rate superiore al 20%</li>
+                    <li>• Archivio newsletter pubblico</li>
+                  </ul>
+                </div>
+
+                {/* Timeline */}
+                <div>
+                  <h5 className="text-sm font-medium text-slate-900 mb-2">Timeline</h5>
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Clock className="w-4 h-4" />
+                    <span>Scadenza candidature: {new Date(selectedCampaign.deadline).toLocaleDateString('it-IT', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}</span>
+                  </div>
+                </div>
+
+                {/* Payment Info */}
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h5 className="text-sm font-medium text-slate-900 mb-2 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4" />
+                    Dettagli Pagamento
+                  </h5>
+                  <div className="space-y-1 text-sm text-slate-700">
+                    <div>Tipologia: <span className="font-medium">{selectedCampaign.paymentType}</span></div>
+                    <div>Budget: <span className="font-medium">{selectedCampaign.budget}</span></div>
+                    {selectedCampaign.paymentType === 'PPC' && (
+                      <div className="text-xs text-slate-600 mt-2">Pagamento basato su click effettivi generati</div>
+                    )}
+                    {selectedCampaign.paymentType === 'Pay per Lead' && (
+                      <div className="text-xs text-slate-600 mt-2">Pagamento per ogni lead qualificato generato</div>
+                    )}
+                    {selectedCampaign.paymentType === 'Pay per Action' && (
+                      <div className="text-xs text-slate-600 mt-2">Pagamento per azione completata (registrazione, acquisto, etc.)</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
+              <button 
+                onClick={handleCloseDetails}
+                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors"
+              >
+                Chiudi
+              </button>
+              <button className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors">
+                Applica alla Campagna
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

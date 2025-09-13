@@ -10,7 +10,7 @@ export default function NotFound() {
         {/* Logo */}
         <div className="mb-8">
           <Link href="/" className="text-3xl font-bold text-emerald-600">
-            Newsletter Italiane
+            Frames
           </Link>
         </div>
         

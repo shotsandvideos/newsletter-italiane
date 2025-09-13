@@ -34,7 +34,10 @@ export default function SignInPage() {
       setError(error.message)
       setLoading(false)
     } else {
-      router.push('/dashboard')
+      // Wait a moment for state to update
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 100)
     }
   }
 
@@ -69,7 +72,7 @@ export default function SignInPage() {
       <header className="bg-white border-b border-gray-200" role="banner">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <h1 className="text-2xl font-bold text-gray-900">Newsletter Italiane</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Frames</h1>
           </div>
         </div>
       </header>
@@ -81,7 +84,7 @@ export default function SignInPage() {
             {/* Left side - Welcome content */}
             <section className="text-center lg:text-left order-2 lg:order-1" aria-labelledby="welcome-heading">
               <h2 id="welcome-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
-                Benvenuto in <span className="text-primary">Newsletter Italiane</span>
+                Benvenuto in <span className="text-primary">Frames</span>
               </h2>
               <p className="text-base sm:text-lg text-gray-600 mb-8">
                 La piattaforma italiana che connette autori di newsletter con brand per sponsorizzazioni trasparenti e misurabili.
@@ -248,7 +251,7 @@ export default function SignInPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center">
             <p className="text-sm text-gray-500">
-              © 2025 Newsletter Italiane. Tutti i diritti riservati.
+              © 2025 Frames. Tutti i diritti riservati.
             </p>
           </div>
         </div>

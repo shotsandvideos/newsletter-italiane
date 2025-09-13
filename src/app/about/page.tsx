@@ -67,7 +67,7 @@ const milestones = [
   {
     year: '2023',
     title: 'Fondazione',
-    description: 'Newsletter Italiane nasce dall\'idea di democratizzare il newsletter advertising in Italia'
+    description: 'Frames nasce dall\'idea di democratizzare il newsletter advertising in Italia'
   },
   {
     year: '2024',
@@ -113,7 +113,7 @@ export default function AboutPage() {
                 La Nostra Missione
               </h2>
               <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-                Newsletter Italiane nasce dalla convinzione che le newsletter rappresentino 
+                Frames nasce dalla convinzione che le newsletter rappresentino 
                 il futuro dell'advertising digitale. In un mondo sempre più saturo di contenuti, 
                 le newsletter offrono un canale diretto, personale e ad alto engagement.
               </p>
@@ -256,7 +256,7 @@ export default function AboutPage() {
               Il Nostro Team
             </h2>
             <p className="text-xl text-slate-600">
-              Le persone che rendono possibile Newsletter Italiane ogni giorno
+              Le persone che rendono possibile Frames ogni giorno
             </p>
           </div>
           
@@ -339,7 +339,7 @@ export default function AboutPage() {
           
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-800">
             <div className="flex items-center gap-4 mb-4 md:mb-0">
-              <div className="text-2xl font-bold text-emerald-400">Newsletter Italiane</div>
+              <div className="text-2xl font-bold text-emerald-400">Frames</div>
               <div className="text-slate-400">© 2025 Tutti i diritti riservati</div>
             </div>
             <div className="flex items-center gap-6">

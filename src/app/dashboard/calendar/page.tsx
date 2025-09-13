@@ -129,17 +129,17 @@ export default function CalendarPage() {
 
   const getEventTypeColor = (type: CalendarEvent['type']) => {
     switch (type) {
-      case 'newsletter': return 'bg-blue-100 text-blue-700 border-blue-200'
-      case 'payment': return 'bg-green-100 text-green-700 border-green-200'
-      case 'collaboration': return 'bg-purple-100 text-purple-700 border-purple-200'
+      case 'newsletter': return 'bg-slate-100 text-slate-700 border-slate-200'
+      case 'payment': return 'bg-slate-100 text-slate-700 border-slate-200'
+      case 'collaboration': return 'bg-slate-100 text-slate-700 border-slate-200'
     }
   }
 
   const getStatusColor = (status: CalendarEvent['status']) => {
     switch (status) {
-      case 'confirmed': return 'bg-green-50 border-green-200'
-      case 'pending': return 'bg-green-50 border-green-200'
-      case 'completed': return 'bg-gray-50 border-gray-200'
+      case 'confirmed': return 'bg-slate-50 border-slate-200'
+      case 'pending': return 'bg-slate-50 border-slate-200'
+      case 'completed': return 'bg-slate-50 border-slate-200'
     }
   }
 
@@ -166,7 +166,7 @@ export default function CalendarPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-600"></div>
       </div>
     )
   }
@@ -194,10 +194,10 @@ export default function CalendarPage() {
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <Calendar className="w-5 h-5 text-gray-500" />
+              <Calendar className="w-5 h-5 text-slate-500" />
               <h1 className="text-xl font-semibold text-gray-900">Calendario</h1>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors">
               <Plus className="w-4 h-4" />
               Nuovo Evento
             </button>
@@ -213,7 +213,7 @@ export default function CalendarPage() {
                 onClick={() => navigateMonth('prev')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <ChevronLeft className="w-5 h-5 text-gray-600" />
+                <ChevronLeft className="w-5 h-5 text-slate-500" />
               </button>
               
               <h2 className="text-lg font-semibold text-gray-900">
@@ -224,14 +224,14 @@ export default function CalendarPage() {
                 onClick={() => navigateMonth('next')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <ChevronRight className="w-5 h-5 text-gray-600" />
+                <ChevronRight className="w-5 h-5 text-slate-500" />
               </button>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentDate(new Date())}
-                className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
               >
                 Oggi
               </button>
@@ -269,10 +269,10 @@ export default function CalendarPage() {
                           <span
                             className={`text-sm font-medium ${
                               isToday
-                                ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center'
+                                ? 'bg-slate-600 text-white w-6 h-6 rounded-full flex items-center justify-center'
                                 : isCurrentMonth
-                                ? 'text-gray-900'
-                                : 'text-gray-400'
+                                ? 'text-slate-900'
+                                : 'text-slate-400'
                             }`}
                           >
                             {day.getDate()}
@@ -324,13 +324,13 @@ export default function CalendarPage() {
                     onClick={() => handleEventClick(event)}
                     className="w-full flex items-center gap-4 p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors text-left"
                   >
-                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{backgroundColor: '#72e3ad'}} />
+                    <div className="w-3 h-3 bg-slate-400 rounded-full flex-shrink-0" />
                     
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium text-gray-900">{event.title}</h4>
                         {event.amount && (
-                          <span className="text-sm font-medium text-green-600">€{event.amount}</span>
+                          <span className="text-sm font-medium text-slate-600">€{event.amount}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
@@ -345,9 +345,9 @@ export default function CalendarPage() {
                           </div>
                         )}
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          event.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                          event.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-gray-100 text-gray-700'
+                          event.status === 'confirmed' ? 'bg-slate-100 text-slate-700' :
+                          event.status === 'pending' ? 'bg-slate-100 text-slate-700' :
+                          'bg-slate-100 text-slate-700'
                         }`}>
                           {event.status === 'confirmed' ? 'Confermato' :
                            event.status === 'pending' ? 'In attesa' : 'Completato'}
@@ -416,7 +416,7 @@ export default function CalendarPage() {
               {selectedEvent.amount && (
                 <div className="text-sm">
                   <div className="text-gray-600">Importo</div>
-                  <div className="font-medium text-green-600">€{selectedEvent.amount}</div>
+                  <div className="font-medium text-slate-600">€{selectedEvent.amount}</div>
                 </div>
               )}
 
@@ -436,7 +436,7 @@ export default function CalendarPage() {
                     href={selectedEvent.brandSpecsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                    className="inline-flex items-center gap-1 text-slate-600 hover:text-slate-800 font-medium"
                   >
                     Visualizza specifiche richieste
                     <ExternalLink className="w-3 h-3" />
@@ -449,7 +449,7 @@ export default function CalendarPage() {
                   {selectedEvent.type === 'collaboration' && selectedEvent.collaborationId && (
                     <Link
                       href="/dashboard/collaborations"
-                      className="flex-1 px-4 py-2 bg-purple-600 text-white text-center rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+                      className="flex-1 px-4 py-2 bg-slate-600 text-white text-center rounded-lg hover:bg-slate-700 transition-colors text-sm font-medium"
                       onClick={() => setShowEventModal(false)}
                     >
                       Vedi Collaborazione
@@ -460,14 +460,14 @@ export default function CalendarPage() {
                       href={selectedEvent.brandSpecsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 px-4 py-2 bg-green-600 text-white text-center rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                      className="flex-1 px-4 py-2 bg-slate-600 text-white text-center rounded-lg hover:bg-slate-700 transition-colors text-sm font-medium"
                     >
                       Vedi Specifiche
                     </a>
                   )}
                   <button
                     onClick={() => setShowEventModal(false)}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                    className="flex-1 px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors text-sm font-medium"
                   >
                     Chiudi
                   </button>

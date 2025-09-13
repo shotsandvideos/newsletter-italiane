@@ -122,7 +122,7 @@ export default function FeaturesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Perché scegliere Newsletter Italiane
+              Perché scegliere Frames
             </h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               La soluzione completa per il newsletter advertising in Italia, con strumenti professionali 
@@ -208,7 +208,7 @@ export default function FeaturesPage() {
             Pronto a provare tutte le funzionalità?
           </h2>
           <p className="text-xl text-emerald-100 mb-8 max-w-2xl mx-auto">
-            Inizia subito e scopri come Newsletter Italiane può trasformare il tuo business
+            Inizia subito e scopri come Frames può trasformare il tuo business
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -264,7 +264,7 @@ export default function FeaturesPage() {
           
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-800">
             <div className="flex items-center gap-4 mb-4 md:mb-0">
-              <div className="text-2xl font-bold text-emerald-400">Newsletter Italiane</div>
+              <div className="text-2xl font-bold text-emerald-400">Frames</div>
               <div className="text-slate-400">© 2025 Tutti i diritti riservati</div>
             </div>
             <div className="flex items-center gap-6">

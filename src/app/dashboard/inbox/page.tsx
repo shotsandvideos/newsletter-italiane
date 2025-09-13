@@ -39,7 +39,7 @@ interface Message {
 const mockMessages: Message[] = [
   {
     id: '1',
-    from: 'Admin Newsletter Italiane',
+    from: 'Admin Frames',
     from_type: 'admin',
     subject: 'Newsletter approvata - Congratulazioni!',
     content: `Ciao!
@@ -55,7 +55,7 @@ Da ora i brand possono contattarti direttamente per proposte di collaborazione e
 
 Buona fortuna con la tua newsletter!
 
-Il team di Newsletter Italiane`,
+Il team di Frames`,
     type: 'approval',
     status: 'unread',
     created_at: '2025-09-05T10:30:00Z',
@@ -150,19 +150,19 @@ export default function InboxPage() {
 
   const getTypeIcon = (type: Message['type']) => {
     switch (type) {
-      case 'sponsorship': return <DollarSign className="w-4 h-4 text-chart-5" />
-      case 'collaboration': return <Users className="w-4 h-4 text-chart-2" />
-      case 'approval': return <CheckCircle className="w-4 h-4 text-chart-3" />
-      case 'notification': return <Mail className="w-4 h-4 text-muted-foreground" />
+      case 'sponsorship': return <DollarSign className="w-4 h-4 text-slate-500" />
+      case 'collaboration': return <Users className="w-4 h-4 text-slate-500" />
+      case 'approval': return <CheckCircle className="w-4 h-4 text-slate-500" />
+      case 'notification': return <Mail className="w-4 h-4 text-slate-500" />
     }
   }
 
   const getTypeBadge = (type: Message['type']) => {
     const configs = {
-      sponsorship: { color: 'bg-chart-5/10 text-chart-5', label: 'Sponsorizzazione' },
-      collaboration: { color: 'bg-chart-2/10 text-chart-2', label: 'Collaborazione' },
-      approval: { color: 'bg-chart-3/10 text-chart-3', label: 'Approvazione' },
-      notification: { color: 'bg-muted text-muted-foreground', label: 'Notifica' }
+      sponsorship: { color: 'bg-slate-100 text-slate-700', label: 'Sponsorizzazione' },
+      collaboration: { color: 'bg-slate-100 text-slate-700', label: 'Collaborazione' },
+      approval: { color: 'bg-slate-100 text-slate-700', label: 'Approvazione' },
+      notification: { color: 'bg-slate-100 text-slate-700', label: 'Notifica' }
     }
     
     const config = configs[type]
@@ -175,11 +175,11 @@ export default function InboxPage() {
 
   const getStatusBadge = (status: Message['status']) => {
     const configs = {
-      unread: { color: 'bg-destructive/10 text-destructive', label: 'Non letto' },
-      read: { color: 'bg-muted text-muted-foreground', label: 'Letto' },
-      replied: { color: 'bg-chart-2/10 text-chart-2', label: 'Risposto' },
-      accepted: { color: 'bg-chart-5/10 text-chart-5', label: 'Accettato' },
-      declined: { color: 'bg-destructive/10 text-destructive', label: 'Rifiutato' }
+      unread: { color: 'bg-slate-100 text-slate-700', label: 'Non letto' },
+      read: { color: 'bg-slate-100 text-slate-600', label: 'Letto' },
+      replied: { color: 'bg-slate-100 text-slate-700', label: 'Risposto' },
+      accepted: { color: 'bg-slate-100 text-slate-700', label: 'Accettato' },
+      declined: { color: 'bg-slate-100 text-slate-700', label: 'Rifiutato' }
     }
     
     const config = configs[status]
@@ -317,7 +317,7 @@ export default function InboxPage() {
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">{formatDate(message.created_at)}</span>
                       {message.metadata?.amount && (
-                        <span className="font-semibold text-chart-5">€{message.metadata.amount}</span>
+                        <span className="font-semibold text-slate-600">€{message.metadata.amount}</span>
                       )}
                     </div>
                   </div>
@@ -357,7 +357,7 @@ export default function InboxPage() {
                       {selectedMessage.metadata.amount && (
                         <div>
                           <span className="text-xs text-muted-foreground uppercase tracking-wide">Budget</span>
-                          <p className="text-sm font-semibold text-chart-5">€{selectedMessage.metadata.amount}</p>
+                          <p className="text-sm font-semibold text-slate-600">€{selectedMessage.metadata.amount}</p>
                         </div>
                       )}
                       {selectedMessage.metadata.newsletter_name && (
@@ -401,7 +401,7 @@ export default function InboxPage() {
                     </button>
                     {(selectedMessage.type === 'sponsorship' || selectedMessage.type === 'collaboration') && (
                       <>
-                        <button className="px-4 py-2 bg-chart-5 text-white text-sm font-medium rounded-lg hover:bg-chart-5/90">
+                        <button className="px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700">
                           Accetta
                         </button>
                         <button className="px-4 py-2 bg-destructive text-destructive-foreground text-sm font-medium rounded-lg hover:bg-destructive/90">

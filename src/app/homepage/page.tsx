@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
+import { useState } from 'react'
 import { 
   ArrowRight,
   Users,
@@ -16,9 +17,12 @@ import {
   Globe,
   Play,
   ChevronRight,
+  ChevronDown,
   Eye,
   MessageSquare,
-  Target
+  Target,
+  Plus,
+  Minus
 } from 'lucide-react'
 import Image from 'next/image'
 
@@ -46,7 +50,7 @@ const clientLogos = [
 
 const testimonials = [
   {
-    quote: "Newsletter Italiane ci ha permesso di raggiungere il nostro target B2B in modo molto più efficace rispetto agli ads tradizionali.",
+    quote: "Frames ci ha permesso di raggiungere il nostro target B2B in modo molto più efficace rispetto agli ads tradizionali.",
     author: "Marco Rossi",
     role: "Marketing Director",
     company: "TechCorp Italia",
@@ -138,18 +142,40 @@ const pricingPlans = [
 ]
 
 export default function HomePage() {
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null)
+
+  const faqs = [
+    {
+      question: "Come funziona la commissione del 15%?",
+      answer: "La commissione viene applicata solo sui guadagni effettivi. Non ci sono costi di registrazione, canoni mensili o costi nascosti. Paghi solo quando generi ricavi."
+    },
+    {
+      question: "Quando ricevo i pagamenti?",
+      answer: "I pagamenti vengono elaborati automaticamente entro 7 giorni lavorativi dalla conclusione di ogni campagna, direttamente sul tuo conto bancario o PayPal."
+    },
+    {
+      question: "Come vengono selezionate le newsletter?",
+      answer: "Il nostro team verifica ogni newsletter per qualità del contenuto, engagement rate, autenticità dell'audience e aderenza alle nostre linee guida."
+    },
+    {
+      question: "Che tipo di analytics sono disponibili?",
+      answer: "Dashboard completa con metriche in tempo reale: impression, click, conversioni, engagement rate, performance per segmento demografico e molto altro."
+    }
+  ]
+
+  const toggleFAQ = (index: number) => {
+    setOpenFAQ(openFAQ === index ? null : index)
+  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ backgroundColor: '#f7f7f5' }}>
       <Navigation />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden min-h-screen">
-        {/* Section fade out at bottom */}
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-20"></div>
         
         {/* Animated Background with Floating Gradient Blobs */}
-        <div className="absolute inset-0 w-full bg-white relative">
+        <div className="absolute inset-0 w-full relative" style={{ backgroundColor: '#f7f7f5' }}>
           {/* Subtle Moving Background Gradient */}
           <div 
             className="absolute inset-0 opacity-50"
@@ -219,21 +245,21 @@ export default function HomePage() {
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
                 animationDelay: '0.8s'
-              }}>Newsletter</span>
+              }}>newsletter</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '1s' }}>
-              La piattaforma che connette brand italiani con creator di newsletter per sponsorizzazioni 
+              La piattaforma che connette brand italiani con creator per sponsorizzazioni 
               trasparenti, misurabili e ad alto ROI.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 animate-fade-in-up" style={{ animationDelay: '1.2s' }}>
               <Link
                 href="/auth/sign-up"
-                className="inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg"
+                className="group inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg"
               >
                 Iscriviti
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:-rotate-[30deg]" />
               </Link>
               <Link
                 href="/contatti"
@@ -263,9 +289,9 @@ export default function HomePage() {
                   {/* Logos for seamless continuous scroll - no gaps */}
                   {[...clientLogos, ...clientLogos, ...clientLogos, ...clientLogos].map((client, index) => (
                     <div key={index} className="flex-shrink-0">
-                      <div className="relative w-20 h-20 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300">
+                      <div className="relative w-20 h-20 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-500 hover:scale-110 cursor-pointer">
                         <Image
-                          src={client.logo}
+                          src={`${client.logo}?v=20250912-2`}
                           alt={`${client.name} logo`}
                           fill
                           className="object-contain"
@@ -283,10 +309,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Newsletters */}
-      <section id="newsletter" className="py-20 bg-white relative overflow-hidden">
-        {/* Section fade in/out */}
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/80 to-transparent pointer-events-none z-20"></div>
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-20"></div>
+      <section id="newsletter" className="py-20 relative overflow-hidden" style={{ backgroundColor: '#f7f7f5' }}>
         {/* Dot Pattern Background */}
         <div className="absolute inset-0 opacity-30"
           style={{
@@ -295,32 +318,7 @@ export default function HomePage() {
           }}
         ></div>
         
-        {/* Gradient Blobs around cards */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div 
-            className="absolute w-96 h-96 rounded-full blur-3xl"
-            style={{
-              background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)',
-              top: '20%',
-              left: '10%',
-              animation: 'subtleFloat 20s ease-in-out infinite'
-            }}
-          />
-          <div 
-            className="absolute w-80 h-80 rounded-full blur-3xl"
-            style={{
-              background: 'radial-gradient(circle, rgba(6,214,160,0.08) 0%, transparent 70%)',
-              bottom: '20%',
-              right: '15%',
-              animation: 'subtleFloat 25s ease-in-out infinite reverse',
-              animationDelay: '10s'
-            }}
-          />
-        </div>
         
-        {/* Fade in/out effects */}
-        <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-slate-50 to-transparent pointer-events-none z-10"></div>
-        <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none z-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -335,8 +333,6 @@ export default function HomePage() {
           <div className="space-y-6 mb-12 overflow-hidden">
             {/* First row - normal speed */}
             <div className="relative">
-              <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-white via-white/60 via-white/30 to-transparent pointer-events-none"></div>
-              <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-white via-white/60 via-white/30 to-transparent pointer-events-none"></div>
               <div 
                 className="flex items-center space-x-6"
                 style={{
@@ -371,8 +367,6 @@ export default function HomePage() {
             
             {/* Second row - slower speed, opposite direction */}
             <div className="relative">
-              <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-white via-white/60 via-white/30 to-transparent pointer-events-none"></div>
-              <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-white via-white/60 via-white/30 to-transparent pointer-events-none"></div>
               <div 
                 className="flex items-center space-x-6"
                 style={{
@@ -411,28 +405,12 @@ export default function HomePage() {
 
 
       {/* Features */}
-      <section id="come-funziona" className="py-20 bg-white relative overflow-hidden">
-        {/* Section fade in/out */}
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/80 to-transparent pointer-events-none z-20"></div>
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-20"></div>
-        {/* Animated Dot Pattern Background with Parallax */}
-        <div 
-          className="absolute inset-0 opacity-30 parallax-dots"
-          style={{
-            backgroundImage: 'radial-gradient(circle, #000 0.5px, transparent 0.5px)',
-            backgroundSize: '25px 25px',
-            transform: 'translateZ(0)',
-            animation: 'parallaxDots 60s linear infinite'
-          }}
-        ></div>
+      <section id="come-funziona" className="py-20 relative overflow-hidden" style={{ backgroundColor: '#f7f7f5' }}>
         
-        {/* Fade effects */}
-        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-white to-transparent pointer-events-none z-10"></div>
-        <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent pointer-events-none z-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Perché scegliere newsletter Italiane
+              Perché scegliere Frames
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               La soluzione completa per il newsletter advertising in Italia, con strumenti professionali 
@@ -470,48 +448,30 @@ export default function HomePage() {
                   </ul>
                 </div>
                 
-                {/* Feature Card with Blob Background */}
+                {/* Feature Card */}
                 <div className="flex-1 max-w-md relative">
-                  {/* Colored Blob Background */}
                   <div 
-                    className="absolute inset-0 rounded-3xl blur-2xl opacity-60 -z-10 transform scale-110"
-                    style={{
-                      background: `linear-gradient(135deg, ${[
-                        'rgba(16,185,129,0.4), rgba(6,214,160,0.2)',
-                        'rgba(59,130,246,0.4), rgba(147,51,234,0.2)',
-                        'rgba(245,158,11,0.4), rgba(251,191,36,0.2)',
-                        'rgba(239,68,68,0.4), rgba(251,113,133,0.2)'
-                      ][index % 4]})`
-                    }}
-                  ></div>
-                  <div 
-                    className="relative h-80 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/40 shadow-lg overflow-hidden group cursor-pointer card-tilt"
-                    onMouseMove={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const x = e.clientX - rect.left;
-                      const y = e.clientY - rect.top;
-                      const centerX = rect.width / 2;
-                      const centerY = rect.height / 2;
-                      const rotateX = (y - centerY) / 4;
-                      const rotateY = (centerX - x) / 4;
-                      
-                      e.currentTarget.style.setProperty('--rotate-x', `${rotateX}deg`);
-                      e.currentTarget.style.setProperty('--rotate-y', `${rotateY}deg`);
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.setProperty('--rotate-x', '0deg');
-                      e.currentTarget.style.setProperty('--rotate-y', '0deg');
-                    }}
+                    className="relative aspect-[2780/2492] bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden group cursor-pointer"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-chart-2/20 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center space-y-3 opacity-50 group-hover:opacity-80 transition-all duration-300">
-                        {feature.icon && <div className="mx-auto w-12 h-12 text-primary group-hover:text-primary/90 transition-colors duration-300">{feature.icon}</div>}
-                        <p className="text-sm text-muted-foreground font-medium group-hover:text-foreground/80 transition-colors duration-300">{feature.title}</p>
+                    {feature.title === 'Analytics Dettagliate' ? (
+                      <div className="absolute inset-0 flex items-center justify-center p-6">
+                        <Image
+                          src="/images/analytics.png?v=20250912"
+                          alt="Analytics Dashboard"
+                          fill
+                          className="object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-500"
+                        />
                       </div>
-                    </div>
-                    <div className="absolute inset-0 ring-2 ring-transparent group-hover:ring-primary/20 rounded-2xl transition-all duration-300"></div>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center space-y-3 opacity-50 group-hover:opacity-80 transition-all duration-300">
+                          {feature.icon && <div className="mx-auto w-12 h-12 text-primary group-hover:text-primary/90 transition-colors duration-300">{feature.icon}</div>}
+                          <p className="text-sm text-muted-foreground font-medium group-hover:text-foreground/80 transition-colors duration-300">{feature.title}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -532,7 +492,7 @@ export default function HomePage() {
               Quello che dicono i nostri clienti
             </h2>
             <p className="text-xl text-muted-foreground">
-              Brand e creator che hanno trasformato il loro business con Newsletter Italiane
+              Brand e creator che hanno trasformato il loro business con Frames
             </p>
           </div>
 
@@ -612,10 +572,7 @@ export default function HomePage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 bg-white relative overflow-hidden">
-        {/* Section fade in/out */}
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/80 to-transparent pointer-events-none z-20"></div>
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-20"></div>
+      <section id="pricing" className="py-20 relative overflow-hidden" style={{ backgroundColor: '#f7f7f5' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -687,46 +644,36 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-              <h3 className="text-lg font-semibold text-foreground mb-3">
-                Come funziona la commissione del 15%?
-              </h3>
-              <p className="text-muted-foreground">
-                La commissione viene applicata solo sui guadagni effettivi. Non ci sono costi di registrazione, 
-                canoni mensili o costi nascosti. Paghi solo quando generi ricavi.
-              </p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-              <h3 className="text-lg font-semibold text-foreground mb-3">
-                Quando ricevo i pagamenti?
-              </h3>
-              <p className="text-muted-foreground">
-                I pagamenti vengono elaborati automaticamente entro 7 giorni lavorativi dalla conclusione 
-                di ogni campagna, direttamente sul tuo conto bancario o PayPal.
-              </p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-              <h3 className="text-lg font-semibold text-foreground mb-3">
-                Come vengono selezionate le newsletter?
-              </h3>
-              <p className="text-muted-foreground">
-                Il nostro team verifica ogni newsletter per qualità del contenuto, engagement rate, 
-                autenticità dell'audience e aderenza alle nostre linee guida.
-              </p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-              <h3 className="text-lg font-semibold text-foreground mb-3">
-                Che tipo di analytics sono disponibili?
-              </h3>
-              <p className="text-muted-foreground">
-                Dashboard completa con metriche in tempo reale: impression, click, conversioni, 
-                engagement rate, performance per segmento demografico e molto altro.
-              </p>
-            </div>
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+              <div 
+                key={index}
+                className="bg-white rounded-xl border border-border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md"
+              >
+                <button
+                  onClick={() => toggleFAQ(index)}
+                  className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors duration-200"
+                >
+                  <h3 className="text-lg font-semibold text-foreground pr-4">
+                    {faq.question}
+                  </h3>
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center transition-all duration-300 ${openFAQ === index ? 'rotate-180 bg-primary/20' : ''}`}>
+                    <ChevronDown className={`w-5 h-5 transition-colors duration-300 ${openFAQ === index ? 'text-primary' : 'text-slate-500'}`} />
+                  </div>
+                </button>
+                <div 
+                  className={`px-6 overflow-hidden transition-all duration-500 ease-in-out ${
+                    openFAQ === index ? 'max-h-96 pb-5' : 'max-h-0'
+                  }`}
+                >
+                  <div className="border-t border-border/50 pt-4">
+                    <p className="text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -741,15 +688,15 @@ export default function HomePage() {
             Pronto a iniziare la tua crescita?
           </h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Unisciti a centinaia di creator e brand che stanno già crescendo con Newsletter Italiane
+            Unisciti a centinaia di creator e brand che stanno già crescendo con Frames
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/auth/sign-up"
-              className="inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg"
+              className="group inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg"
             >
               Iscriviti
-              <ArrowRight className="ml-2 w-5 h-5" />
+              <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:-rotate-[30deg]" />
             </Link>
             <Link
               href="/contatti"
@@ -762,9 +709,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-100 py-16 relative overflow-hidden">
-        {/* Section fade in at top */}
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-slate-100 via-slate-100/80 to-transparent pointer-events-none z-20"></div>
+      <footer className="py-16 relative overflow-hidden" style={{ backgroundColor: '#f7f7f5' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div>
@@ -799,7 +744,13 @@ export default function HomePage() {
           
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-border">
             <div className="flex items-center gap-4 mb-4 md:mb-0">
-              <div className="text-2xl font-bold text-primary">Newsletter Italiane</div>
+              <Image
+                src="/images/frameslogo.svg?v=20250912-2"
+                alt="Frames"
+                width={180}
+                height={40}
+                className="h-9 w-auto"
+              />
               <div className="text-muted-foreground">© 2025 Tutti i diritti riservati</div>
             </div>
             <div className="flex items-center gap-6">

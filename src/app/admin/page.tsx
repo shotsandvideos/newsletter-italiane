@@ -206,7 +206,7 @@ export default function AdminDashboard() {
                 <div>
                   <h2 className="text-2xl font-bold">Benvenuto, Admin!</h2>
                   <p className="text-red-100 mt-1">
-                    Gestisci la piattaforma Newsletter Italiane
+                    Gestisci la piattaforma Frames
                   </p>
                 </div>
               </div>

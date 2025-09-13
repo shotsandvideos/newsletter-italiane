@@ -35,7 +35,7 @@ const suggestedArticles = [
   },
   {
     id: 'create-account',
-    title: 'Creare il tuo account Newsletter Italiane',
+    title: 'Creare il tuo account Frames',
     description: 'Guida per registrarti e configurare il profilo',
     category: 'Iniziare'
   },

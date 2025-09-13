@@ -25,14 +25,14 @@ function SuccessMessage() {
   if (!showSuccess) return null
 
   return (
-    <div className="fixed top-4 right-4 bg-chart-5/10 border border-chart-5/20 rounded-md p-4 z-50">
+    <div className="fixed top-4 right-4 bg-slate-100 border border-slate-200 rounded-md p-4 z-50">
       <div className="flex">
-        <CheckCircle className="h-5 w-5 text-chart-5" />
+        <CheckCircle className="h-5 w-5 text-slate-500" />
         <div className="ml-3">
-          <p className="text-sm font-medium text-chart-5">
+          <p className="text-sm font-medium text-slate-700">
             Newsletter registrata con successo!
           </p>
-          <p className="text-sm text-chart-5/80">
+          <p className="text-sm text-slate-600">
             Ti contatteremo appena ci saranno opportunità.
           </p>
         </div>
@@ -53,7 +53,7 @@ export default function DashboardPage() {
     unreadMessages: 3
   })
 
-  console.log('Dashboard render - user:', user, 'authLoading:', authLoading, 'loading:', loading)
+  console.log('Dashboard render - user:', user?.email || 'no user', 'authLoading:', authLoading, 'loading:', loading)
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -75,12 +75,17 @@ export default function DashboardPage() {
           type: 'newsletter'
         }
       }))
+    } else if (!authLoading) {
+      // If no user and not loading, set loading to false
+      setLoading(false)
     }
-  }, [user])
+  }, [user, authLoading])
 
   const fetchNewsletters = async () => {
     try {
+      console.log('Fetching newsletters...')
       const result: ApiResponse<Newsletter[]> = await cachedFetch('/api/newsletters', undefined, 60000) // 1 minute cache
+      console.log('Newsletters result:', result)
       
       if (result.success && result.data) {
         setNewsletters(result.data)
@@ -88,23 +93,24 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Error fetching newsletters:', error)
     } finally {
+      console.log('Setting loading to false')
       setLoading(false)
     }
   }
 
   const getStatusColor = (status: Newsletter['status']) => {
     switch (status) {
-      case 'approved': return 'text-chart-5 bg-chart-5/10'
-      case 'rejected': return 'text-destructive bg-destructive/10'
-      default: return 'text-chart-4 bg-chart-4/10'
+      case 'approved': return 'text-slate-700 bg-slate-100'
+      case 'rejected': return 'text-slate-700 bg-slate-100'
+      default: return 'text-slate-700 bg-slate-100'
     }
   }
 
   const getStatusIcon = (status: Newsletter['status']) => {
     switch (status) {
-      case 'approved': return <CheckCircle className="w-4 h-4" />
-      case 'rejected': return <XCircle className="w-4 h-4" />
-      default: return <Clock className="w-4 h-4" />
+      case 'approved': return <CheckCircle className="w-4 h-4 text-slate-500" />
+      case 'rejected': return <XCircle className="w-4 h-4 text-slate-500" />
+      default: return <Clock className="w-4 h-4 text-slate-500" />
     }
   }
 
@@ -117,7 +123,7 @@ export default function DashboardPage() {
   }
 
 
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -236,10 +242,7 @@ export default function DashboardPage() {
                           {stats.nextCommitment.title}
                         </div>
                         <div className="flex items-center gap-1">
-                          <div className={`w-2 h-2 rounded-full ${
-                            stats.nextCommitment.type === 'newsletter' ? 'bg-chart-2' :
-                            stats.nextCommitment.type === 'collaboration' ? 'bg-chart-3' : 'bg-chart-5'
-                          }`} />
+                          <div className="w-2 h-2 rounded-full bg-slate-400" />
                           <span className="text-xs text-muted-foreground capitalize">{stats.nextCommitment.type}</span>
                         </div>
                       </>
@@ -299,7 +302,7 @@ export default function DashboardPage() {
                         <div className="text-xs text-muted-foreground">Scadenza oggi</div>
                       </div>
                     </div>
-                    <span className="text-xs text-chart-4 bg-chart-4/10 px-2 py-1 rounded-full">In ritardo</span>
+                    <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded-full">In ritardo</span>
                   </div>
                   
                   <div className="px-6 py-4 flex items-center justify-between hover:bg-accent">
@@ -310,7 +313,7 @@ export default function DashboardPage() {
                         <div className="text-xs text-muted-foreground">Scadenza domani</div>
                       </div>
                     </div>
-                    <span className="text-xs text-chart-2 bg-chart-2/10 px-2 py-1 rounded-full">In corso</span>
+                    <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded-full">In corso</span>
                   </div>
 
                   <div className="px-6 py-4 flex items-center justify-between hover:bg-accent">
@@ -321,7 +324,7 @@ export default function DashboardPage() {
                         <div className="text-xs text-muted-foreground">18 Gen, ore 15:00</div>
                       </div>
                     </div>
-                    <span className="text-xs text-chart-5 bg-chart-5/10 px-2 py-1 rounded-full">Programmato</span>
+                    <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded-full">Programmato</span>
                   </div>
                 </div>
               </div>
@@ -364,7 +367,7 @@ export default function DashboardPage() {
                         <div className="text-xs text-muted-foreground">Pagato 3 giorni fa</div>
                       </div>
                     </div>
-                    <CheckCircle className="w-4 h-4 text-chart-5" />
+                    <CheckCircle className="w-4 h-4 text-slate-500" />
                   </div>
                   
                   <div className="px-6 py-4 flex items-center justify-between hover:bg-accent">
@@ -375,7 +378,7 @@ export default function DashboardPage() {
                         <div className="text-xs text-muted-foreground">In attesa di conferma</div>
                       </div>
                     </div>
-                    <Clock className="w-4 h-4 text-chart-4" />
+                    <Clock className="w-4 h-4 text-slate-500" />
                   </div>
 
                   <div className="px-6 py-4 flex items-center justify-between hover:bg-accent">
@@ -386,7 +389,7 @@ export default function DashboardPage() {
                         <div className="text-xs text-muted-foreground">Fattura inviata</div>
                       </div>
                     </div>
-                    <span className="text-xs text-chart-2 bg-chart-2/10 px-2 py-1 rounded-full">Fatturato</span>
+                    <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded-full">Fatturato</span>
                   </div>
                 </div>
               </div>

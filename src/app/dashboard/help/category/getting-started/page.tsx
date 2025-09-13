@@ -39,7 +39,7 @@ interface Article {
 const gettingStartedArticles: Article[] = [
   {
     id: 'create-account',
-    title: 'Creare il tuo account Newsletter Italiane',
+    title: 'Creare il tuo account Frames',
     description: 'Guida step-by-step per registrarti e configurare il tuo profilo creator',
     readTime: '2 min',
     difficulty: 'Principiante',
@@ -295,7 +295,7 @@ export default function GettingStartedPage() {
 
             {/* Header Section */}
             <div className="mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-4">Iniziare con Newsletter Italiane</h2>
+              <h2 className="text-3xl font-bold text-foreground mb-4">Iniziare con Frames</h2>
               <p className="text-lg text-muted-foreground mb-8">
                 Tutto quello che devi sapere per iniziare a monetizzare la tua newsletter
               </p>

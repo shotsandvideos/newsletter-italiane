@@ -269,7 +269,7 @@ export default function ContattiPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-4 mb-4 md:mb-0">
-              <div className="text-2xl font-bold text-emerald-400">Newsletter Italiane</div>
+              <div className="text-2xl font-bold text-emerald-400">Frames</div>
               <div className="text-slate-400">© 2025 Tutti i diritti riservati</div>
             </div>
             <div className="flex items-center gap-6">

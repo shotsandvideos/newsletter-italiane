@@ -39,7 +39,7 @@ const videoTutorials: VideoTutorial[] = [
   {
     id: 'getting-started-overview',
     title: 'Panoramica della Piattaforma - Tour Completo',
-    description: 'Una panoramica completa di Newsletter Italiane: dalla registrazione alle prime collaborazioni. Perfetto per chi inizia.',
+    description: 'Una panoramica completa di Frames: dalla registrazione alle prime collaborazioni. Perfetto per chi inizia.',
     duration: '8:45',
     difficulty: 'Principiante',
     category: 'Iniziare',
@@ -274,7 +274,7 @@ export default function VideoTutorialsPage() {
             <div className="mb-12">
               <h2 className="text-3xl font-bold text-foreground mb-4">Video Tutorial</h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Impara a usare Newsletter Italiane con i nostri tutorial video step-by-step
+                Impara a usare Frames con i nostri tutorial video step-by-step
               </p>
 
               {/* Stats */}

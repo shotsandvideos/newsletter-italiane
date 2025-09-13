@@ -125,7 +125,7 @@ export default function SettingsPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-600"></div>
       </div>
     )
   }
@@ -137,7 +137,7 @@ export default function SettingsPage() {
         <div className="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-md p-4 z-50">
           <div className="flex">
             <div className="flex-shrink-0">
-              <Save className="h-5 w-5" style={{color: '#72e3ad'}} />
+              <Save className="h-5 w-5 text-slate-500" />
             </div>
             <div className="ml-3">
               <p className="text-sm font-medium text-green-800">
@@ -167,13 +167,13 @@ export default function SettingsPage() {
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <Settings className="w-5 h-5 text-gray-500" />
+              <Settings className="w-5 h-5 text-slate-500" />
               <h1 className="text-xl font-semibold text-gray-900">Impostazioni</h1>
             </div>
             <button
               onClick={saveSettings}
               disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {isSaving ? 'Salvataggio...' : 'Salva Modifiche'}
@@ -193,8 +193,8 @@ export default function SettingsPage() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm ${
                       activeTab === tab.id
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-slate-600 text-slate-700'
+                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                     }`}
                   >
                     <tab.icon className="w-4 h-4" />
@@ -218,7 +218,7 @@ export default function SettingsPage() {
                       <input
                         type="text"
                         defaultValue={user?.firstName || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500"
                         placeholder="Nome"
                       />
                     </div>
@@ -230,7 +230,7 @@ export default function SettingsPage() {
                       <input
                         type="text"
                         defaultValue={user?.lastName || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500"
                         placeholder="Cognome"
                       />
                     </div>
@@ -257,7 +257,7 @@ export default function SettingsPage() {
                       <select
                         value={settings.timezone}
                         onChange={(e) => handleSettingChange('timezone', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500"
                       >
                         <option value="Europe/Rome">Europa/Roma (UTC+1)</option>
                         <option value="Europe/London">Europa/Londra (UTC+0)</option>
@@ -282,7 +282,7 @@ export default function SettingsPage() {
                           settings.profile_visibility === 'public' ? 'private' : 'public'
                         )}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          settings.profile_visibility === 'public' ? 'bg-blue-600' : 'bg-gray-200'
+                          settings.profile_visibility === 'public' ? 'bg-slate-600' : 'bg-slate-200'
                         }`}
                       >
                         <span
@@ -306,7 +306,7 @@ export default function SettingsPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Mail className="w-5 h-5 text-gray-400" />
+                        <Mail className="w-5 h-5 text-slate-500" />
                         <div>
                           <h3 className="text-sm font-medium text-gray-900">Notifiche Email</h3>
                           <p className="text-sm text-gray-500">Ricevi notifiche via email per eventi importanti</p>
@@ -315,7 +315,7 @@ export default function SettingsPage() {
                       <button
                         onClick={() => handleSettingChange('email_notifications', !settings.email_notifications)}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          settings.email_notifications ? 'bg-blue-600' : 'bg-gray-200'
+                          settings.email_notifications ? 'bg-slate-600' : 'bg-slate-200'
                         }`}
                       >
                         <span
@@ -328,7 +328,7 @@ export default function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Bell className="w-5 h-5 text-gray-400" />
+                        <Bell className="w-5 h-5 text-slate-500" />
                         <div>
                           <h3 className="text-sm font-medium text-gray-900">Avvisi Collaborazioni</h3>
                           <p className="text-sm text-gray-500">Notifiche per nuove opportunità di collaborazione</p>
@@ -337,7 +337,7 @@ export default function SettingsPage() {
                       <button
                         onClick={() => handleSettingChange('collaboration_alerts', !settings.collaboration_alerts)}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          settings.collaboration_alerts ? 'bg-blue-600' : 'bg-gray-200'
+                          settings.collaboration_alerts ? 'bg-slate-600' : 'bg-slate-200'
                         }`}
                       >
                         <span
@@ -350,7 +350,7 @@ export default function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <CreditCard className="w-5 h-5 text-gray-400" />
+                        <CreditCard className="w-5 h-5 text-slate-500" />
                         <div>
                           <h3 className="text-sm font-medium text-gray-900">Notifiche Pagamenti</h3>
                           <p className="text-sm text-gray-500">Aggiornamenti su pagamenti e fatture</p>
@@ -359,7 +359,7 @@ export default function SettingsPage() {
                       <button
                         onClick={() => handleSettingChange('payment_notifications', !settings.payment_notifications)}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          settings.payment_notifications ? 'bg-blue-600' : 'bg-gray-200'
+                          settings.payment_notifications ? 'bg-slate-600' : 'bg-slate-200'
                         }`}
                       >
                         <span
@@ -372,7 +372,7 @@ export default function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Globe className="w-5 h-5 text-gray-400" />
+                        <Globe className="w-5 h-5 text-slate-500" />
                         <div>
                           <h3 className="text-sm font-medium text-gray-900">Email Marketing</h3>
                           <p className="text-sm text-gray-500">Newsletter e aggiornamenti sulla piattaforma</p>

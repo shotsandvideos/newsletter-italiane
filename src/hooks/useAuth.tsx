@@ -51,14 +51,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const getSession = async () => {
       try {
         console.log('Getting session...')
-        const { data: { session } } = await supabase.auth.getSession()
-        console.log('Session received:', !!session?.user)
+        const { data: { session }, error } = await supabase.auth.getSession()
+        console.log('Session received:', !!session?.user, 'Error:', error)
+        
+        if (error) {
+          console.error('Error getting session:', error)
+          setLoading(false)
+          return
+        }
+        
         setSession(session)
         setUser(session?.user ?? null)
         
         if (session?.user) {
-          console.log('Fetching profile...')
+          console.log('Fetching profile for user:', session.user.id)
           await fetchProfile(session.user.id)
+        } else {
+          console.log('No session found - user needs to login')
         }
         console.log('Session initialization complete')
       } catch (error) {
@@ -180,10 +189,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     setLoading(true)
     
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
+
+    if (!error && data.user) {
+      // Set user immediately after successful login
+      setUser(data.user)
+      setSession(data.session)
+      
+      // Fetch profile
+      await fetchProfile(data.user.id)
+    }
 
     setLoading(false)
     return { error }

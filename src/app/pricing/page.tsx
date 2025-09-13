@@ -173,7 +173,7 @@ export default function PricingPage() {
             Pronto a iniziare?
           </h2>
           <p className="text-xl text-emerald-100 mb-8 max-w-2xl mx-auto">
-            Unisciti a centinaia di creator e brand che stanno già crescendo con Newsletter Italiane
+            Unisciti a centinaia di creator e brand che stanno già crescendo con Frames
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -229,7 +229,7 @@ export default function PricingPage() {
           
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-800">
             <div className="flex items-center gap-4 mb-4 md:mb-0">
-              <div className="text-2xl font-bold text-emerald-400">Newsletter Italiane</div>
+              <div className="text-2xl font-bold text-emerald-400">Frames</div>
               <div className="text-slate-400">© 2025 Tutti i diritti riservati</div>
             </div>
             <div className="flex items-center gap-6">

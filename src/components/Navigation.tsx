@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useRef } from 'react'
 import { ChevronDown, Menu, X } from 'lucide-react'
+import Image from 'next/image'
 
 const navigationItems = [
   {
@@ -52,8 +53,14 @@ export default function Navigation() {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-emerald-600">
-              Newsletter Italiane
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/images/frameslogo.svg?v=20250912-2"
+                alt="Frames"
+                width={200}
+                height={45}
+                className="h-10 w-auto"
+              />
             </Link>
           </div>
 

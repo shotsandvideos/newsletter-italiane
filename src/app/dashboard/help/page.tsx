@@ -53,7 +53,7 @@ const helpCategories: HelpCategory[] = [
   {
     id: 'getting-started',
     title: 'Iniziare',
-    description: 'Tutto quello che devi sapere per iniziare su Newsletter Italiane',
+    description: 'Tutto quello che devi sapere per iniziare su Frames',
     icon: <Star className="w-6 h-6" />,
     articleCount: 8,
     popularArticles: ['Come registrare la tua newsletter', 'Impostare il tuo profilo', 'Prime collaborazioni']
@@ -220,7 +220,7 @@ export default function HelpPage() {
                   Come possiamo aiutarti?
                 </h2>
                 <p className="text-lg text-muted-foreground mb-8">
-                  Trova risposte alle tue domande, guide dettagliate e supporto per utilizzare al meglio Newsletter Italiane
+                  Trova risposte alle tue domande, guide dettagliate e supporto per utilizzare al meglio Frames
                 </p>
                 
                 {/* Search Bar */}

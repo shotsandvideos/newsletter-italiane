@@ -53,7 +53,7 @@ export default function AdminSettingsPage() {
 
   const [settings, setSettings] = useState({
     general: {
-      siteName: 'Newsletter Italiane',
+      siteName: 'Frames',
       siteDescription: 'La piattaforma italiana per creator di newsletter',
       contactEmail: 'admin@newsletteritaliane.com',
       supportEmail: 'support@newsletteritaliane.com',

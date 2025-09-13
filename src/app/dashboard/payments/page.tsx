@@ -81,7 +81,7 @@ const mockPayments = [
   {
     id: '4',
     type: 'commission' as const,
-    brand: 'Newsletter Italiane',
+    brand: 'Frames',
     brandLogo: '',
     newsletter: 'Marketing Espresso',
     collaborationId: 'collab-001',
@@ -157,11 +157,11 @@ export default function PaymentsPage() {
 
   const getStatusColor = (status: PaymentStatus) => {
     switch (status) {
-      case 'paid': return 'text-green-700 bg-green-50 ring-green-600/20'
-      case 'pending': return 'text-yellow-700 bg-yellow-50 ring-yellow-600/20'
-      case 'overdue': return 'text-red-700 bg-red-50 ring-red-600/20'
-      case 'cancelled': return 'text-gray-700 bg-gray-50 ring-gray-600/20'
-      default: return 'text-gray-700 bg-gray-50 ring-gray-600/20'
+      case 'paid': return 'text-slate-700 bg-slate-100 ring-slate-600/20'
+      case 'pending': return 'text-slate-700 bg-slate-100 ring-slate-600/20'
+      case 'overdue': return 'text-slate-700 bg-slate-100 ring-slate-600/20'
+      case 'cancelled': return 'text-slate-700 bg-slate-100 ring-slate-600/20'
+      default: return 'text-slate-700 bg-slate-100 ring-slate-600/20'
     }
   }
 
@@ -187,9 +187,9 @@ export default function PaymentsPage() {
 
   const getTypeIcon = (type: PaymentType) => {
     switch (type) {
-      case 'earning': return <ArrowUpRight className="w-4 h-4" style={{color: '#72e3ad'}} />
-      case 'commission': return <ArrowDownRight className="w-4 h-4" style={{color: '#72e3ad'}} />
-      case 'refund': return <ArrowUpRight className="w-4 h-4" style={{color: '#72e3ad'}} />
+      case 'earning': return <ArrowUpRight className="w-4 h-4 text-slate-500" />
+      case 'commission': return <ArrowDownRight className="w-4 h-4 text-slate-500" />
+      case 'refund': return <ArrowUpRight className="w-4 h-4 text-slate-500" />
       default: return <Euro className="w-4 h-4" />
     }
   }
@@ -231,7 +231,7 @@ export default function PaymentsPage() {
           onMobileClose={() => setIsMobileMenuOpen(false)}
         />
         <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-600"></div>
         </div>
       </div>
     )
@@ -259,14 +259,14 @@ export default function PaymentsPage() {
                 <Menu className="w-5 h-5" />
               </button>
               <h1 className="text-xl font-semibold text-gray-900">Pagamenti</h1>
-              <CreditCard className="w-5 h-5 text-gray-400" />
+              <CreditCard className="w-5 h-5 text-slate-500" />
             </div>
             <div className="flex items-center gap-3">
               <button className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50">
                 <Download className="w-4 h-4" />
                 Esporta
               </button>
-              <button className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
+              <button className="inline-flex items-center gap-2 px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700">
                 <Receipt className="w-4 h-4" />
                 Nuova fattura
               </button>
@@ -282,8 +282,8 @@ export default function PaymentsPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-green-50 rounded-lg">
-                    <Wallet className="w-5 h-5" style={{color: '#72e3ad'}} />
+                  <div className="p-2 bg-slate-100 rounded-lg">
+                    <Wallet className="w-5 h-5 text-slate-500" />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.totalEarnings}</p>
@@ -294,8 +294,8 @@ export default function PaymentsPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-green-50 rounded-lg">
-                    <Banknote className="w-5 h-5" style={{color: '#72e3ad'}} />
+                  <div className="p-2 bg-slate-100 rounded-lg">
+                    <Banknote className="w-5 h-5 text-slate-500" />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.thisMonth}</p>
@@ -306,8 +306,8 @@ export default function PaymentsPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-green-50 rounded-lg">
-                    <Clock className="w-5 h-5" style={{color: '#72e3ad'}} />
+                  <div className="p-2 bg-slate-100 rounded-lg">
+                    <Clock className="w-5 h-5 text-slate-500" />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.pendingPayments}</p>
@@ -318,8 +318,8 @@ export default function PaymentsPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-green-50 rounded-lg">
-                    <AlertCircle className="w-5 h-5" style={{color: '#72e3ad'}} />
+                  <div className="p-2 bg-slate-100 rounded-lg">
+                    <AlertCircle className="w-5 h-5 text-slate-500" />
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">€{stats.overduePayments}</p>
@@ -339,7 +339,7 @@ export default function PaymentsPage() {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold text-gray-900">Andamento Introiti</h3>
                   <div className="flex items-center gap-2">
-                    <select className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-slate-500">
                       <option>Ultimo anno</option>
                       <option>Ultimi 6 mesi</option>
                       <option>Ultimi 3 mesi</option>
@@ -378,10 +378,10 @@ export default function PaymentsPage() {
                       <Line 
                         type="monotone" 
                         dataKey="earnings" 
-                        stroke="#3a5ba0" 
+                        stroke="#64748b" 
                         strokeWidth={3}
-                        dot={{ fill: '#3a5ba0', strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, stroke: '#3a5ba0', strokeWidth: 2 }}
+                        dot={{ fill: '#64748b', strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, stroke: '#64748b', strokeWidth: 2 }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -417,7 +417,7 @@ export default function PaymentsPage() {
                       />
                       <Bar 
                         dataKey="transactions" 
-                        fill="#f7c873"
+                        fill="#94a3b8"
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
@@ -438,14 +438,14 @@ export default function PaymentsPage() {
                       placeholder="Cerca transazioni..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                     />
                   </div>
                   
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value as any)}
-                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                   >
                     <option value="all">Tutti</option>
                     <option value="paid">Pagati</option>
@@ -495,7 +495,7 @@ export default function PaymentsPage() {
                             
                             <div className="text-right">
                               <p className={`text-sm font-semibold ${
-                                payment.amount > 0 ? 'text-green-600' : 'text-red-600'
+                                payment.amount > 0 ? 'text-slate-600' : 'text-slate-500'
                               }`}>
                                 {payment.amount > 0 ? '+' : ''}€{Math.abs(payment.amount)}
                               </p>
@@ -513,7 +513,7 @@ export default function PaymentsPage() {
 
                 {filteredPayments.length > 8 && (
                   <div className="px-6 py-4 border-t border-gray-200 text-center">
-                    <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                    <button className="text-sm text-slate-600 hover:text-slate-700 font-medium">
                       Visualizza tutte le transazioni ({filteredPayments.length})
                     </button>
                   </div>

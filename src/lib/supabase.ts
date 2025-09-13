@@ -55,7 +55,7 @@ export type Database = {
       newsletters: {
         Row: {
           id: string
-          creator_id: string
+          user_id: string
           name: string
           description: string
           category: string
@@ -69,7 +69,7 @@ export type Database = {
         }
         Insert: {
           id?: string
-          creator_id: string
+          user_id: string
           name: string
           description: string
           category: string
@@ -83,7 +83,7 @@ export type Database = {
         }
         Update: {
           id?: string
-          creator_id?: string
+          user_id?: string
           name?: string
           description?: string
           category?: string

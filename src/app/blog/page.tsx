@@ -82,7 +82,7 @@ export default function BlogPage() {
       <section className="py-20 bg-gradient-to-br from-emerald-50 to-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
-            Blog Newsletter Italiane
+            Blog Frames
           </h1>
           <p className="text-xl text-slate-600 mb-8">
             Guide, insights e strategie per creator e brand nel mondo del newsletter advertising italiano
@@ -242,7 +242,7 @@ export default function BlogPage() {
           
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-800">
             <div className="flex items-center gap-4 mb-4 md:mb-0">
-              <div className="text-2xl font-bold text-emerald-400">Newsletter Italiane</div>
+              <div className="text-2xl font-bold text-emerald-400">Frames</div>
               <div className="text-slate-400">© 2025 Tutti i diritti riservati</div>
             </div>
             <div className="flex items-center gap-6">

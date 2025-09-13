@@ -235,8 +235,8 @@ export default function AnalyticsPage() {
               <h3 className="text-lg font-semibold text-slate-900">Crescita Iscritti</h3>
               <p className="text-sm text-slate-500 mt-1">Andamento nel tempo</p>
             </div>
-            <div className="p-2 bg-emerald-100 rounded-xl">
-              <Users className="w-5 h-5 text-emerald-600" />
+            <div className="p-2 bg-slate-100 rounded-xl">
+              <Users className="w-5 h-5 text-slate-500" />
             </div>
           </div>
           
@@ -245,7 +245,7 @@ export default function AnalyticsPage() {
             {chartData.subscribers.map((point, index) => (
               <div key={index} className="flex flex-col items-center gap-2">
                 <div 
-                  className="w-8 bg-emerald-500 rounded-t-sm"
+                  className="w-8 bg-slate-500 rounded-t-sm"
                   style={{ 
                     height: `${(point.value / 13000) * 200}px`,
                     minHeight: '20px'
@@ -269,8 +269,8 @@ export default function AnalyticsPage() {
               <h3 className="text-lg font-semibold text-slate-900">Engagement Rate</h3>
               <p className="text-sm text-slate-500 mt-1">Aperture e click nel tempo</p>
             </div>
-            <div className="p-2 bg-blue-100 rounded-xl">
-              <BarChart3 className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-slate-100 rounded-xl">
+              <BarChart3 className="w-5 h-5 text-slate-500" />
             </div>
           </div>
 

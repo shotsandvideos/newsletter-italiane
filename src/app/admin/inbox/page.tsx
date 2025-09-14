@@ -29,6 +29,7 @@ export default function AdminInboxPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedMessage, setSelectedMessage] = useState(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -209,179 +210,169 @@ export default function AdminInboxPage() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto px-6 py-6">
-          <div className="space-y-6">
+        {/* Split View Content */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Message List - Left Panel */}
+          <div className="w-96 bg-white border-r border-slate-200 flex flex-col">
             {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 relative">
+            <div className="p-4 border-b border-slate-200 space-y-4">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Cerca messaggi..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm placeholder-slate-400 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 {filters.map(filter => (
                   <button
                     key={filter.value}
                     onClick={() => setSelectedFilter(filter.value)}
-                    className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${
+                    className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
                       selectedFilter === filter.value
                         ? 'bg-red-600 text-white'
-                        : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    {filter.label} ({filter.count})
+                    {filter.label.split(' ')[0]} ({filter.count})
                   </button>
                 ))}
               </div>
             </div>
-
+            
             {/* Messages List */}
-            <div className="bg-white rounded-2xl border border-slate-200">
-              <div className="p-6 border-b border-slate-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    Messaggi ({filteredMessages.length})
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
-                      <Archive className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="divide-y divide-slate-200">
-                {filteredMessages.map((message) => (
-                  <div key={message.id} className={`p-6 hover:bg-slate-50 transition-colors ${
-                    message.status === 'unread' ? 'bg-blue-50/30' : ''
-                  }`}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4 flex-1 min-w-0">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 bg-gradient-to-br from-slate-500 to-slate-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-sm font-semibold">
-                              {message.from.avatar}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-semibold text-slate-900">
-                                {message.from.name}
-                              </h4>
-                              {message.status === 'unread' && (
-                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                              )}
-                            </div>
-                            <span className="text-xs text-slate-500">
-                              {new Date(message.timestamp).toLocaleString('it-IT')}
-                            </span>
-                            {(() => {
-                              const IconComponent = getCategoryIcon(message.category)
-                              return <IconComponent className="w-4 h-4 text-red-600" />
-                            })()}
-                          </div>
-                          
-                          <div className="flex items-center gap-2 mb-2">
-                            <h5 className="font-medium text-slate-900 truncate">
-                              {message.subject}
-                            </h5>
-                            <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${getPriorityColor(message.priority)}`}>
-                              {message.priority === 'high' ? 'Alta' : message.priority === 'medium' ? 'Media' : 'Bassa'}
-                            </span>
-                          </div>
-                          
-                          <p className="text-sm text-slate-600 line-clamp-2 mb-3">
-                            {message.preview}
-                          </p>
-                          
-                          <div className="flex items-center gap-2">
-                            <button className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 transition-colors">
-                              <Reply className="w-3 h-3" />
-                              Rispondi
-                            </button>
-                            <button className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-lg hover:bg-slate-200 transition-colors">
-                              <Archive className="w-3 h-3" />
-                              Archivia
-                            </button>
-                            {message.starred ? (
-                              <Star className="w-4 h-4 text-amber-500 fill-current" />
-                            ) : (
-                              <button className="p-1 text-slate-400 hover:text-amber-500">
-                                <Star className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
+            <div className="flex-1 overflow-y-auto">
+              {filteredMessages.map((message) => (
+                <div 
+                  key={message.id} 
+                  onClick={() => setSelectedMessage(message)}
+                  className={`p-3 border-b border-slate-100 cursor-pointer transition-colors hover:bg-slate-50 ${
+                    selectedMessage?.id === message.id ? 'bg-red-50 border-red-100' : ''
+                  } ${message.status === 'unread' ? 'bg-blue-50/30' : ''}`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-slate-500 to-slate-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-xs font-semibold">
+                        {message.from.avatar}
+                      </span>
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-sm truncate ${message.status === 'unread' ? 'font-semibold text-slate-900' : 'text-slate-700'}`}>
+                          {message.from.name}
+                        </span>
+                        {message.starred && <Star className="w-3 h-3 text-yellow-500 fill-current" />}
+                        {message.status === 'unread' && <div className="w-2 h-2 bg-red-500 rounded-full" />}
+                      </div>
+                      
+                      <h5 className={`text-sm truncate mb-1 ${message.status === 'unread' ? 'font-medium text-slate-900' : 'text-slate-700'}`}>
+                        {message.subject}
+                      </h5>
+                      
+                      <p className="text-xs text-slate-500 truncate mb-2">
+                        {message.preview}
+                      </p>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-400">
+                          {new Date(message.timestamp).toLocaleDateString('it-IT')}
+                        </span>
+                        <span className={`px-1.5 py-0.5 text-xs rounded-full ${getPriorityColor(message.priority)}`}>
+                          {message.priority === 'high' ? 'Alta' : message.priority === 'medium' ? 'Media' : 'Bassa'}
+                        </span>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Mail className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Messaggi oggi</p>
-                    <p className="text-lg font-semibold text-slate-900">12</p>
-                  </div>
                 </div>
-              </div>
-              
-              <div className="bg-white p-4 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-100 rounded-lg">
-                    <AlertCircle className="w-4 h-4 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Da rispondere</p>
-                    <p className="text-lg font-semibold text-slate-900">3</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white p-4 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-100 rounded-lg">
-                    <CheckCircle className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Risolti oggi</p>
-                    <p className="text-lg font-semibold text-slate-900">8</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white p-4 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <Clock className="w-4 h-4 text-red-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Tempo medio</p>
-                    <p className="text-lg font-semibold text-slate-900">2.5h</p>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
-        </main>
+
+          {/* Message Content - Right Panel */}
+          <div className="flex-1 bg-white flex flex-col">
+            {selectedMessage ? (
+              <>
+                {/* Message Header */}
+                <div className="p-6 border-b border-slate-200">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h1 className="text-lg font-semibold text-slate-900 mb-2">
+                        {selectedMessage.subject}
+                      </h1>
+                      <div className="flex items-center gap-3 text-sm text-slate-600">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          <span>{selectedMessage.from.name} ({selectedMessage.from.email})</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          <span>{new Date(selectedMessage.timestamp).toLocaleString('it-IT')}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <button className={`p-2 rounded-lg transition-colors ${
+                        selectedMessage.starred 
+                          ? 'text-yellow-500 hover:bg-yellow-50' 
+                          : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                      }`}>
+                        <Star className={`w-4 h-4 ${selectedMessage.starred ? 'fill-current' : ''}`} />
+                      </button>
+                      <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg">
+                        <Archive className="w-4 h-4" />
+                      </button>
+                      <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Message Body */}
+                <div className="flex-1 p-6 overflow-y-auto">
+                  <div className="prose prose-sm max-w-none">
+                    {selectedMessage.content.split('\n').map((paragraph, index) => (
+                      <p key={index} className="text-slate-700 leading-relaxed mb-4">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Reply Actions */}
+                <div className="p-6 border-t border-slate-200 bg-slate-50">
+                  <div className="flex items-center gap-3">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                      <Reply className="w-4 h-4" />
+                      Rispondi
+                    </button>
+                    <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-white transition-colors">
+                      <Archive className="w-4 h-4" />
+                      Archivia
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <Mail className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-slate-900 mb-2">
+                    Seleziona un messaggio
+                  </h3>
+                  <p className="text-slate-500">
+                    Scegli un messaggio dalla lista per visualizzarlo
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

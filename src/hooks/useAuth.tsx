@@ -118,12 +118,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle() // Use maybeSingle instead of single to handle no results gracefully
 
       if (error) {
-        console.error('Error fetching profile:', error)
-        // Don't block auth even if profile fails to load
-        setProfile(null)
+        console.error('Error fetching profile:', error.message || error)
+        // Create a basic profile if none exists
+        const basicProfile = {
+          id: userId,
+          email: user?.email || '',
+          first_name: null,
+          last_name: null,
+          username: null,
+          avatar_url: null,
+          role: 'creator' as const,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        setProfile(basicProfile)
         return
       }
 
@@ -131,13 +143,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Profile loaded:', data)
         setProfile(data)
       } else {
-        console.log('No profile data found')
-        setProfile(null)
+        console.log('No profile data found, creating basic profile')
+        // Create a basic profile if none exists
+        const basicProfile = {
+          id: userId,
+          email: user?.email || '',
+          first_name: null,
+          last_name: null,
+          username: null,
+          avatar_url: null,
+          role: 'creator' as const,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        setProfile(basicProfile)
       }
     } catch (error) {
       console.error('Error in fetchProfile:', error)
-      // Don't block auth even if profile fails to load
-      setProfile(null)
+      // Create a basic profile fallback
+      const basicProfile = {
+        id: userId,
+        email: user?.email || '',
+        first_name: null,
+        last_name: null,
+        username: null,
+        avatar_url: null,
+        role: 'creator' as const,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      setProfile(basicProfile)
     }
     console.log('fetchProfile completed')
   }
@@ -208,11 +245,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    setLoading(true)
-    await supabase.auth.signOut()
-    setProfile(null)
-    setLoading(false)
-    router.push('/')
+    // Don't set loading to true during signout to avoid UI blocking
+    try {
+      await supabase.auth.signOut()
+      setUser(null)
+      setSession(null)
+      setProfile(null)
+      // Navigate immediately without waiting
+      router.push('/')
+    } catch (error) {
+      console.error('Error signing out:', error)
+      // Even if signout fails, clear local state and redirect
+      setUser(null)
+      setSession(null)
+      setProfile(null)
+      router.push('/')
+    }
   }
 
   const updateProfile = async (updates: Partial<Profile>) => {

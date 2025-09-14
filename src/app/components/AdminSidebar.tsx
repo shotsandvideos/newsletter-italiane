@@ -46,7 +46,11 @@ const bottomNavigation = [
 
 export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: AdminSidebarProps) {
   const pathname = usePathname()
-  const { user, profile } = useAuth()
+  const { user, profile, signOut } = useAuth()
+  
+  const handleSignOut = async () => {
+    await signOut()
+  }
 
   return (
     <>
@@ -95,13 +99,13 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
               <p className="text-xs text-red-600 font-medium">Super Administrator</p>
             </div>
           </div>
-          <Link
-            href="/auth/sign-out"
+          <button
+            onClick={handleSignOut}
             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
             title="Esci"
           >
             <LogOut className="w-4 h-4" />
-          </Link>
+          </button>
         </div>
 
         {/* Main Navigation */}
@@ -115,7 +119,7 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                    "group flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                     "hover:bg-slate-50",
                     isActive
                       ? 'bg-red-50 text-red-700 shadow-sm border border-red-100'
@@ -123,17 +127,11 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
                   )}
                 >
                   <item.icon className={cn(
-                    "w-5 h-5 transition-colors",
+                    "w-4 h-4 transition-colors",
                     isActive ? 'text-red-600' : 'text-slate-500 group-hover:text-slate-700'
                   )} />
                   <div className="flex-1">
-                    <div className="font-medium">{item.name}</div>
-                    <div className={cn(
-                      "text-xs",
-                      isActive ? 'text-red-600' : 'text-slate-500'
-                    )}>
-                      {item.description}
-                    </div>
+                    <div className="text-sm font-medium">{item.name}</div>
                   </div>
                   {isActive && (
                     <div className="w-1.5 h-6 bg-red-500 rounded-full"></div>
@@ -153,7 +151,7 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                      "group flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                       "hover:bg-slate-50",
                       isActive
                         ? 'bg-red-50 text-red-700 shadow-sm border border-red-100'
@@ -161,17 +159,11 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
                     )}
                   >
                     <item.icon className={cn(
-                      "w-5 h-5 transition-colors",
+                      "w-4 h-4 transition-colors",
                       isActive ? 'text-red-600' : 'text-slate-500 group-hover:text-slate-700'
                     )} />
                     <div className="flex-1">
-                      <div className="font-medium">{item.name}</div>
-                      <div className={cn(
-                        "text-xs",
-                        isActive ? 'text-red-600' : 'text-slate-500'
-                      )}>
-                        {item.description}
-                      </div>
+                      <div className="text-sm font-medium">{item.name}</div>
                     </div>
                     {isActive && (
                       <div className="w-1.5 h-6 bg-red-500 rounded-full"></div>
@@ -196,7 +188,7 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                    "group flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                     isCreatorSwitch
                       ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100"
                       : "hover:bg-slate-50",
@@ -206,7 +198,7 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
                   )}
                 >
                   <item.icon className={cn(
-                    "w-5 h-5 transition-colors",
+                    "w-4 h-4 transition-colors",
                     isCreatorSwitch
                       ? 'text-emerald-600'
                       : isActive 
@@ -214,17 +206,7 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
                       : 'text-slate-500 group-hover:text-slate-700'
                   )} />
                   <div className="flex-1">
-                    <div className="font-medium">{item.name}</div>
-                    <div className={cn(
-                      "text-xs",
-                      isCreatorSwitch
-                        ? 'text-emerald-600'
-                        : isActive 
-                        ? 'text-slate-600' 
-                        : 'text-slate-500'
-                    )}>
-                      {item.description}
-                    </div>
+                    <div className="text-sm font-medium">{item.name}</div>
                   </div>
                 </Link>
               )

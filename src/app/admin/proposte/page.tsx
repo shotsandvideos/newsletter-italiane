@@ -281,59 +281,59 @@ export default function AdminPropostePage() {
         <main className="flex-1 overflow-auto px-6 py-6">
           <div className="space-y-6">
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-xl">
-                    <HandHeart className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <HandHeart className="w-4 h-4 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">
+                    <p className="text-lg font-bold text-slate-900">
                       {proposals.length}
                     </p>
-                    <p className="text-sm text-slate-600">Proposte totali</p>
+                    <p className="text-xs text-slate-600">Proposte</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200">
+              <div className="bg-white p-4 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-100 rounded-xl">
-                    <Clock className="w-5 h-5 text-yellow-600" />
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <Clock className="w-4 h-4 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">
+                    <p className="text-lg font-bold text-slate-900">
                       {proposals.filter(p => ['pending', 'under_review'].includes(p.status)).length}
                     </p>
-                    <p className="text-sm text-slate-600">Da revisionare</p>
+                    <p className="text-xs text-slate-600">Da revisionare</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200">
+              <div className="bg-white p-4 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-100 rounded-xl">
-                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">
+                    <p className="text-lg font-bold text-slate-900">
                       {proposals.filter(p => p.status === 'approved').length}
                     </p>
-                    <p className="text-sm text-slate-600">Approvate</p>
+                    <p className="text-xs text-slate-600">Approvate</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200">
+              <div className="bg-white p-4 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-xl">
-                    <Euro className="w-5 h-5 text-purple-600" />
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <Euro className="w-4 h-4 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">
+                    <p className="text-lg font-bold text-slate-900">
                       €{proposals.reduce((sum, p) => sum + p.budget.max, 0).toLocaleString()}
                     </p>
-                    <p className="text-sm text-slate-600">Budget totale</p>
+                    <p className="text-xs text-slate-600">Budget</p>
                   </div>
                 </div>
               </div>
@@ -369,9 +369,9 @@ export default function AdminPropostePage() {
             </div>
 
             {/* Proposals List */}
-            <div className="bg-white rounded-2xl border border-slate-200">
-              <div className="p-6 border-b border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900">
+            <div className="bg-white rounded-lg border border-slate-200">
+              <div className="p-4 border-b border-slate-200">
+                <h3 className="text-base font-semibold text-slate-900">
                   Proposte ({filteredProposals.length})
                 </h3>
               </div>
@@ -382,127 +382,82 @@ export default function AdminPropostePage() {
                   const StatusIcon = statusInfo.icon
 
                   return (
-                    <div key={proposal.id} className={`p-6 hover:bg-slate-50 transition-colors border-l-4 ${getPriorityColor(proposal.priority)}`}>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-red-100 text-red-600 font-bold text-lg rounded-xl flex items-center justify-center flex-shrink-0">
-                              {proposal.brand.logo}
-                            </div>
-                            
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h4 className="text-lg font-semibold text-slate-900">
-                                  {proposal.title}
-                                </h4>
-                                <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
-                                  <StatusIcon className="w-3 h-3" />
-                                  {statusInfo.label}
-                                </span>
-                                {proposal.priority === 'high' && (
-                                  <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium">
-                                    Alta priorità
-                                  </span>
-                                )}
-                              </div>
-
-                              <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
-                                <div className="flex items-center gap-1">
-                                  <Building2 className="w-4 h-4" />
-                                  <span className="font-medium">{proposal.brand.name}</span>
-                                </div>
-                                <span className="px-2 py-1 bg-slate-100 rounded-lg">
-                                  {proposal.brand.sector}
-                                </span>
-                                <div className="flex items-center gap-1">
-                                  <Euro className="w-4 h-4" />
-                                  <span>€{proposal.budget.min.toLocaleString()} - €{proposal.budget.max.toLocaleString()}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Users className="w-4 h-4" />
-                                  <span>{proposal.applications} candidature</span>
-                                </div>
-                              </div>
-
-                              <p className="text-sm text-slate-600 mb-4 line-clamp-2">
-                                {proposal.description}
-                              </p>
-
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-1 text-xs text-slate-500">
-                                    <Target className="w-3 h-3" />
-                                    <span>Target Audience</span>
-                                  </div>
-                                  <p className="text-sm text-slate-700">{proposal.requirements.targetAudience}</p>
-                                  <p className="text-xs text-slate-500">Min. {proposal.requirements.minSubscribers.toLocaleString()} iscritti</p>
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-1 text-xs text-slate-500">
-                                    <MapPin className="w-3 h-3" />
-                                    <span>Localizzazione</span>
-                                  </div>
-                                  <p className="text-sm text-slate-700">{proposal.requirements.location}</p>
-                                  <div className="flex flex-wrap gap-1">
-                                    {proposal.requirements.categories.map((category, index) => (
-                                      <span key={index} className="px-1.5 py-0.5 bg-slate-100 text-slate-600 text-xs rounded">
-                                        {category}
-                                      </span>
-                                    ))}
-                                  </div>
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-1 text-xs text-slate-500">
-                                    <Calendar className="w-3 h-3" />
-                                    <span>Timeline</span>
-                                  </div>
-                                  <p className="text-sm text-slate-700">
-                                    Scadenza: {new Date(proposal.timeline.deadline).toLocaleDateString('it-IT')}
-                                  </p>
-                                  <p className="text-xs text-slate-500">
-                                    Inizio: {new Date(proposal.timeline.campaignStart).toLocaleDateString('it-IT')}
-                                  </p>
-                                </div>
-                              </div>
-
-                              {proposal.status === 'rejected' && proposal.rejectionReason && (
-                                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
-                                  <XCircle className="w-4 h-4 text-red-600 mt-0.5" />
-                                  <div>
-                                    <p className="text-sm font-medium text-red-800">Proposta rifiutata</p>
-                                    <p className="text-sm text-red-700 mt-1">{proposal.rejectionReason}</p>
-                                  </div>
-                                </div>
-                              )}
-
-                              <div className="flex items-center gap-2">
-                                <button className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                  <Eye className="w-4 h-4" />
-                                  Dettagli
-                                </button>
-                                
-                                {['pending', 'under_review'].includes(proposal.status) && (
-                                  <>
-                                    <button className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors">
-                                      <CheckCircle className="w-4 h-4" />
-                                      Approva
-                                    </button>
-                                    <button className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                                      <XCircle className="w-4 h-4" />
-                                      Rifiuta
-                                    </button>
-                                  </>
-                                )}
-
-                                <button className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors">
-                                  <MessageSquare className="w-4 h-4" />
-                                  Contatta
-                                </button>
-                              </div>
-                            </div>
+                    <div key={proposal.id} className={`p-3 hover:bg-slate-50 transition-colors border-l-4 ${getPriorityColor(proposal.priority)}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-10 h-10 bg-red-100 text-red-600 font-bold text-sm rounded-lg flex items-center justify-center flex-shrink-0">
+                            {proposal.brand.logo}
                           </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="text-sm font-medium text-slate-900 truncate">
+                                {proposal.title}
+                              </h4>
+                              <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                                <StatusIcon className="w-3 h-3" />
+                                {statusInfo.label}
+                              </span>
+                              {proposal.priority === 'high' && (
+                                <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                  Alta
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-4 text-xs text-slate-600">
+                              <span className="flex items-center gap-1">
+                                <Building2 className="w-3 h-3" />
+                                {proposal.brand.name}
+                              </span>
+                              <span className="px-1.5 py-0.5 bg-slate-100 rounded text-xs">
+                                {proposal.brand.sector}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Euro className="w-3 h-3" />
+                                €{proposal.budget.min.toLocaleString()}-€{proposal.budget.max.toLocaleString()}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="w-3 h-3" />
+                                {proposal.applications} candidature
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                Scadenza {new Date(proposal.timeline.deadline).toLocaleDateString('it-IT')}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Target className="w-3 h-3" />
+                                Min. {proposal.requirements.minSubscribers.toLocaleString()} iscritti
+                              </span>
+                            </div>
+
+                            {proposal.status === 'rejected' && proposal.rejectionReason && (
+                              <div className="text-xs text-red-700 bg-red-50 px-2 py-1 rounded mt-1">
+                                Rifiutata: {proposal.rejectionReason}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 ml-3">
+                          <button className="p-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors">
+                            <Eye className="w-3 h-3" />
+                          </button>
+                          
+                          {['pending', 'under_review'].includes(proposal.status) && (
+                            <>
+                              <button className="p-1.5 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 transition-colors">
+                                <CheckCircle className="w-3 h-3" />
+                              </button>
+                              <button className="p-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors">
+                                <XCircle className="w-3 h-3" />
+                              </button>
+                            </>
+                          )}
+
+                          <button className="p-1.5 bg-slate-100 text-slate-600 text-xs rounded hover:bg-slate-200 transition-colors">
+                            <MessageSquare className="w-3 h-3" />
+                          </button>
                         </div>
                       </div>
                     </div>

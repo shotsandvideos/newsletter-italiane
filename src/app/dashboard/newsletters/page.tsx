@@ -14,7 +14,6 @@ import {
   Users,
   Eye,
   Edit,
-  MoreHorizontal,
   Filter,
   Search,
   X,
@@ -855,105 +854,73 @@ export default function NewslettersPage() {
                 <table className="w-full">
                   <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
-                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Newsletter</th>
-                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Iscritti</th>
-                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Open Rate</th>
-                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">CTR</th>
-                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Ads Inventory</th>
-                      <th className="text-left px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Status</th>
-                      <th className="text-right px-6 py-3 text-xs font-medium text-slate-700 uppercase tracking-wider">Azioni</th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Newsletter</th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Iscritti</th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Open Rate</th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">CTR</th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Prezzo</th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Status</th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Azioni</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
-                    {filteredNewsletters.map((newsletter) => {
-                      // Mock ads inventory data - in real app this would come from API
-                      const adsInventory = [
-                        { type: 'Sponsored Text', cpc: '€0.15' },
-                        { type: 'Banner Header', cpc: '€0.25' },
-                        { type: 'Newsletter Footer', cpc: '€0.10' }
-                      ]
-                      
-                      return (
+                    {filteredNewsletters.map((newsletter) => (
                         <tr key={newsletter.id} className="hover:bg-slate-50">
-                          <td className="px-6 py-3">
+                          <td className="px-4 py-2">
                             <div className="flex items-center gap-3">
                               <div>
                                 <h4 className="text-sm font-medium text-slate-900 truncate max-w-48">
                                   {newsletter.nome_newsletter}
                                 </h4>
-                                <p className="text-xs text-slate-500">{newsletter.categoria}</p>
+                                <p className="text-xs text-slate-500">
+                                  {newsletter.categoria} • {newsletter.numero_iscritti?.toLocaleString('it-IT') || 0} iscritti
+                                </p>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-3">
+                          <td className="px-4 py-2">
                             <div className="flex items-center gap-1">
                               <Users className="w-3 h-3 text-slate-400" />
-                              <span className="text-sm text-slate-900">{newsletter.numero_iscritti_tier}</span>
+                              <span className="text-sm text-slate-900">{newsletter.numero_iscritti?.toLocaleString('it-IT') || 0}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-3">
+                          <td className="px-4 py-2">
                             <span className="text-sm text-slate-900">{newsletter.open_rate}%</span>
                           </td>
-                          <td className="px-6 py-3">
+                          <td className="px-4 py-2">
                             <span className="text-sm text-slate-900">{newsletter.ctr}%</span>
                           </td>
-                          <td className="px-6 py-3">
-                            <div className="space-y-1">
-                              {adsInventory.map((ad, index) => (
-                                <div key={index} className="flex items-center justify-between">
-                                  <span className="text-xs text-slate-600">{ad.type}</span>
-                                  <span className="text-xs font-medium text-slate-900">{ad.cpc}</span>
-                                </div>
-                              ))}
-                            </div>
+                          <td className="px-4 py-2">
+                            <span className="text-sm font-medium text-slate-900">
+                              €{newsletter.prezzo_sponsorizzazione?.toLocaleString('it-IT') || 0}
+                            </span>
                           </td>
-                          <td className="px-6 py-3">
+                          <td className="px-4 py-2">
                             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusColor(newsletter.status)}`}>
                               {getStatusIcon(newsletter.status)}
                               {getStatusText(newsletter.status)}
                             </span>
                           </td>
-                          <td className="px-6 py-3 text-right">
-                            <div className="flex items-center justify-end gap-2">
+                          <td className="px-4 py-2">
+                            <div className="flex items-center justify-end gap-1">
                               <button 
                                 onClick={() => handleEditNewsletter(newsletter)}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors"
+                                className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                title="Modifica"
                               >
-                                <Edit className="w-3 h-3" />
-                                Modifica
+                                <Edit className="w-4 h-4" />
                               </button>
-                              
-                              <div className="relative group">
-                                <button className="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100">
-                                  <MoreHorizontal className="w-4 h-4" />
-                                </button>
-                                
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-slate-200 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                                  <div className="py-1">
-                                    <a
-                                      href={newsletter.url_archivio}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                                    >
-                                      <Eye className="w-4 h-4" />
-                                      Visualizza archivio
-                                    </a>
-                                    <button
-                                      onClick={() => handleDeleteNewsletter(newsletter)}
-                                      className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                      Elimina newsletter
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
+                              <button
+                                onClick={() => handleDeleteNewsletter(newsletter)}
+                                className="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Elimina"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
                           </td>
                         </tr>
-                      )
-                    })}
+                    ))}
                   </tbody>
                 </table>
               </div>

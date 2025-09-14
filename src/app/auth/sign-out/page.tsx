@@ -1,15 +1,29 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '../../../hooks/useAuth'
 import { LoadingSpinner } from '../../components/ui/design-system'
 
 export default function SignOutPage() {
   const { signOut } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
-    signOut()
-  }, [signOut])
+    // Call signOut immediately
+    const performSignOut = async () => {
+      await signOut()
+    }
+    
+    performSignOut()
+    
+    // Fallback redirect after 2 seconds if signOut doesn't redirect
+    const timeout = setTimeout(() => {
+      router.push('/')
+    }, 2000)
+    
+    return () => clearTimeout(timeout)
+  }, []) // Remove signOut from dependencies to avoid re-runs
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">

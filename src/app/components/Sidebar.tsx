@@ -47,10 +47,14 @@ const bottomNavigation = [
 
 export default function Sidebar({ isMobileOpen = false, onMobileClose }: SidebarProps) {
   const pathname = usePathname()
-  const { user, profile } = useAuth()
+  const { user, profile, signOut } = useAuth()
   
   // Check if user is admin
   const isAdmin = profile?.role === 'admin'
+  
+  const handleSignOut = async () => {
+    await signOut()
+  }
 
   return (
     <>
@@ -105,13 +109,13 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
               <p className="text-xs text-emerald-600 font-medium">Creator Attivo</p>
             </div>
           </div>
-          <Link
-            href="/auth/sign-out"
+          <button
+            onClick={handleSignOut}
             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
             title="Esci"
           >
             <LogOut className="w-4 h-4" />
-          </Link>
+          </button>
         </div>
 
         {/* Main Navigation */}

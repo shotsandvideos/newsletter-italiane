@@ -25,6 +25,12 @@ import {
   Minus
 } from 'lucide-react'
 import Image from 'next/image'
+import { 
+  FadeInOnScroll, 
+  ScrollProgress, 
+  StaggeredContainer, 
+  TextReveal 
+} from '@/components/animations'
 
 const featuredNewsletters = [
   { name: 'TechWeek Italia', subscribers: '12,5k', category: 'Technology', engagement: '4.2%' },
@@ -169,6 +175,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f7f7f5' }}>
+      <ScrollProgress />
       <Navigation />
 
       {/* Hero Section */}
@@ -230,45 +237,65 @@ export default function HomePage() {
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight">
-              <span className="inline-block animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Dove i</span>{' '}
-              <span className="inline-block animate-fade-in-up" style={{
-                background: 'linear-gradient(135deg, #32c2db 0%, #67e294 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                animationDelay: '0.4s'
-              }}>brand</span>{' '}
-              <span className="inline-block animate-fade-in-up" style={{ animationDelay: '0.6s' }}>incontrano le</span>{' '}
-              <span className="inline-block animate-fade-in-up" style={{
-                background: 'linear-gradient(135deg, #32c2db 0%, #67e294 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                animationDelay: '0.8s'
-              }}>newsletter</span>
+              <TextReveal 
+                text="Dove i" 
+                delay={200}
+                className="inline-block mr-4"
+              />
+              <TextReveal 
+                text="brand" 
+                delay={400}
+                className="inline-block mr-4"
+                style={{
+                  background: 'linear-gradient(135deg, #32c2db 0%, #67e294 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}
+              />
+              <TextReveal 
+                text="incontrano le" 
+                delay={600}
+                className="inline-block mr-4"
+              />
+              <TextReveal 
+                text="newsletter" 
+                delay={800}
+                className="inline-block"
+                style={{
+                  background: 'linear-gradient(135deg, #32c2db 0%, #67e294 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}
+              />
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '1s' }}>
-              La piattaforma che connette brand italiani con creator per sponsorizzazioni 
-              trasparenti, misurabili e ad alto ROI.
-            </p>
+            <FadeInOnScroll delay={1000} direction="up">
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+                La piattaforma che connette brand italiani con creator per sponsorizzazioni 
+                trasparenti, misurabili e ad alto ROI.
+              </p>
+            </FadeInOnScroll>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 animate-fade-in-up" style={{ animationDelay: '1.2s' }}>
+            <FadeInOnScroll delay={1200} direction="up">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Link
                 href="/auth/sign-up"
-                className="group inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg"
+                className="group inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg btn-animated hover-lift"
               >
                 Iscriviti
                 <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:-rotate-[30deg]" />
               </Link>
-              <Link
-                href="/contatti"
-                className="inline-flex items-center justify-center px-8 py-4 border border-border bg-card text-foreground rounded-lg hover:bg-accent transition-colors font-semibold text-lg"
-              >
-                <Play className="mr-2 w-5 h-5" />
-                Richiedi Demo
-              </Link>
-            </div>
+                <Link
+                  href="/contatti"
+                  className="inline-flex items-center justify-center px-8 py-4 border border-border bg-card text-foreground rounded-lg hover:bg-accent transition-colors font-semibold text-lg btn-animated hover-lift"
+                >
+                  <Play className="mr-2 w-5 h-5" />
+                  Richiedi Demo
+                </Link>
+              </div>
+            </FadeInOnScroll>
 
             {/* Client Logos Marquee */}
             <div className="mt-8 overflow-hidden max-w-4xl mx-auto">
@@ -408,7 +435,7 @@ export default function HomePage() {
       <section id="come-funziona" className="py-20 relative overflow-hidden" style={{ backgroundColor: '#f7f7f5' }}>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
+          <FadeInOnScroll direction="up" className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Perché scegliere Frames
             </h2>
@@ -416,18 +443,18 @@ export default function HomePage() {
               La soluzione completa per il newsletter advertising in Italia, con strumenti professionali 
               e supporto dedicato
             </p>
-          </div>
+          </FadeInOnScroll>
 
-          <div className="space-y-24">
+          <StaggeredContainer 
+            className="space-y-24" 
+            staggerDelay={300}
+          >
             {features.map((feature, index) => (
               <div 
                 key={index} 
-                className={`flex flex-col lg:flex-row items-center gap-12 ${
+                className={`flex flex-col lg:flex-row items-center gap-12 hover-lift card-animated ${
                   index % 2 === 1 ? 'lg:flex-row-reverse' : ''
-                } opacity-0`}
-                style={{ 
-                  animation: `fadeInUp 0.8s ease-out ${index * 200}ms forwards`
-                }}
+                }`}
               >
                 {/* Content */}
                 <div className="flex-1 space-y-6">
@@ -476,7 +503,7 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
-          </div>
+          </StaggeredContainer>
         </div>
         
       </section>
@@ -487,14 +514,14 @@ export default function HomePage() {
         <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-slate-50 via-slate-50/80 to-transparent pointer-events-none z-20"></div>
         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent pointer-events-none z-20"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <FadeInOnScroll direction="up" className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Quello che dicono i nostri clienti
             </h2>
             <p className="text-xl text-muted-foreground">
               Brand e creator che hanno trasformato il loro business con Frames
             </p>
-          </div>
+          </FadeInOnScroll>
 
           {/* Scrolling Testimonials */}
           <div className="overflow-hidden">
@@ -635,20 +662,20 @@ export default function HomePage() {
         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent pointer-events-none z-20"></div>
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <FadeInOnScroll direction="up" className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Domande Frequenti
             </h2>
             <p className="text-xl text-muted-foreground">
               Le risposte alle domande più comuni sui nostri servizi
             </p>
-          </div>
+          </FadeInOnScroll>
           
-          <div className="space-y-4">
+          <StaggeredContainer className="space-y-4" staggerDelay={150}>
             {faqs.map((faq, index) => (
               <div 
                 key={index}
-                className="bg-white rounded-xl border border-border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md"
+                className="bg-white rounded-xl border border-border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover-lift"
               >
                 <button
                   onClick={() => toggleFAQ(index)}
@@ -674,7 +701,7 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
-          </div>
+          </StaggeredContainer>
         </div>
       </section>
 
@@ -684,27 +711,31 @@ export default function HomePage() {
         <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary/10 via-primary/8 to-transparent pointer-events-none z-20"></div>
         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-primary/10 via-primary/8 to-transparent pointer-events-none z-20"></div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-            Pronto a iniziare la tua crescita?
-          </h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Unisciti a centinaia di creator e brand che stanno già crescendo con Frames
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/auth/sign-up"
-              className="group inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg"
-            >
-              Iscriviti
-              <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:-rotate-[30deg]" />
-            </Link>
-            <Link
-              href="/contatti"
-              className="inline-flex items-center justify-center px-8 py-4 border border-border bg-card text-foreground rounded-lg hover:bg-accent transition-colors font-semibold text-lg"
-            >
-              Parla con un esperto
-            </Link>
-          </div>
+          <FadeInOnScroll direction="up">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+              Pronto a iniziare la tua crescita?
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Unisciti a centinaia di creator e brand che stanno già crescendo con Frames
+            </p>
+          </FadeInOnScroll>
+          <FadeInOnScroll direction="up" delay={200}>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/auth/sign-up"
+                className="group inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg btn-animated hover-lift"
+              >
+                Iscriviti
+                <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:-rotate-[30deg]" />
+              </Link>
+              <Link
+                href="/contatti"
+                className="inline-flex items-center justify-center px-8 py-4 border border-border bg-card text-foreground rounded-lg hover:bg-accent transition-colors font-semibold text-lg btn-animated hover-lift"
+              >
+                Parla con un esperto
+              </Link>
+            </div>
+          </FadeInOnScroll>
         </div>
       </section>
 

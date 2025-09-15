@@ -28,16 +28,17 @@ export default function SignInPage() {
     setLoading(true)
     setError('')
 
+    console.log('Attempting login with email:', email)
     const { error } = await signIn(email, password)
     
     if (error) {
+      console.error('Login error:', error)
       setError(error.message)
       setLoading(false)
     } else {
-      // Wait a moment for state to update
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 100)
+      console.log('Login successful, redirecting to dashboard...')
+      // Direct redirect without waiting
+      router.push('/dashboard')
     }
   }
 

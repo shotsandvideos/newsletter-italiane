@@ -80,20 +80,15 @@ export default function TestLoginPage() {
       } else {
         setStatus({ 
           success: true,
-          message: 'Sign in successful!',
+          message: 'Sign in successful! Redirecting to dashboard...',
           user: data.user?.email,
           session: !!data.session
         })
         
-        // After successful login, check session
-        setTimeout(async () => {
-          const { data: { session } } = await supabase.auth.getSession()
-          setStatus(prev => ({
-            ...prev,
-            sessionCheck: session ? 'Session exists' : 'No session',
-            sessionUser: session?.user?.email
-          }))
-        }, 1000)
+        // After successful login, redirect to dashboard
+        setTimeout(() => {
+          window.location.href = '/dashboard'
+        }, 1500)
       }
     } catch (e: any) {
       setStatus({ 

@@ -225,23 +225,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     setLoading(true)
+    console.log('useAuth: Signing in user with email:', email)
     
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
 
-    if (!error && data.user) {
-      // Set user immediately after successful login
+    if (error) {
+      console.error('useAuth: Sign in error:', error)
+      setLoading(false)
+      return { error }
+    }
+
+    if (data.user && data.session) {
+      console.log('useAuth: Sign in successful, user:', data.user.id)
+      // Set user and session immediately after successful login
       setUser(data.user)
       setSession(data.session)
       
-      // Fetch profile
-      await fetchProfile(data.user.id)
+      // Fetch profile (but don't wait for it)
+      fetchProfile(data.user.id).catch(err => {
+        console.error('useAuth: Profile fetch error:', err)
+      })
+      
+      setLoading(false)
+      return { error: null }
     }
 
     setLoading(false)
-    return { error }
+    return { error: { message: 'Login failed - no user data received' } }
   }
 
   const signOut = async () => {

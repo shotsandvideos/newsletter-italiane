@@ -55,11 +55,16 @@ export default function DashboardPage() {
 
   console.log('Dashboard render - user:', user?.email || 'no user', 'authLoading:', authLoading, 'loading:', loading)
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated - with delay to prevent race conditions
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/auth/sign-in')
-    }
+    const checkAuth = setTimeout(() => {
+      if (!authLoading && !user) {
+        console.log('No user found after auth loading, redirecting to sign-in')
+        router.push('/auth/sign-in')
+      }
+    }, 500) // Give auth state time to load
+    
+    return () => clearTimeout(checkAuth)
   }, [authLoading, user, router])
 
   // Fetch newsletters and set next commitment

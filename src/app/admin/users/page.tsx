@@ -22,7 +22,10 @@ import {
   Shield,
   Crown,
   Star,
-  MoreHorizontal
+  MoreHorizontal,
+  MessageCircle,
+  Send,
+  Phone
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
 
@@ -32,6 +35,9 @@ export default function AdminUsersPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [showChatModal, setShowChatModal] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [chatMessage, setChatMessage] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -53,6 +59,7 @@ export default function AdminUsersPage() {
     setLoading(false)
   }, [router])
 
+  // Only show authors who have at least one approved newsletter
   const users = [
     {
       id: 1,
@@ -79,7 +86,9 @@ export default function AdminUsersPage() {
         totalEarnings: 4250.50,
         collaborations: 8,
         rating: 4.9
-      }
+      },
+      hasApprovedNewsletter: true,
+      approvedNewslettersCount: 12
     },
     {
       id: 2,
@@ -106,7 +115,9 @@ export default function AdminUsersPage() {
         totalEarnings: 5680.75,
         collaborations: 15,
         rating: 4.7
-      }
+      },
+      hasApprovedNewsletter: true,
+      approvedNewslettersCount: 18
     },
     {
       id: 3,
@@ -135,34 +146,9 @@ export default function AdminUsersPage() {
         rating: 3.8
       },
       suspendedReason: 'Contenuto non conforme alle policy',
-      suspendedAt: '2024-02-17T16:30:00Z'
-    },
-    {
-      id: 4,
-      name: 'Giulia Neri',
-      email: 'giulia.neri@email.com',
-      role: 'creator',
-      status: 'pending_verification',
-      joinDate: '2024-02-18T11:00:00Z',
-      lastLogin: '2024-02-20T09:15:00Z',
-      avatar: 'GN',
-      newsletter: {
-        name: 'Marketing Pro',
-        subscribers: 0,
-        totalNewsletters: 0,
-        avgOpenRate: 0,
-        totalRevenue: 0
-      },
-      verification: {
-        email: true,
-        phone: false,
-        identity: false
-      },
-      stats: {
-        totalEarnings: 0,
-        collaborations: 0,
-        rating: 0
-      }
+      suspendedAt: '2024-02-17T16:30:00Z',
+      hasApprovedNewsletter: true,
+      approvedNewslettersCount: 6
     },
     {
       id: 5,
@@ -190,9 +176,32 @@ export default function AdminUsersPage() {
         collaborations: 28,
         rating: 4.8
       },
-      featured: true
+      featured: true,
+      hasApprovedNewsletter: true,
+      approvedNewslettersCount: 45
     }
-  ]
+  ].filter(user => user.hasApprovedNewsletter) // Only show authors with approved newsletters
+
+  const handleSendMessage = () => {
+    if (!chatMessage.trim() || !selectedUser) return
+    
+    // Here you would implement the actual message sending logic
+    console.log('Sending message to:', selectedUser.name)
+    console.log('Message:', chatMessage)
+    
+    // Show success feedback
+    alert(`Messaggio inviato a ${selectedUser.name}!`)
+    
+    // Reset and close
+    setChatMessage('')
+    setShowChatModal(false)
+    setSelectedUser(null)
+  }
+
+  const openChat = (user) => {
+    setSelectedUser(user)
+    setShowChatModal(true)
+  }
 
   const filters = [
     { value: 'all', label: 'Tutti', count: users.length },
@@ -288,60 +297,74 @@ export default function AdminUsersPage() {
 
         <main className="flex-1 overflow-auto px-6 py-6">
           <div className="space-y-6">
+            {/* Info Banner */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-medium text-blue-900">Autori con Newsletter Approvate</h3>
+                  <p className="text-sm text-blue-700 mt-1">
+                    Questa sezione mostra solo gli autori che hanno almeno una newsletter approvata dall'admin. 
+                    Quando approvi una newsletter, l'autore viene automaticamente aggiunto a questa lista.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-xl">
-                    <Users className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <Users className="w-4 h-4 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">
+                    <p className="text-lg font-bold text-slate-900">
                       {totalStats.totalUsers}
                     </p>
-                    <p className="text-sm text-slate-600">Utenti totali</p>
+                    <p className="text-xs text-slate-600">Autori attivi</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200">
+              <div className="bg-white p-4 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-100 rounded-xl">
-                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {totalStats.activeUsers}
+                    <p className="text-lg font-bold text-slate-900">
+                      {users.reduce((sum, u) => sum + u.approvedNewslettersCount, 0)}
                     </p>
-                    <p className="text-sm text-slate-600">Utenti attivi</p>
+                    <p className="text-xs text-slate-600">Newsletter approvate</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200">
+              <div className="bg-white p-4 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-xl">
-                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <TrendingUp className="w-4 h-4 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">
+                    <p className="text-lg font-bold text-slate-900">
                       €{totalStats.totalRevenue.toLocaleString()}
                     </p>
-                    <p className="text-sm text-slate-600">Revenue totale</p>
+                    <p className="text-xs text-slate-600">Revenue</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl border border-slate-200">
+              <div className="bg-white p-4 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-100 rounded-xl">
-                    <Mail className="w-5 h-5 text-orange-600" />
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <Mail className="w-4 h-4 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">
+                    <p className="text-lg font-bold text-slate-900">
                       {totalStats.totalSubscribers.toLocaleString()}
                     </p>
-                    <p className="text-sm text-slate-600">Iscritti totali</p>
+                    <p className="text-xs text-slate-600">Iscritti</p>
                   </div>
                 </div>
               </div>
@@ -377,9 +400,9 @@ export default function AdminUsersPage() {
             </div>
 
             {/* Users List */}
-            <div className="bg-white rounded-2xl border border-slate-200">
-              <div className="p-6 border-b border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900">
+            <div className="bg-white rounded-lg border border-slate-200">
+              <div className="p-4 border-b border-slate-200">
+                <h3 className="text-base font-semibold text-slate-900">
                   Autori ({filteredUsers.length})
                 </h3>
               </div>
@@ -392,12 +415,12 @@ export default function AdminUsersPage() {
                   const RoleIcon = roleInfo.icon
 
                   return (
-                    <div key={user.id} className="p-6 hover:bg-slate-50 transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-4 flex-1 min-w-0">
+                    <div key={user.id} className="p-3 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className="relative flex-shrink-0">
-                            <div className="w-12 h-12 bg-gradient-to-br from-slate-500 to-slate-600 rounded-full flex items-center justify-center">
-                              <span className="text-white font-semibold">
+                            <div className="w-10 h-10 bg-gradient-to-br from-slate-500 to-slate-600 rounded-full flex items-center justify-center">
+                              <span className="text-white text-sm font-semibold">
                                 {user.avatar}
                               </span>
                             </div>
@@ -409,116 +432,83 @@ export default function AdminUsersPage() {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h4 className="text-lg font-semibold text-slate-900">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="text-sm font-medium text-slate-900">
                                 {user.name}
                               </h4>
-                              <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                              <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
                                 <StatusIcon className="w-3 h-3" />
                                 {statusInfo.label}
                               </span>
-                              <span className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium ${roleInfo.color}`}>
-                                <RoleIcon className="w-3 h-3" />
-                                {roleInfo.label}
-                              </span>
+                              {user.featured && (
+                                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">
+                                  Featured
+                                </span>
+                              )}
                             </div>
 
-                            <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
+                            <div className="flex items-center gap-4 text-xs text-slate-600 mb-2">
                               <span>{user.email}</span>
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                <span>Iscritto il {new Date(user.joinDate).toLocaleDateString('it-IT')}</span>
-                              </div>
-                              <span>
-                                Ultimo accesso: {new Date(user.lastLogin).toLocaleDateString('it-IT')}
+                              <span className="flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {user.newsletter.name}
+                              </span>
+                              <span>{user.newsletter.subscribers.toLocaleString()} iscritti</span>
+                              <span>{user.approvedNewslettersCount} newsletter approvate</span>
+                              <span className="flex items-center gap-1">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star key={i} className={`w-3 h-3 ${
+                                    i < Math.floor(user.stats.rating) 
+                                      ? 'text-amber-400 fill-current' 
+                                      : 'text-slate-300'
+                                  }`} />
+                                ))}
+                                <span className="ml-1">({user.stats.rating})</span>
                               </span>
                             </div>
 
-                            {user.newsletter.name && (
-                              <div className="bg-slate-50 rounded-lg p-4 mb-4">
-                                <div className="flex items-center justify-between mb-2">
-                                  <h5 className="font-medium text-slate-900">{user.newsletter.name}</h5>
-                                  <div className="flex items-center gap-1">
-                                    {Array.from({ length: 5 }).map((_, i) => (
-                                      <Star key={i} className={`w-3 h-3 ${
-                                        i < Math.floor(user.stats.rating) 
-                                          ? 'text-amber-400 fill-current' 
-                                          : 'text-slate-300'
-                                      }`} />
-                                    ))}
-                                    <span className="text-xs text-slate-500 ml-1">({user.stats.rating})</span>
-                                  </div>
-                                </div>
-                                <div className="grid grid-cols-4 gap-4 text-sm">
-                                  <div className="text-center">
-                                    <p className="font-semibold text-slate-900">
-                                      {user.newsletter.subscribers.toLocaleString()}
-                                    </p>
-                                    <p className="text-slate-500">Iscritti</p>
-                                  </div>
-                                  <div className="text-center">
-                                    <p className="font-semibold text-slate-900">
-                                      {user.newsletter.totalNewsletters}
-                                    </p>
-                                    <p className="text-slate-500">Newsletter</p>
-                                  </div>
-                                  <div className="text-center">
-                                    <p className="font-semibold text-emerald-600">
-                                      {user.newsletter.avgOpenRate}%
-                                    </p>
-                                    <p className="text-slate-500">Aperture</p>
-                                  </div>
-                                  <div className="text-center">
-                                    <p className="font-semibold text-purple-600">
-                                      €{user.stats.totalEarnings.toLocaleString()}
-                                    </p>
-                                    <p className="text-slate-500">Guadagni</p>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
+                            <div className="flex items-center gap-3 text-xs text-slate-600">
+                              <span>€{user.stats.totalEarnings.toLocaleString()} guadagni</span>
+                              <span>{user.stats.collaborations} collaborazioni</span>
+                              <span>Iscritto il {new Date(user.joinDate).toLocaleDateString('it-IT')}</span>
+                              <span>Ultimo accesso: {new Date(user.lastLogin).toLocaleDateString('it-IT')}</span>
+                            </div>
+
 
                             {user.status === 'suspended' && user.suspendedReason && (
-                              <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
-                                <Ban className="w-4 h-4 text-red-600 mt-0.5" />
-                                <div>
-                                  <p className="text-sm font-medium text-red-800">Account sospeso</p>
-                                  <p className="text-sm text-red-700">{user.suspendedReason}</p>
-                                  <p className="text-xs text-red-600 mt-1">
-                                    Sospeso il {new Date(user.suspendedAt!).toLocaleDateString('it-IT')}
-                                  </p>
-                                </div>
+                              <div className="text-xs text-red-700 bg-red-50 px-2 py-1 rounded mt-1">
+                                Sospeso: {user.suspendedReason}
                               </div>
                             )}
-
-                            <div className="flex items-center gap-2">
-                              <button className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                <Eye className="w-4 h-4" />
-                                Profilo
-                              </button>
-                              
-                              <button className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors">
-                                <Edit className="w-4 h-4" />
-                                Modifica
-                              </button>
-
-                              {user.status === 'suspended' ? (
-                                <button className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors">
-                                  <CheckCircle className="w-4 h-4" />
-                                  Riattiva
-                                </button>
-                              ) : user.status === 'active' && (
-                                <button className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                                  <Ban className="w-4 h-4" />
-                                  Sospendi
-                                </button>
-                              )}
-
-                              <button className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </button>
-                            </div>
                           </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 ml-3">
+                          <button 
+                            onClick={() => openChat(user)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 transition-colors"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            Chat
+                          </button>
+                          
+                          <button className="p-1.5 bg-slate-100 text-slate-600 text-xs rounded hover:bg-slate-200 transition-colors">
+                            <Eye className="w-3 h-3" />
+                          </button>
+                          
+                          <button className="p-1.5 bg-slate-100 text-slate-600 text-xs rounded hover:bg-slate-200 transition-colors">
+                            <Edit className="w-3 h-3" />
+                          </button>
+
+                          {user.status === 'suspended' ? (
+                            <button className="p-1.5 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 transition-colors">
+                              <CheckCircle className="w-3 h-3" />
+                            </button>
+                          ) : user.status === 'active' && (
+                            <button className="p-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors">
+                              <Ban className="w-3 h-3" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -528,6 +518,74 @@ export default function AdminUsersPage() {
             </div>
           </div>
         </main>
+
+        {/* Chat Modal */}
+        {showChatModal && selectedUser && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+              <div className="p-6 border-b border-slate-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-slate-500 to-slate-600 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-semibold">
+                        {selectedUser.avatar}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900">Messaggio a {selectedUser.name}</h3>
+                      <p className="text-sm text-slate-600">{selectedUser.email}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowChatModal(false)}
+                    className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Messaggio
+                    </label>
+                    <textarea
+                      value={chatMessage}
+                      onChange={(e) => setChatMessage(e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                      placeholder="Scrivi il tuo messaggio all'autore..."
+                    />
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!chatMessage.trim()}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-1"
+                    >
+                      <Send className="w-4 h-4" />
+                      Invia Messaggio
+                    </button>
+                    
+                    <button
+                      onClick={() => setShowChatModal(false)}
+                      className="px-4 py-2 border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors"
+                    >
+                      Annulla
+                    </button>
+                  </div>
+                  
+                  <div className="text-xs text-slate-500">
+                    <p>💡 Suggerimento: Usa questo strumento per comunicare direttamente con gli autori riguardo le loro newsletter, collaborazioni o questioni amministrative.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

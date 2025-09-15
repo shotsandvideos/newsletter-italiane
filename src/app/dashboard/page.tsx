@@ -55,16 +55,17 @@ export default function DashboardPage() {
 
   console.log('Dashboard render - user:', user?.email || 'no user', 'authLoading:', authLoading, 'loading:', loading)
 
-  // Redirect if not authenticated - with delay to prevent race conditions
+  // Redirect if not authenticated - only after loading is complete
   useEffect(() => {
-    const checkAuth = setTimeout(() => {
-      if (!authLoading && !user) {
-        console.log('No user found after auth loading, redirecting to sign-in')
+    // Only redirect if we're sure auth has finished loading and there's no user
+    if (authLoading === false && !user) {
+      console.log('Auth loading complete, no user found, redirecting to sign-in')
+      const redirectTimer = setTimeout(() => {
         router.push('/auth/sign-in')
-      }
-    }, 500) // Give auth state time to load
-    
-    return () => clearTimeout(checkAuth)
+      }, 1000) // Give a bit more time for auth state to settle
+      
+      return () => clearTimeout(redirectTimer)
+    }
   }, [authLoading, user, router])
 
   // Fetch newsletters and set next commitment

@@ -32,69 +32,75 @@ export const SENDING_FREQUENCIES = [
   'Irregolare'
 ] as const
 
-// Newsletter creation validation schema
+// Newsletter creation validation schema  
 export const createNewsletterSchema = z.object({
-  nome_newsletter: z
+  title: z
     .string()
     .min(2, 'Il nome deve essere di almeno 2 caratteri')
     .max(80, 'Il nome non può superare 80 caratteri')
     .trim(),
     
-  url_archivio: z
-    .string()
-    .url('Inserisci un URL valido')
-    .refine((url) => url.startsWith('https://'), {
-      message: 'L\'URL deve iniziare con https://'
-    }),
-    
-  categoria: z.enum(NEWSLETTER_CATEGORIES, {
-    errorMap: () => ({ message: 'Seleziona una categoria valida' })
-  }),
-  
-  numero_iscritti: z
-    .number()
-    .min(1, 'Il numero di iscritti deve essere almeno 1')
-    .int('Il numero di iscritti deve essere un numero intero'),
-  
-  open_rate: z
-    .number()
-    .min(0, 'L\'Open Rate deve essere almeno 0%')
-    .max(100, 'L\'Open Rate non può superare 100%')
-    .multipleOf(0.01, 'Massimo 2 decimali'),
-    
-  ctr: z
-    .number()
-    .min(0, 'Il CTR deve essere almeno 0%')
-    .max(100, 'Il CTR non può superare 100%')
-    .multipleOf(0.01, 'Massimo 2 decimali'),
-    
-  prezzo_sponsorizzazione: z
-    .number()
-    .min(10, 'Il prezzo minimo è €10')
-    .int('Il prezzo deve essere un numero intero'),
-    
-  email_contatto: z
-    .string()
-    .email('Inserisci un\'email valida')
-    .trim(),
-    
-  descrizione: z
+  description: z
     .string()
     .min(50, 'La descrizione deve essere di almeno 50 caratteri')
     .max(300, 'La descrizione non può superare 300 caratteri')
     .trim(),
     
-  // Optional fields
-  frequenza_invio: z.enum(SENDING_FREQUENCIES).optional(),
+  category: z.enum(NEWSLETTER_CATEGORIES, {
+    errorMap: () => ({ message: 'Seleziona una categoria valida' })
+  }),
   
+  language: z
+    .string()
+    .default('it'),
+    
+  
+  signup_url: z
+    .string()
+    .url('Inserisci un URL di iscrizione valido')
+    .refine((url) => url.startsWith('https://'), {
+      message: 'L\'URL deve iniziare con https://'
+    }),
+    
+  cadence: z.enum(SENDING_FREQUENCIES).optional(),
+  
+  audience_size: z
+    .number()
+    .min(0, 'Il numero di iscritti deve essere almeno 0')
+    .int('Il numero di iscritti deve essere un numero intero'),
+  
+  monetization: z
+    .string()
+    .optional(),
+    
+  contact_email: z
+    .string()
+    .email('Inserisci un\'email valida')
+    .trim(),
+
   linkedin_profile: z
     .string()
     .url('Inserisci un URL LinkedIn valido')
     .refine((url) => url.includes('linkedin.com'), {
-      message: 'Deve essere un profilo LinkedIn valido'
+      message: 'L\'URL deve essere un profilo LinkedIn'
     })
     .optional()
-    .or(z.literal(''))
+    .or(z.literal('')),
+
+  open_rate: z
+    .number()
+    .min(0, 'L\'open rate deve essere almeno 0%')
+    .max(100, 'L\'open rate non può superare 100%'),
+
+  ctr_rate: z
+    .number()
+    .min(0, 'Il CTR deve essere almeno 0%')
+    .max(100, 'Il CTR non può superare 100%'),
+
+  sponsorship_price: z
+    .number()
+    .min(0, 'Il prezzo deve essere almeno 0€')
+    .int('Il prezzo deve essere un numero intero')
 })
 
 // Type inference
@@ -111,18 +117,20 @@ export interface ApiResponse<T = any> {
 export interface Newsletter {
   id: string
   user_id: string
-  nome_newsletter: string
-  url_archivio: string
-  categoria: typeof NEWSLETTER_CATEGORIES[number]
-  numero_iscritti: number
-  open_rate: number
-  ctr: number
-  prezzo_sponsorizzazione: number
-  email_contatto: string
-  descrizione: string
-  frequenza_invio?: typeof SENDING_FREQUENCIES[number]
+  title: string
+  description: string
+  category: typeof NEWSLETTER_CATEGORIES[number]
+  language: string
+  signup_url: string
+  cadence?: typeof SENDING_FREQUENCIES[number]
+  audience_size: number
+  monetization?: string
+  contact_email: string
   linkedin_profile?: string
-  status: 'pending' | 'approved' | 'rejected'
+  open_rate: number
+  ctr_rate: number
+  sponsorship_price: number
+  review_status: 'in_review' | 'approved' | 'rejected'
   created_at: string
   updated_at: string
 }

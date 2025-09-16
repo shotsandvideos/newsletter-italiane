@@ -50,7 +50,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState({
     totalEarnings: 0,
     nextCommitment: null as { title: string, date: string, type: string } | null,
-    unreadMessages: 3
+    unreadMessages: 0
   })
 
   console.log('Dashboard render - user:', user?.email || 'no user', 'authLoading:', authLoading, 'loading:', loading)
@@ -68,19 +68,10 @@ export default function DashboardPage() {
     }
   }, [authLoading, user, router])
 
-  // Fetch newsletters and set next commitment
+  // Fetch newsletters
   useEffect(() => {
     if (user) {
       fetchNewsletters()
-      // Set mock next commitment
-      setStats(prev => ({
-        ...prev,
-        nextCommitment: {
-          title: 'Invio Newsletter Marketing Espresso',
-          date: '15 Gen',
-          type: 'newsletter'
-        }
-      }))
     } else if (!authLoading) {
       // If no user and not loading, set loading to false
       setLoading(false)
@@ -299,39 +290,13 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Content */}
-                <div className="divide-y divide-border">
-                  <div className="px-6 py-4 flex items-center justify-between hover:bg-accent">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-chart-4 rounded-full"></div>
-                      <div>
-                        <div className="text-sm font-medium text-foreground">Bozza per TechStartup Italia</div>
-                        <div className="text-xs text-muted-foreground">Scadenza oggi</div>
-                      </div>
-                    </div>
-                    <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded-full">In ritardo</span>
+                <div className="px-6 py-8 text-center">
+                  <div className="text-muted-foreground text-sm">
+                    Nessuna collaborazione attiva
                   </div>
-                  
-                  <div className="px-6 py-4 flex items-center justify-between hover:bg-accent">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-chart-2 rounded-full"></div>
-                      <div>
-                        <div className="text-sm font-medium text-foreground">Report metriche EcoProducts</div>
-                        <div className="text-xs text-muted-foreground">Scadenza domani</div>
-                      </div>
-                    </div>
-                    <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded-full">In corso</span>
-                  </div>
-
-                  <div className="px-6 py-4 flex items-center justify-between hover:bg-accent">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-chart-5 rounded-full"></div>
-                      <div>
-                        <div className="text-sm font-medium text-foreground">Call con Fintech Solutions</div>
-                        <div className="text-xs text-muted-foreground">18 Gen, ore 15:00</div>
-                      </div>
-                    </div>
-                    <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded-full">Programmato</span>
-                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Le tue collaborazioni appariranno qui
+                  </p>
                 </div>
               </div>
             </div>
@@ -364,39 +329,13 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Content */}
-                <div className="divide-y divide-border">
-                  <div className="px-6 py-4 flex items-center justify-between hover:bg-accent">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-chart-5 rounded-full"></div>
-                      <div>
-                        <div className="text-sm font-medium text-foreground">EcoProducts - €300</div>
-                        <div className="text-xs text-muted-foreground">Pagato 3 giorni fa</div>
-                      </div>
-                    </div>
-                    <CheckCircle className="w-4 h-4 text-slate-500" />
+                <div className="px-6 py-8 text-center">
+                  <div className="text-muted-foreground text-sm">
+                    Nessun pagamento registrato
                   </div>
-                  
-                  <div className="px-6 py-4 flex items-center justify-between hover:bg-accent">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-chart-4 rounded-full"></div>
-                      <div>
-                        <div className="text-sm font-medium text-foreground">TechStartup Italia - €250</div>
-                        <div className="text-xs text-muted-foreground">In attesa di conferma</div>
-                      </div>
-                    </div>
-                    <Clock className="w-4 h-4 text-slate-500" />
-                  </div>
-
-                  <div className="px-6 py-4 flex items-center justify-between hover:bg-accent">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-chart-2 rounded-full"></div>
-                      <div>
-                        <div className="text-sm font-medium text-foreground">Fintech Solutions - €150</div>
-                        <div className="text-xs text-muted-foreground">Fattura inviata</div>
-                      </div>
-                    </div>
-                    <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded-full">Fatturato</span>
-                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    I tuoi pagamenti appariranno qui
+                  </p>
                 </div>
               </div>
             </div>

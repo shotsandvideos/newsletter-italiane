@@ -50,157 +50,7 @@ export default function AdminPropostePage() {
     setLoading(false)
   }, [router])
 
-  const proposals = [
-    {
-      id: 1,
-      title: 'Campagna di Lancio App Fintech',
-      brand: {
-        name: 'FinanceFlow',
-        logo: 'FF',
-        website: 'financeflow.com',
-        sector: 'Fintech'
-      },
-      budget: {
-        min: 2500,
-        max: 5000,
-        currency: 'EUR'
-      },
-      description: 'Cerchiamo newsletter nel settore finance/business per promuovere il lancio della nostra nuova app di gestione finanziaria personale.',
-      requirements: {
-        minSubscribers: 5000,
-        targetAudience: 'Professionisti 25-45 anni',
-        location: 'Italia',
-        categories: ['Finance', 'Business', 'Technology']
-      },
-      timeline: {
-        submittedAt: '2024-02-18T14:30:00Z',
-        deadline: '2024-03-15T23:59:00Z',
-        campaignStart: '2024-03-01T00:00:00Z'
-      },
-      status: 'pending',
-      applications: 12,
-      priority: 'high',
-      contact: {
-        name: 'Marco Gentili',
-        role: 'Marketing Director',
-        email: 'marco.gentili@financeflow.com',
-        phone: '+39 02 1234567'
-      }
-    },
-    {
-      id: 2,
-      title: 'Promozione Corso Marketing Digitale',
-      brand: {
-        name: 'MarketingPro Academy',
-        logo: 'MP',
-        website: 'marketingpro.academy',
-        sector: 'Education'
-      },
-      budget: {
-        min: 800,
-        max: 1500,
-        currency: 'EUR'
-      },
-      description: 'Cerchiamo partnership per promuovere il nostro nuovo corso avanzato di marketing digitale rivolto a imprenditori e professionisti del settore.',
-      requirements: {
-        minSubscribers: 2000,
-        targetAudience: 'Marketer e imprenditori',
-        location: 'Italia',
-        categories: ['Marketing', 'Business', 'Education']
-      },
-      timeline: {
-        submittedAt: '2024-02-17T10:15:00Z',
-        deadline: '2024-03-20T23:59:00Z',
-        campaignStart: '2024-03-10T00:00:00Z'
-      },
-      status: 'approved',
-      applications: 8,
-      priority: 'medium',
-      contact: {
-        name: 'Laura Rossi',
-        role: 'Head of Growth',
-        email: 'laura.rossi@marketingpro.academy',
-        phone: '+39 06 9876543'
-      },
-      approvedAt: '2024-02-17T16:45:00Z',
-      approvedBy: 'Admin'
-    },
-    {
-      id: 3,
-      title: 'Partnership E-commerce Summit Milano',
-      brand: {
-        name: 'E-commerce Events',
-        logo: 'EE',
-        website: 'ecommerceevents.it',
-        sector: 'Events'
-      },
-      budget: {
-        min: 1200,
-        max: 2500,
-        currency: 'EUR'
-      },
-      description: 'Promozione del più grande summit e-commerce del Nord Italia con speaker internazionali e networking opportunities.',
-      requirements: {
-        minSubscribers: 3000,
-        targetAudience: 'E-commerce managers e imprenditori',
-        location: 'Milano e provincia',
-        categories: ['E-commerce', 'Business', 'Technology']
-      },
-      timeline: {
-        submittedAt: '2024-02-16T09:20:00Z',
-        deadline: '2024-03-05T23:59:00Z',
-        campaignStart: '2024-02-25T00:00:00Z'
-      },
-      status: 'rejected',
-      applications: 5,
-      priority: 'low',
-      contact: {
-        name: 'Alessandro Bianchi',
-        role: 'Event Manager',
-        email: 'alessandro@ecommerceevents.it',
-        phone: '+39 02 5551234'
-      },
-      rejectedAt: '2024-02-16T18:30:00Z',
-      rejectedBy: 'Admin',
-      rejectionReason: 'Budget insufficiente rispetto ai requisiti di audience'
-    },
-    {
-      id: 4,
-      title: 'Lancio Piattaforma SaaS B2B',
-      brand: {
-        name: 'CloudTech Solutions',
-        logo: 'CT',
-        website: 'cloudtech.solutions',
-        sector: 'SaaS'
-      },
-      budget: {
-        min: 3000,
-        max: 6000,
-        currency: 'EUR'
-      },
-      description: 'Promozione del lancio della nostra nuova piattaforma SaaS per la gestione documentale aziendale rivolta alle PMI italiane.',
-      requirements: {
-        minSubscribers: 7000,
-        targetAudience: 'Decision maker aziendali, CTO, IT Manager',
-        location: 'Italia',
-        categories: ['SaaS', 'Technology', 'Business']
-      },
-      timeline: {
-        submittedAt: '2024-02-20T11:45:00Z',
-        deadline: '2024-04-01T23:59:00Z',
-        campaignStart: '2024-03-15T00:00:00Z'
-      },
-      status: 'under_review',
-      applications: 0,
-      priority: 'high',
-      contact: {
-        name: 'Stefania Verde',
-        role: 'CMO',
-        email: 'stefania.verde@cloudtech.solutions',
-        phone: '+39 011 7890123'
-      }
-    }
-  ]
+  const proposals = []
 
   const filters = [
     { value: 'all', label: 'Tutte', count: proposals.length },
@@ -377,92 +227,102 @@ export default function AdminPropostePage() {
               </div>
 
               <div className="divide-y divide-slate-200">
-                {filteredProposals.map((proposal) => {
-                  const statusInfo = getStatusInfo(proposal.status)
-                  const StatusIcon = statusInfo.icon
+                {filteredProposals.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <HandHeart className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                    <h4 className="font-medium text-slate-900 mb-2">Nessuna proposta</h4>
+                    <p className="text-slate-500">
+                      Non ci sono proposte di collaborazione da visualizzare
+                    </p>
+                  </div>
+                ) : (
+                  filteredProposals.map((proposal) => {
+                    const statusInfo = getStatusInfo(proposal.status)
+                    const StatusIcon = statusInfo.icon
 
-                  return (
-                    <div key={proposal.id} className={`p-3 hover:bg-slate-50 transition-colors border-l-4 ${getPriorityColor(proposal.priority)}`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="w-10 h-10 bg-red-100 text-red-600 font-bold text-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                            {proposal.brand.logo}
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="text-sm font-medium text-slate-900 truncate">
-                                {proposal.title}
-                              </h4>
-                              <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
-                                <StatusIcon className="w-3 h-3" />
-                                {statusInfo.label}
-                              </span>
-                              {proposal.priority === 'high' && (
-                                <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
-                                  Alta
+                    return (
+                      <div key={proposal.id} className={`p-3 hover:bg-slate-50 transition-colors border-l-4 ${getPriorityColor(proposal.priority)}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="w-10 h-10 bg-red-100 text-red-600 font-bold text-sm rounded-lg flex items-center justify-center flex-shrink-0">
+                              {proposal.brand.logo}
+                            </div>
+                            
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="text-sm font-medium text-slate-900 truncate">
+                                  {proposal.title}
+                                </h4>
+                                <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                                  <StatusIcon className="w-3 h-3" />
+                                  {statusInfo.label}
                                 </span>
+                                {proposal.priority === 'high' && (
+                                  <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                    Alta
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-4 text-xs text-slate-600">
+                                <span className="flex items-center gap-1">
+                                  <Building2 className="w-3 h-3" />
+                                  {proposal.brand.name}
+                                </span>
+                                <span className="px-1.5 py-0.5 bg-slate-100 rounded text-xs">
+                                  {proposal.brand.sector}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Euro className="w-3 h-3" />
+                                  €{proposal.budget.min.toLocaleString()}-€{proposal.budget.max.toLocaleString()}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-3 h-3" />
+                                  {proposal.applications} candidature
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  Scadenza {new Date(proposal.timeline.deadline).toLocaleDateString('it-IT')}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Target className="w-3 h-3" />
+                                  Min. {proposal.requirements.minSubscribers.toLocaleString()} iscritti
+                                </span>
+                              </div>
+
+                              {proposal.status === 'rejected' && proposal.rejectionReason && (
+                                <div className="text-xs text-red-700 bg-red-50 px-2 py-1 rounded mt-1">
+                                  Rifiutata: {proposal.rejectionReason}
+                                </div>
                               )}
                             </div>
+                          </div>
 
-                            <div className="flex items-center gap-4 text-xs text-slate-600">
-                              <span className="flex items-center gap-1">
-                                <Building2 className="w-3 h-3" />
-                                {proposal.brand.name}
-                              </span>
-                              <span className="px-1.5 py-0.5 bg-slate-100 rounded text-xs">
-                                {proposal.brand.sector}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Euro className="w-3 h-3" />
-                                €{proposal.budget.min.toLocaleString()}-€{proposal.budget.max.toLocaleString()}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Users className="w-3 h-3" />
-                                {proposal.applications} candidature
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                Scadenza {new Date(proposal.timeline.deadline).toLocaleDateString('it-IT')}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Target className="w-3 h-3" />
-                                Min. {proposal.requirements.minSubscribers.toLocaleString()} iscritti
-                              </span>
-                            </div>
-
-                            {proposal.status === 'rejected' && proposal.rejectionReason && (
-                              <div className="text-xs text-red-700 bg-red-50 px-2 py-1 rounded mt-1">
-                                Rifiutata: {proposal.rejectionReason}
-                              </div>
+                          <div className="flex items-center gap-2 ml-3">
+                            <button className="p-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors">
+                              <Eye className="w-3 h-3" />
+                            </button>
+                            
+                            {['pending', 'under_review'].includes(proposal.status) && (
+                              <>
+                                <button className="p-1.5 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 transition-colors">
+                                  <CheckCircle className="w-3 h-3" />
+                                </button>
+                                <button className="p-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors">
+                                  <XCircle className="w-3 h-3" />
+                                </button>
+                              </>
                             )}
+
+                            <button className="p-1.5 bg-slate-100 text-slate-600 text-xs rounded hover:bg-slate-200 transition-colors">
+                              <MessageSquare className="w-3 h-3" />
+                            </button>
                           </div>
                         </div>
-
-                        <div className="flex items-center gap-2 ml-3">
-                          <button className="p-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors">
-                            <Eye className="w-3 h-3" />
-                          </button>
-                          
-                          {['pending', 'under_review'].includes(proposal.status) && (
-                            <>
-                              <button className="p-1.5 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 transition-colors">
-                                <CheckCircle className="w-3 h-3" />
-                              </button>
-                              <button className="p-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors">
-                                <XCircle className="w-3 h-3" />
-                              </button>
-                            </>
-                          )}
-
-                          <button className="p-1.5 bg-slate-100 text-slate-600 text-xs rounded hover:bg-slate-200 transition-colors">
-                            <MessageSquare className="w-3 h-3" />
-                          </button>
-                        </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })
+                )}
               </div>
             </div>
           </div>

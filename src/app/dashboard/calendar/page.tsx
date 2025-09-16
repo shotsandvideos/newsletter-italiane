@@ -36,45 +36,9 @@ export default function CalendarPage() {
     }
   }, [authLoading, user, router])
 
-  // Mock events for demonstration
+  // Initialize empty events
   useEffect(() => {
-    const mockEvents: CalendarEvent[] = [
-      {
-        id: '1',
-        title: 'Newsletter Marketing Express - Invio programmato',
-        type: 'newsletter',
-        date: new Date(2025, 7, 30), // Aug 30, 2025
-        time: '09:00',
-        status: 'confirmed'
-      },
-      {
-        id: '2',
-        title: 'Pagamento da TechBrand - €250',
-        type: 'payment',
-        date: new Date(2025, 8, 2), // Sep 2, 2025
-        amount: 250,
-        status: 'pending'
-      },
-      {
-        id: '3',
-        title: 'Call con StartupX - Revisione contenuti',
-        type: 'collaboration',
-        date: new Date(2025, 8, 5), // Sep 5, 2025
-        time: '15:30',
-        status: 'confirmed',
-        brandSpecsUrl: 'https://docs.google.com/document/d/123abc/edit',
-        collaborationId: '1'
-      },
-      {
-        id: '4',
-        title: 'Newsletter Tech Weekly - Invio programmato',
-        type: 'newsletter',
-        date: new Date(2025, 8, 8), // Sep 8, 2025
-        time: '08:00',
-        status: 'confirmed'
-      }
-    ]
-    setEvents(mockEvents)
+    setEvents([])
   }, [])
 
   // Calendar helpers

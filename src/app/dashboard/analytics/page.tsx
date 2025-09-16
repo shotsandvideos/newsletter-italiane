@@ -51,59 +51,41 @@ export default function AnalyticsPage() {
   const stats = [
     {
       name: 'Iscritti totali',
-      value: '12,847',
-      change: '+12.5%',
-      changeType: 'positive',
+      value: '0',
+      change: '+0%',
+      changeType: 'neutral',
       icon: Users,
       description: 'vs mese precedente'
     },
     {
       name: 'Newsletter inviate',
-      value: '24',
-      change: '+4',
-      changeType: 'positive',
+      value: '0',
+      change: '+0',
+      changeType: 'neutral',
       icon: Mail,
       description: 'questo mese'
     },
     {
       name: 'Tasso di apertura',
-      value: '68.3%',
-      change: '+2.1%',
-      changeType: 'positive',
+      value: '0%',
+      change: '+0%',
+      changeType: 'neutral',
       icon: Eye,
       description: 'media del periodo'
     },
     {
       name: 'Click-through rate',
-      value: '4.2%',
-      change: '-0.3%',
-      changeType: 'negative',
+      value: '0%',
+      change: '+0%',
+      changeType: 'neutral',
       icon: MousePointer,
       description: 'media del periodo'
     }
   ]
 
   const chartData = {
-    subscribers: [
-      { date: '2024-01-01', value: 10200 },
-      { date: '2024-01-08', value: 10450 },
-      { date: '2024-01-15', value: 10800 },
-      { date: '2024-01-22', value: 11200 },
-      { date: '2024-01-29', value: 11650 },
-      { date: '2024-02-05', value: 12100 },
-      { date: '2024-02-12', value: 12400 },
-      { date: '2024-02-19', value: 12847 }
-    ],
-    engagement: [
-      { date: '2024-01-01', opens: 65.2, clicks: 4.8 },
-      { date: '2024-01-08', opens: 67.1, clicks: 4.5 },
-      { date: '2024-01-15', opens: 69.3, clicks: 4.2 },
-      { date: '2024-01-22', opens: 66.8, clicks: 4.1 },
-      { date: '2024-01-29', opens: 68.5, clicks: 4.3 },
-      { date: '2024-02-05', opens: 70.2, clicks: 4.0 },
-      { date: '2024-02-12', opens: 67.9, clicks: 4.4 },
-      { date: '2024-02-19', opens: 68.3, clicks: 4.2 }
-    ]
+    subscribers: [],
+    engagement: []
   }
 
   if (authLoading) {
@@ -209,7 +191,9 @@ export default function AnalyticsPage() {
               <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium ${
                 stat.changeType === 'positive' 
                   ? 'bg-emerald-100 text-emerald-700' 
-                  : 'bg-red-100 text-red-700'
+                  : stat.changeType === 'negative'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-gray-100 text-gray-700'
               }`}>
                 <TrendingUp className={`w-3 h-3 ${
                   stat.changeType === 'negative' ? 'rotate-180' : ''
@@ -241,24 +225,12 @@ export default function AnalyticsPage() {
           </div>
           
           {/* Simple chart representation */}
-          <div className="relative h-64 bg-slate-50 rounded-xl p-4 flex items-end justify-between">
-            {chartData.subscribers.map((point, index) => (
-              <div key={index} className="flex flex-col items-center gap-2">
-                <div 
-                  className="w-8 bg-slate-500 rounded-t-sm"
-                  style={{ 
-                    height: `${(point.value / 13000) * 200}px`,
-                    minHeight: '20px'
-                  }}
-                />
-                <span className="text-xs text-slate-400 transform -rotate-45">
-                  {new Date(point.date).toLocaleDateString('it-IT', { 
-                    month: 'short', 
-                    day: 'numeric' 
-                  })}
-                </span>
-              </div>
-            ))}
+          <div className="relative h-64 bg-slate-50 rounded-xl p-4 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-slate-400 text-lg mb-2">📊</div>
+              <p className="text-slate-500 text-sm">Nessun dato disponibile</p>
+              <p className="text-slate-400 text-xs mt-1">I dati appariranno qui quando inizierai a inviare newsletter</p>
+            </div>
           </div>
         </div>
 
@@ -288,32 +260,12 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Chart bars */}
-            <div className="space-y-3">
-              {chartData.engagement.slice(-5).map((point, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between text-xs text-slate-500">
-                    <span>{new Date(point.date).toLocaleDateString('it-IT', { 
-                      month: 'short', 
-                      day: 'numeric' 
-                    })}</span>
-                    <span>{point.opens}% / {point.clicks}%</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="flex-1 bg-slate-100 rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full"
-                        style={{ width: `${point.opens}%` }}
-                      />
-                    </div>
-                    <div className="flex-1 bg-slate-100 rounded-full h-2">
-                      <div 
-                        className="bg-emerald-500 h-2 rounded-full"
-                        style={{ width: `${point.clicks * 10}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center justify-center h-32">
+              <div className="text-center">
+                <div className="text-slate-400 text-lg mb-2">📈</div>
+                <p className="text-slate-500 text-sm">Nessun dato disponibile</p>
+                <p className="text-slate-400 text-xs mt-1">I dati di engagement appariranno qui</p>
+              </div>
             </div>
           </div>
         </div>
@@ -332,56 +284,12 @@ export default function AnalyticsPage() {
           </button>
         </div>
 
-        <div className="space-y-4">
-          {[
-            {
-              title: 'AI Revolution: 10 Tool che Cambieranno il Tuo Business',
-              date: '15 Feb 2024',
-              opens: '89.2%',
-              clicks: '12.4%',
-              subscribers: '8,234'
-            },
-            {
-              title: 'Startup Italiana Raccoglie 50M: La Storia di TechFlow',
-              date: '12 Feb 2024',
-              opens: '76.8%',
-              clicks: '8.9%',
-              subscribers: '7,891'
-            },
-            {
-              title: 'Marketing Automation: Guida Completa 2024',
-              date: '08 Feb 2024',
-              opens: '71.5%',
-              clicks: '6.7%',
-              subscribers: '7,456'
-            }
-          ].map((newsletter, index) => (
-            <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-              <div className="flex-1">
-                <h4 className="font-medium text-slate-900">{newsletter.title}</h4>
-                <div className="flex items-center gap-4 mt-1 text-sm text-slate-500">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    {newsletter.date}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    {newsletter.subscribers} destinatari
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-6 text-sm">
-                <div className="text-center">
-                  <div className="font-medium text-slate-900">{newsletter.opens}</div>
-                  <div className="text-slate-500">Aperture</div>
-                </div>
-                <div className="text-center">
-                  <div className="font-medium text-slate-900">{newsletter.clicks}</div>
-                  <div className="text-slate-500">Click</div>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="flex items-center justify-center h-32">
+          <div className="text-center">
+            <div className="text-slate-400 text-lg mb-2">📧</div>
+            <p className="text-slate-500 text-sm">Nessuna newsletter inviata</p>
+            <p className="text-slate-400 text-xs mt-1">Le performance delle tue newsletter appariranno qui</p>
+          </div>
         </div>
       </div>
           </div>

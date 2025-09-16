@@ -6,8 +6,8 @@ import { useAuth } from '../../hooks/useAuth'
 
 export default function DebugAuthPage() {
   const [status, setStatus] = useState<any>({})
-  const [email, setEmail] = useState('test@example.com')
-  const [password, setPassword] = useState('password123')
+  const [email, setEmail] = useState('demo@frames.it')
+  const [password, setPassword] = useState('Demo123456!')
   const { user, profile, session, loading: authLoading } = useAuth()
   const supabase = createSupabaseClient()
 
@@ -16,31 +16,39 @@ export default function DebugAuthPage() {
   }, [])
 
   const checkEverything = async () => {
+    console.log('🔍 Starting checkEverything...')
     const checks = {}
     
     // Check Supabase connection
     try {
+      console.log('📡 Getting Supabase session...')
       const { data: { session }, error } = await supabase.auth.getSession()
+      console.log('📡 Session result:', { session: !!session, error: error?.message })
       checks['supabase_session'] = session ? 'Found' : 'None'
       checks['session_user'] = session?.user?.email || 'No user'
       checks['session_error'] = error?.message || 'None'
-    } catch (e) {
+    } catch (e: any) {
+      console.error('❌ Supabase error:', e.message)
       checks['supabase_error'] = e.message
     }
 
     // Check auth hook
+    console.log('🪝 Checking useAuth hook...')
     checks['useAuth_user'] = user?.email || 'None'
     checks['useAuth_profile'] = profile ? 'Found' : 'None'
     checks['useAuth_session'] = session ? 'Found' : 'None'
     checks['useAuth_loading'] = authLoading
 
     // Check localStorage
+    console.log('💾 Checking localStorage...')
     checks['localStorage_adminSession'] = localStorage.getItem('adminSession') ? 'Found' : 'None'
     
     // Check Supabase URL
+    console.log('🔗 Checking environment variables...')
     checks['supabase_url'] = process.env.NEXT_PUBLIC_SUPABASE_URL || 'NOT SET'
     checks['supabase_anon_key'] = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET'
 
+    console.log('✅ Status update:', checks)
     setStatus(checks)
   }
 

@@ -38,32 +38,12 @@ export default function NewslettersPage() {
   const [newsletters, setNewsletters] = useState<Newsletter[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'in_review' | 'approved' | 'rejected'>('all')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [showForm, setShowForm] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [editingNewsletter, setEditingNewsletter] = useState<Newsletter | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingNewsletter, setDeletingNewsletter] = useState<Newsletter | null>(null)
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false)
-  const [logoFile, setLogoFile] = useState<File | null>(null)
-  const [logoPreview, setLogoPreview] = useState<string | null>(null)
-  
-  const [formData, setFormData] = useState<Partial<CreateNewsletterInput>>({
-    nome_newsletter: '',
-    url_archivio: '',
-    categoria: undefined,
-    numero_iscritti: undefined,
-    open_rate: undefined,
-    ctr: undefined,
-    prezzo_sponsorizzazione: undefined,
-    email_contatto: user?.email || '',
-    descrizione: '',
-    frequenza_invio: undefined,
-    linkedin_profile: ''
-  })
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -71,6 +51,19 @@ export default function NewslettersPage() {
       router.push('/auth/sign-in')
     }
   }, [authLoading, user, router])
+
+  // Check for success message from URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('success') === 'newsletter-created') {
+      setShowUpdateSuccess(true)
+      // Remove the parameter from URL
+      const newUrl = window.location.pathname
+      window.history.replaceState({}, '', newUrl)
+      // Hide message after 3 seconds
+      setTimeout(() => setShowUpdateSuccess(false), 3000)
+    }
+  }, [])
 
   // Fetch newsletters
   useEffect(() => {
@@ -93,15 +86,13 @@ export default function NewslettersPage() {
     }
   }, [])
   
-  // Auto-show form if coming from sidebar
+  // Redirect to register page if coming from sidebar
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     if (urlParams.get('new') === 'true') {
-      setShowForm(true)
-      // Clean the URL
-      window.history.replaceState({}, '', '/dashboard/newsletters')
+      router.push('/dashboard/newsletters/register')
     }
-  }, [])
+  }, [router])
 
   const handleInputChange = (field: keyof CreateNewsletterInput, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -163,7 +154,7 @@ export default function NewslettersPage() {
           frequenza_invio: undefined,
           linkedin_profile: ''
         })
-        setShowForm(false)
+        // Form removed - using dedicated page
         setEditingNewsletter(null)
         
         // Show success message for updates
@@ -205,47 +196,50 @@ export default function NewslettersPage() {
     }
   }
 
-  const getStatusColor = (status: Newsletter['status']) => {
-    switch (status) {
-      case 'approved': return 'text-slate-700 bg-slate-100 ring-slate-600/20'
-      case 'rejected': return 'text-slate-700 bg-slate-100 ring-slate-600/20'
+  const getStatusColor = (review_status: Newsletter['review_status']) => {
+    switch (review_status) {
+      case 'approved': return 'text-emerald-700 bg-emerald-100 ring-emerald-600/20'
+      case 'rejected': return 'text-red-700 bg-red-100 ring-red-600/20'
+      case 'in_review': return 'text-yellow-700 bg-yellow-100 ring-yellow-600/20'
       default: return 'text-slate-700 bg-slate-100 ring-slate-600/20'
     }
   }
 
-  const getStatusIcon = (status: Newsletter['status']) => {
-    switch (status) {
+  const getStatusIcon = (review_status: Newsletter['review_status']) => {
+    switch (review_status) {
       case 'approved': return <CheckCircle className="w-4 h-4" />
       case 'rejected': return <XCircle className="w-4 h-4" />
+      case 'in_review': return <Clock className="w-4 h-4" />
       default: return <Clock className="w-4 h-4" />
     }
   }
 
-  const getStatusText = (status: Newsletter['status']) => {
-    switch (status) {
+  const getStatusText = (review_status: Newsletter['review_status']) => {
+    switch (review_status) {
       case 'approved': return 'Approvata'
       case 'rejected': return 'Rifiutata'
-      default: return 'In Review'
+      case 'in_review': return 'In Revisione'
+      default: return 'In Revisione'
     }
   }
 
   const filteredNewsletters = useMemo(() => {
     return newsletters.filter(newsletter => {
-      const matchesSearch = (newsletter.nome_newsletter?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase()) ||
-                           (newsletter.categoria?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase())
-      const matchesStatus = statusFilter === 'all' || newsletter.status === statusFilter
+      const matchesSearch = (newsletter.title?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase()) ||
+                           (newsletter.category?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase())
+      const matchesStatus = statusFilter === 'all' || newsletter.review_status === statusFilter
       return matchesSearch && matchesStatus
     })
   }, [newsletters, debouncedSearchQuery, statusFilter])
 
   const stats = useMemo(() => {
-    const approvedNewsletters = newsletters.filter(n => n.status === 'approved')
+    const approvedNewsletters = newsletters.filter(n => n.review_status === 'approved')
     return {
       total: newsletters.length,
       approved: approvedNewsletters.length,
-      pending: newsletters.filter(n => n.status === 'pending').length,
-      rejected: newsletters.filter(n => n.status === 'rejected').length,
-      totalEarnings: approvedNewsletters.reduce((sum, n) => sum + (n.prezzo_sponsorizzazione || 0), 0)
+      in_review: newsletters.filter(n => n.review_status === 'in_review').length,
+      rejected: newsletters.filter(n => n.review_status === 'rejected').length,
+      totalSubscribers: approvedNewsletters.reduce((sum, n) => sum + (n.audience_size || 0), 0)
     }
   }, [newsletters])
 
@@ -265,15 +259,12 @@ export default function NewslettersPage() {
       frequenza_invio: newsletter.frequenza_invio || undefined,
       linkedin_profile: newsletter.linkedin_profile || ''
     })
-    setShowForm(true)
+    // Edit functionality removed - using dedicated page
   }
 
   const handleCloseForm = () => {
-    setShowForm(false)
+    // Form functionality removed - using dedicated page
     setEditingNewsletter(null)
-    setFormErrors({})
-    setLogoFile(null)
-    setLogoPreview(null)
     setFormData({
       nome_newsletter: '',
       url_archivio: '',
@@ -360,22 +351,28 @@ export default function NewslettersPage() {
       {showUpdateSuccess && (
         <div className="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-md p-4 z-50">
           <div className="flex">
-            <CheckCircle className="h-5 w-5 text-slate-500" />
+            <CheckCircle className="h-5 w-5 text-green-500" />
             <div className="ml-3">
               <p className="text-sm font-medium text-green-800">
-                Newsletter aggiornata!
+                Newsletter registrata!
               </p>
               <p className="text-sm text-green-700">
-                Le modifiche sono state salvate con successo.
+                La tua newsletter è stata inviata per la revisione.
               </p>
             </div>
+            <button
+              onClick={() => setShowUpdateSuccess(false)}
+              className="ml-4 text-green-400 hover:text-green-500"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}
 
       {/* Sidebar */}
       <Sidebar 
-        onNewNewsletter={() => setShowForm(true)} 
+        onNewNewsletter={() => router.push('/dashboard/newsletters/register')} 
         isMobileOpen={isMobileMenuOpen}
         onMobileClose={() => setIsMobileMenuOpen(false)}
       />
@@ -397,338 +394,18 @@ export default function NewslettersPage() {
               <h1 className="text-xl font-semibold text-gray-900">Le mie newsletter</h1>
               <Mail className="w-5 h-5 text-slate-500" />
             </div>
-            <button
-              onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-500 text-white text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors"
+            <Link
+              href="/dashboard/newsletters/register"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Nuova newsletter
-            </button>
+              Registra Newsletter
+            </Link>
           </div>
         </header>
 
         {/* Content */}
         <main className="flex-1 overflow-auto px-6 py-6">
-          {/* Newsletter Form */}
-          {showForm && (
-            <div className="mb-8 bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  {editingNewsletter ? 'Modifica newsletter' : 'Registra nuova newsletter'}
-                </h2>
-                <button
-                  onClick={handleCloseForm}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              
-
-              <form onSubmit={handleFormSubmit}>
-                {/* General Error */}
-                {formErrors.general && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
-                    <p className="text-red-800 text-sm">{formErrors.general}</p>
-                  </div>
-                )}
-
-                {/* Two Column Layout */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
-                    {/* Left Column */}
-                    <div>
-                      <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center">
-                        <Mail className="w-4 h-4 mr-2" />
-                        Informazioni Newsletter
-                      </h3>
-                      <div className="space-y-4">
-                      {/* Nome Newsletter */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Nome della newsletter *
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.nome_newsletter}
-                          onChange={(e) => handleInputChange('nome_newsletter', e.target.value)}
-                          placeholder="es. Marketing Espresso"
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            formErrors.nome_newsletter ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                        />
-                        {formErrors.nome_newsletter && (
-                          <p className="text-red-600 text-xs mt-1">{formErrors.nome_newsletter}</p>
-                        )}
-                      </div>
-
-                      {/* Logo Upload */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Logo newsletter <span className="text-gray-400 font-normal">(300x300px)</span>
-                        </label>
-                        <div className="flex items-start gap-4">
-                          <div className="flex-1">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleLogoUpload}
-                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                formErrors.logo ? 'border-red-300' : 'border-gray-300'
-                              }`}
-                            />
-                            {formErrors.logo && (
-                              <p className="text-red-600 text-xs mt-1">{formErrors.logo}</p>
-                            )}
-                            <p className="text-gray-500 text-xs mt-1">
-                              Dimensioni consigliate: 300x300px, max 5MB
-                            </p>
-                          </div>
-                          {logoPreview && (
-                            <div className="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                              <img 
-                                src={logoPreview} 
-                                alt="Logo preview" 
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* URL Archivio */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Link archivio pubblico *
-                        </label>
-                        <input
-                          type="url"
-                          value={formData.url_archivio}
-                          onChange={(e) => handleInputChange('url_archivio', e.target.value)}
-                          placeholder="https://tuanewsletter.substack.com"
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            formErrors.url_archivio ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                        />
-                        {formErrors.url_archivio && (
-                          <p className="text-red-600 text-xs mt-1">{formErrors.url_archivio}</p>
-                        )}
-                      </div>
-
-                      {/* Categoria */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Categoria principale *
-                        </label>
-                        <select
-                          value={formData.categoria || ''}
-                          onChange={(e) => handleInputChange('categoria', e.target.value)}
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            formErrors.categoria ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                        >
-                          <option value="">Seleziona categoria...</option>
-                          {NEWSLETTER_CATEGORIES.map((cat) => (
-                            <option key={cat} value={cat}>{cat}</option>
-                          ))}
-                        </select>
-                        {formErrors.categoria && (
-                          <p className="text-red-600 text-xs mt-1">{formErrors.categoria}</p>
-                        )}
-                      </div>
-
-                      {/* Email Contatto */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Email di contatto business *
-                        </label>
-                        <input
-                          type="email"
-                          value={formData.email_contatto}
-                          onChange={(e) => handleInputChange('email_contatto', e.target.value)}
-                          placeholder="business@tuoemail.com"
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            formErrors.email_contatto ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                        />
-                        {formErrors.email_contatto && (
-                          <p className="text-red-600 text-xs mt-1">{formErrors.email_contatto}</p>
-                        )}
-                      </div>
-
-                      {/* LinkedIn Profile */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Profilo LinkedIn <span className="text-gray-400 font-normal">(opzionale)</span>
-                        </label>
-                        <input
-                          type="url"
-                          value={formData.linkedin_profile}
-                          onChange={(e) => handleInputChange('linkedin_profile', e.target.value)}
-                          placeholder="https://linkedin.com/in/tuoprofilo"
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            formErrors.linkedin_profile ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                        />
-                        {formErrors.linkedin_profile && (
-                          <p className="text-red-600 text-xs mt-1">{formErrors.linkedin_profile}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column */}
-                  <div>
-                    <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center">
-                      <Users className="w-4 h-4 mr-2" />
-                      Metriche & Business
-                    </h3>
-                    <div className="space-y-4">
-                      {/* Numero Iscritti */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Numero iscritti *
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          value={formData.numero_iscritti || ''}
-                          onChange={(e) => handleInputChange('numero_iscritti', parseInt(e.target.value) || undefined)}
-                          placeholder="es. 1500"
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            formErrors.numero_iscritti ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                        />
-                        {formErrors.numero_iscritti && (
-                          <p className="text-red-600 text-xs mt-1">{formErrors.numero_iscritti}</p>
-                        )}
-                      </div>
-
-                      {/* Open Rate */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Open Rate medio (%) *
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          value={formData.open_rate || ''}
-                          onChange={(e) => handleInputChange('open_rate', parseFloat(e.target.value) || undefined)}
-                          placeholder="es. 45"
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            formErrors.open_rate ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                        />
-                        {formErrors.open_rate && (
-                          <p className="text-red-600 text-xs mt-1">{formErrors.open_rate}</p>
-                        )}
-                      </div>
-
-                      {/* CTR */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Click-Through Rate (%) *
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          value={formData.ctr || ''}
-                          onChange={(e) => handleInputChange('ctr', parseFloat(e.target.value) || undefined)}
-                          placeholder="es. 3.5"
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            formErrors.ctr ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                        />
-                        {formErrors.ctr && (
-                          <p className="text-red-600 text-xs mt-1">{formErrors.ctr}</p>
-                        )}
-                      </div>
-
-                      {/* Frequenza */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Frequenza invio <span className="text-gray-400 font-normal">(opzionale)</span>
-                        </label>
-                        <select
-                          value={formData.frequenza_invio || ''}
-                          onChange={(e) => handleInputChange('frequenza_invio', e.target.value || undefined)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Seleziona frequenza...</option>
-                          {SENDING_FREQUENCIES.map((freq) => (
-                            <option key={freq} value={freq}>{freq}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Prezzo Sponsorizzazione */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Prezzo sponsorizzazione (€) *
-                        </label>
-                        <input
-                          type="number"
-                          min="10"
-                          value={formData.prezzo_sponsorizzazione || ''}
-                          onChange={(e) => handleInputChange('prezzo_sponsorizzazione', parseInt(e.target.value) || undefined)}
-                          placeholder="es. 150"
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                            formErrors.prezzo_sponsorizzazione ? 'border-red-300' : 'border-gray-300'
-                          }`}
-                        />
-                        {formErrors.prezzo_sponsorizzazione && (
-                          <p className="text-red-600 text-xs mt-1">{formErrors.prezzo_sponsorizzazione}</p>
-                        )}
-                      </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Description - Full Width */}
-                <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Descrizione newsletter *
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.descrizione}
-                      onChange={(e) => handleInputChange('descrizione', e.target.value)}
-                      placeholder="Descrivi in breve di cosa parla la tua newsletter, il tuo stile e il tuo pubblico..."
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm ${
-                        formErrors.descrizione ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    {formErrors.descrizione && (
-                      <p className="text-red-600 text-xs mt-1">{formErrors.descrizione}</p>
-                    )}
-                    <p className="text-gray-500 text-xs mt-1">
-                      {formData.descrizione?.length || 0}/300 caratteri
-                    </p>
-                  </div>
-
-                {/* Form Actions */}
-                <div className="flex justify-end gap-3 pt-4 border-t">
-                  <button
-                    type="button"
-                    onClick={() => setShowForm(false)}
-                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-                  >
-                    Annulla
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {isSubmitting ? 'Salvando...' : editingNewsletter ? 'Salva Modifiche' : 'Registra Newsletter'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
           {/* Stats Overview */}
           <div className="mb-8">
             <h2 className="text-base font-medium text-gray-900 mb-4">Panoramica</h2>
@@ -759,24 +436,24 @@ export default function NewslettersPage() {
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-green-50 rounded-lg">
-                    <Clock className="w-5 h-5" style={{color: '#72e3ad'}} />
+                  <div className="p-2 bg-yellow-50 rounded-lg">
+                    <Clock className="w-5 h-5 text-yellow-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-2xl font-semibold text-gray-900">{stats.pending}</p>
-                    <p className="text-sm text-gray-600">In review</p>
+                    <p className="text-2xl font-semibold text-gray-900">{stats.in_review}</p>
+                    <p className="text-sm text-gray-600">In revisione</p>
                   </div>
                 </div>
               </div>
 
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex items-center">
-                  <div className="p-2 bg-green-50 rounded-lg">
-                    <TrendingUp className="w-5 h-5" style={{color: '#72e3ad'}} />
+                  <div className="p-2 bg-blue-50 rounded-lg">
+                    <Users className="w-5 h-5 text-blue-600" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-2xl font-semibold text-gray-900">€{stats.totalEarnings}</p>
-                    <p className="text-sm text-gray-600">Valore potenziale</p>
+                    <p className="text-2xl font-semibold text-gray-900">{stats.totalSubscribers.toLocaleString()}</p>
+                    <p className="text-sm text-gray-600">Iscritti totali</p>
                   </div>
                 </div>
               </div>
@@ -804,7 +481,7 @@ export default function NewslettersPage() {
                   className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">Tutti gli stati</option>
-                  <option value="pending">In review</option>
+                  <option value="in_review">In revisione</option>
                   <option value="approved">Approvate</option>
                   <option value="rejected">Rifiutate</option>
                 </select>
@@ -840,13 +517,13 @@ export default function NewslettersPage() {
                   }
                 </p>
                 {(!searchQuery && statusFilter === 'all') && (
-                  <button
-                    onClick={() => setShowForm(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-500 text-white text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors"
+                  <Link
+                    href="/dashboard/newsletters/register"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                     Registra newsletter
-                  </button>
+                  </Link>
                 )}
               </div>
             ) : (
@@ -855,68 +532,68 @@ export default function NewslettersPage() {
                   <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
                       <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Newsletter</th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Categoria</th>
                       <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Iscritti</th>
-                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Open Rate</th>
-                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">CTR</th>
-                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Prezzo</th>
                       <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Status</th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Data</th>
                       <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Azioni</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
                     {filteredNewsletters.map((newsletter) => (
                         <tr key={newsletter.id} className="hover:bg-slate-50">
-                          <td className="px-4 py-2">
-                            <div className="flex items-center gap-3">
-                              <div>
-                                <h4 className="text-sm font-medium text-slate-900 truncate max-w-48">
-                                  {newsletter.nome_newsletter}
-                                </h4>
-                                <p className="text-xs text-slate-500">
-                                  {newsletter.categoria} • {newsletter.numero_iscritti?.toLocaleString('it-IT') || 0} iscritti
-                                </p>
-                              </div>
+                          <td className="px-4 py-3">
+                            <div>
+                              <h4 className="text-sm font-medium text-slate-900 mb-1">
+                                {newsletter.title}
+                              </h4>
+                              <p className="text-xs text-slate-500 line-clamp-2">
+                                {newsletter.description}
+                              </p>
                             </div>
                           </td>
-                          <td className="px-4 py-2">
+                          <td className="px-4 py-3">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {newsletter.category}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
                             <div className="flex items-center gap-1">
                               <Users className="w-3 h-3 text-slate-400" />
-                              <span className="text-sm text-slate-900">{newsletter.numero_iscritti?.toLocaleString('it-IT') || 0}</span>
+                              <span className="text-sm text-slate-900">{newsletter.audience_size?.toLocaleString('it-IT') || 0}</span>
                             </div>
                           </td>
-                          <td className="px-4 py-2">
-                            <span className="text-sm text-slate-900">{newsletter.open_rate}%</span>
-                          </td>
-                          <td className="px-4 py-2">
-                            <span className="text-sm text-slate-900">{newsletter.ctr}%</span>
-                          </td>
-                          <td className="px-4 py-2">
-                            <span className="text-sm font-medium text-slate-900">
-                              €{newsletter.prezzo_sponsorizzazione?.toLocaleString('it-IT') || 0}
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusColor(newsletter.review_status)}`}>
+                              {getStatusIcon(newsletter.review_status)}
+                              {getStatusText(newsletter.review_status)}
                             </span>
                           </td>
-                          <td className="px-4 py-2">
-                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusColor(newsletter.status)}`}>
-                              {getStatusIcon(newsletter.status)}
-                              {getStatusText(newsletter.status)}
+                          <td className="px-4 py-3">
+                            <span className="text-sm text-slate-500">
+                              {new Date(newsletter.created_at).toLocaleDateString('it-IT')}
                             </span>
                           </td>
-                          <td className="px-4 py-2">
+                          <td className="px-4 py-3">
                             <div className="flex items-center justify-end gap-1">
-                              <button 
-                                onClick={() => handleEditNewsletter(newsletter)}
+                              <a
+                                href={newsletter.signup_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                                title="Modifica"
+                                title="Visualizza"
                               >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteNewsletter(newsletter)}
-                                className="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Elimina"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                                <Eye className="w-4 h-4" />
+                              </a>
+                              {newsletter.review_status === 'rejected' && (
+                                <button
+                                  onClick={() => handleDeleteNewsletter(newsletter)}
+                                  className="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                  title="Elimina"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -944,7 +621,7 @@ export default function NewslettersPage() {
             </div>
 
             <p className="text-gray-700 mb-6">
-              Sei sicuro di voler eliminare la newsletter "<strong>{deletingNewsletter.nome_newsletter}</strong>"?
+              Sei sicuro di voler eliminare la newsletter "<strong>{deletingNewsletter.title}</strong>"?
               Tutti i dati associati verranno persi definitivamente.
             </p>
 

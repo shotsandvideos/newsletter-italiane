@@ -35,7 +35,7 @@ interface Message {
   }
 }
 
-// Mock data per ora
+// Real messages data - will be fetched from API
 const mockMessages: Message[] = [
   {
     id: '1',
@@ -131,8 +131,8 @@ Partnership Manager`,
 export default function InboxPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
-  const [messages, setMessages] = useState<Message[]>(mockMessages)
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(mockMessages[0]) // Select first message by default
+  const [messages, setMessages] = useState<Message[]>([])
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Redirect if not authenticated

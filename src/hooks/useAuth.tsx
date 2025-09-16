@@ -65,11 +65,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (session?.user) {
           console.log('Fetching profile for user:', session.user.id)
-          await fetchProfile(session.user.id)
+          try {
+            await fetchProfile(session.user.id)
+          } catch (err) {
+            console.error('fetchProfile error in init:', err)
+          }
         } else {
           console.log('No session found - user needs to login')
         }
         console.log('Session initialization complete')
+        setLoading(false)
       } catch (error) {
         console.error('Error getting session:', error)
       } finally {
@@ -89,9 +94,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(session?.user ?? null)
           
           if (session?.user) {
-            await fetchProfile(session.user.id)
+            try {
+              await fetchProfile(session.user.id)
+            } catch (err) {
+              console.error('fetchProfile error in auth listener:', err)
+            } finally {
+              setLoading(false)
+            }
           } else {
             setProfile(null)
+            setLoading(false)
           }
           
           if (event === 'SIGNED_OUT') {
@@ -112,70 +124,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase.auth, router])
 
   const fetchProfile = async (userId: string) => {
+    console.log('Fetching profile for user:', userId)
+    
+    // Create a basic profile immediately as fallback to prevent UI blocking
+    const basicProfile = {
+      id: userId,
+      email: user?.email || '',
+      first_name: null,
+      last_name: null,
+      username: null,
+      avatar_url: null,
+      role: 'creator' as const,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
+    // Set basic profile first so UI is not blocked
+    setProfile(basicProfile)
+    console.log('Basic profile set, UI ready')
+    
+    // Try to fetch real profile from database in background (non-critical)
     try {
-      console.log('Fetching profile for user:', userId)
+      console.log('Attempting background fetch from database...')
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .maybeSingle() // Use maybeSingle instead of single to handle no results gracefully
+        .maybeSingle()
 
       if (error) {
-        console.error('Error fetching profile:', error.message || error)
-        // Create a basic profile if none exists
-        const basicProfile = {
-          id: userId,
-          email: user?.email || '',
-          first_name: null,
-          last_name: null,
-          username: null,
-          avatar_url: null,
-          role: 'creator' as const,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-        setProfile(basicProfile)
-        return
+        console.log('Database fetch error (non-critical):', error.message)
+        return // Keep using basic profile
       }
 
       if (data) {
-        console.log('Profile loaded:', data)
-        setProfile(data)
+        console.log('Profile loaded from database, updating UI:', data)
+        setProfile(data) // Upgrade to real profile
       } else {
-        console.log('No profile data found, creating basic profile')
-        // Create a basic profile if none exists
-        const basicProfile = {
-          id: userId,
-          email: user?.email || '',
-          first_name: null,
-          last_name: null,
-          username: null,
-          avatar_url: null,
-          role: 'creator' as const,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+        console.log('No profile in database, attempting to create...')
+        // Try to create profile (non-critical)
+        const { data: createdProfile } = await supabase
+          .from('profiles')
+          .insert([{
+            id: userId,
+            email: user?.email || '',
+            first_name: null,
+            last_name: null,
+            username: null,
+            avatar_url: null,
+            role: 'creator' as const,
+            is_active: true
+          }])
+          .select()
+          .single()
+        
+        if (createdProfile) {
+          console.log('Profile created successfully:', createdProfile)
+          setProfile(createdProfile)
         }
-        setProfile(basicProfile)
       }
-    } catch (error) {
-      console.error('Error in fetchProfile:', error)
-      // Create a basic profile fallback
-      const basicProfile = {
-        id: userId,
-        email: user?.email || '',
-        first_name: null,
-        last_name: null,
-        username: null,
-        avatar_url: null,
-        role: 'creator' as const,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-      setProfile(basicProfile)
+    } catch (error: any) {
+      console.log('Non-critical background error:', error?.message || error)
+      // Keep using basic profile - no action needed
     }
+    
     console.log('fetchProfile completed')
   }
 

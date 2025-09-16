@@ -51,88 +51,7 @@ export default function AdminInboxPage() {
     setLoading(false)
   }, [router])
 
-  const messages = [
-    {
-      id: 1,
-      from: {
-        name: 'Marco Rossi',
-        email: 'marco.rossi@email.com',
-        avatar: 'MR'
-      },
-      subject: 'Problema con pagamento newsletter',
-      preview: 'Ciao, ho un problema con il pagamento della mia ultima newsletter. Non riesco a ricevere...',
-      content: 'Ciao, ho un problema con il pagamento della mia ultima newsletter. Non riesco a ricevere i fondi nonostante siano passati 3 giorni dalla pubblicazione. Potreste aiutarmi a risolvere questa situazione? Grazie.',
-      timestamp: '2024-02-20T10:30:00Z',
-      status: 'unread',
-      priority: 'high',
-      category: 'payment',
-      starred: true
-    },
-    {
-      id: 2,
-      from: {
-        name: 'Anna Bianchi',
-        email: 'anna.bianchi@email.com',
-        avatar: 'AB'
-      },
-      subject: 'Richiesta supporto tecnico',
-      preview: 'Buongiorno, sto avendo difficoltà con la piattaforma di editing delle newsletter...',
-      content: 'Buongiorno, sto avendo difficoltà con la piattaforma di editing delle newsletter. Quando provo a caricare le immagini, il sistema si blocca. Potreste aiutarmi?',
-      timestamp: '2024-02-20T09:15:00Z',
-      status: 'unread',
-      priority: 'medium',
-      category: 'technical',
-      starred: false
-    },
-    {
-      id: 3,
-      from: {
-        name: 'Luigi Verdi',
-        email: 'luigi.verdi@email.com',
-        avatar: 'LV'
-      },
-      subject: 'Proposta di collaborazione',
-      preview: 'Salve, rappresento TechStartup Italia e vorremmo proporre una collaborazione...',
-      content: 'Salve, rappresento TechStartup Italia e vorremmo proporre una collaborazione per promuovere il nostro nuovo prodotto attraverso le newsletter dei vostri creator.',
-      timestamp: '2024-02-20T08:45:00Z',
-      status: 'read',
-      priority: 'low',
-      category: 'business',
-      starred: false
-    },
-    {
-      id: 4,
-      from: {
-        name: 'Giulia Neri',
-        email: 'giulia.neri@email.com',
-        avatar: 'GN'
-      },
-      subject: 'Aggiornamento profilo autore',
-      preview: 'Ciao, vorrei aggiornare le informazioni del mio profilo ma non trovo...',
-      content: 'Ciao, vorrei aggiornare le informazioni del mio profilo ma non trovo l\'opzione nelle impostazioni. Come posso modificare la mia bio e le informazioni di contatto?',
-      timestamp: '2024-02-19T16:20:00Z',
-      status: 'read',
-      priority: 'low',
-      category: 'support',
-      starred: false
-    },
-    {
-      id: 5,
-      from: {
-        name: 'Francesco Blu',
-        email: 'francesco.blu@email.com',
-        avatar: 'FB'
-      },
-      subject: 'Problema moderazione contenuto',
-      preview: 'La mia newsletter è stata bloccata per moderazione ma non capisco il motivo...',
-      content: 'La mia newsletter è stata bloccata per moderazione ma non capisco il motivo. Il contenuto rispetta tutte le linee guida della piattaforma. Potreste rivedere la decisione?',
-      timestamp: '2024-02-19T14:10:00Z',
-      status: 'unread',
-      priority: 'high',
-      category: 'moderation',
-      starred: true
-    }
-  ]
+  const messages = []
 
   const filters = [
     { value: 'all', label: 'Tutti i messaggi', count: messages.length },
@@ -244,51 +163,16 @@ export default function AdminInboxPage() {
             </div>
             
             {/* Messages List */}
-            <div className="flex-1 overflow-y-auto">
-              {filteredMessages.map((message) => (
-                <div 
-                  key={message.id} 
-                  onClick={() => setSelectedMessage(message)}
-                  className={`p-3 border-b border-slate-100 cursor-pointer transition-colors hover:bg-slate-50 ${
-                    selectedMessage?.id === message.id ? 'bg-red-50 border-red-100' : ''
-                  } ${message.status === 'unread' ? 'bg-blue-50/30' : ''}`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-slate-500 to-slate-600 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-white text-xs font-semibold">
-                        {message.from.avatar}
-                      </span>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-sm truncate ${message.status === 'unread' ? 'font-semibold text-slate-900' : 'text-slate-700'}`}>
-                          {message.from.name}
-                        </span>
-                        {message.starred && <Star className="w-3 h-3 text-yellow-500 fill-current" />}
-                        {message.status === 'unread' && <div className="w-2 h-2 bg-red-500 rounded-full" />}
-                      </div>
-                      
-                      <h5 className={`text-sm truncate mb-1 ${message.status === 'unread' ? 'font-medium text-slate-900' : 'text-slate-700'}`}>
-                        {message.subject}
-                      </h5>
-                      
-                      <p className="text-xs text-slate-500 truncate mb-2">
-                        {message.preview}
-                      </p>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-400">
-                          {new Date(message.timestamp).toLocaleDateString('it-IT')}
-                        </span>
-                        <span className={`px-1.5 py-0.5 text-xs rounded-full ${getPriorityColor(message.priority)}`}>
-                          {message.priority === 'high' ? 'Alta' : message.priority === 'medium' ? 'Media' : 'Bassa'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+            <div className="flex-1 overflow-y-auto flex items-center justify-center">
+              {filteredMessages.length === 0 && (
+                <div className="text-center p-8">
+                  <Inbox className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                  <h4 className="font-medium text-slate-900 mb-2">Inbox vuota</h4>
+                  <p className="text-sm text-slate-500">
+                    Non ci sono messaggi da visualizzare
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 

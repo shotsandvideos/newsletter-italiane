@@ -19,27 +19,8 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Sidebar from '../../components/Sidebar'
 
-// Simplified collaborations data
-const collaborations = [
-  { id: 1, brand: 'TechStartup Italia', newsletter: 'Marketing Espresso', status: 'active', value: 250, deadline: '2025-01-15', createdAt: '2025-01-10' },
-  { id: 2, brand: 'EcoFashion Brand', newsletter: 'Sustainable Living', status: 'completed', value: 180, deadline: '2025-01-08', createdAt: '2024-12-28' },
-  { id: 3, brand: 'FinTech Solutions', newsletter: 'Weekly Finance', status: 'pending', value: 320, deadline: '2025-01-20', createdAt: '2025-01-12' },
-  { id: 4, brand: 'Health & Wellness Co', newsletter: 'Fitness Weekly', status: 'active', value: 150, deadline: '2025-01-18', createdAt: '2025-01-11' },
-  { id: 5, brand: 'Food Delivery App', newsletter: 'Foodie Newsletter', status: 'cancelled', value: 280, deadline: '2025-01-14', createdAt: '2025-01-09' },
-  { id: 6, brand: 'Travel Tech', newsletter: 'Travel Insider', status: 'completed', value: 400, deadline: '2025-01-12', createdAt: '2025-01-02' },
-  { id: 7, brand: 'EdTech Platform', newsletter: 'Learning Hub', status: 'active', value: 200, deadline: '2025-01-22', createdAt: '2025-01-13' },
-  { id: 8, brand: 'Crypto Exchange', newsletter: 'Crypto Weekly', status: 'pending', value: 500, deadline: '2025-01-25', createdAt: '2025-01-14' },
-  { id: 9, brand: 'Gaming Studio', newsletter: 'Game Dev Digest', status: 'active', value: 350, deadline: '2025-01-19', createdAt: '2025-01-10' },
-  { id: 10, brand: 'Real Estate Tech', newsletter: 'Property Insights', status: 'completed', value: 220, deadline: '2025-01-11', createdAt: '2025-01-01' },
-  { id: 11, brand: 'AI Startup', newsletter: 'AI Weekly', status: 'active', value: 450, deadline: '2025-01-28', createdAt: '2025-01-15' },
-  { id: 12, brand: 'Green Energy Co', newsletter: 'Sustainable Tech', status: 'pending', value: 380, deadline: '2025-01-26', createdAt: '2025-01-14' },
-  { id: 13, brand: 'Fashion E-commerce', newsletter: 'Style Report', status: 'active', value: 160, deadline: '2025-01-21', createdAt: '2025-01-12' },
-  { id: 14, brand: 'Productivity App', newsletter: 'Work Smart', status: 'completed', value: 190, deadline: '2025-01-13', createdAt: '2025-01-03' },
-  { id: 15, brand: 'Music Platform', newsletter: 'Music Industry News', status: 'active', value: 270, deadline: '2025-01-23', createdAt: '2025-01-13' },
-  { id: 16, brand: 'Sports Brand', newsletter: 'Athletic Performance', status: 'pending', value: 300, deadline: '2025-01-27', createdAt: '2025-01-15' },
-  { id: 17, brand: 'Pet Care Startup', newsletter: 'Pet Owner Guide', status: 'active', value: 120, deadline: '2025-01-24', createdAt: '2025-01-14' },
-  { id: 18, brand: 'Home Automation', newsletter: 'Smart Home Weekly', status: 'completed', value: 340, deadline: '2025-01-10', createdAt: '2024-12-30' }
-]
+// Real collaborations data - will be fetched from API
+const collaborations: any[] = []
 
 const statusFilters = [
   { value: 'all', label: 'Tutti gli stati' },

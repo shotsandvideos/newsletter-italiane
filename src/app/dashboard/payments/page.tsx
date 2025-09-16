@@ -28,108 +28,14 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import Sidebar from '../../components/Sidebar'
 
-// Mock data for payments - in real app this would come from API
-const mockPayments = [
-  {
-    id: '1',
-    type: 'earning' as const,
-    brand: 'TechStartup Italia',
-    brandLogo: '',
-    newsletter: 'Marketing Espresso',
-    collaborationId: 'collab-001',
-    amount: 300,
-    status: 'paid' as const,
-    paymentDate: '2025-01-10',
-    dueDate: '2025-01-15',
-    invoiceNumber: 'INV-2025-001',
-    description: 'Contenuto sponsorizzato per piattaforma SaaS',
-    paymentMethod: 'Bonifico bancario',
-    transactionId: 'TXN-ABC123'
-  },
-  {
-    id: '2',
-    type: 'earning' as const,
-    brand: 'EcoProducts',
-    brandLogo: '',
-    newsletter: 'Marketing Espresso',
-    collaborationId: 'collab-002',
-    amount: 250,
-    status: 'pending' as const,
-    paymentDate: null,
-    dueDate: '2025-01-20',
-    invoiceNumber: 'INV-2025-002',
-    description: 'Campagna prodotti eco-sostenibili',
-    paymentMethod: 'Bonifico bancario',
-    transactionId: null
-  },
-  {
-    id: '3',
-    type: 'earning' as const,
-    brand: 'Fintech Solutions',
-    brandLogo: '',
-    newsletter: 'Marketing Espresso',
-    collaborationId: 'collab-003',
-    amount: 150,
-    status: 'overdue' as const,
-    paymentDate: null,
-    dueDate: '2025-01-05',
-    invoiceNumber: 'INV-2025-003',
-    description: 'Menzione app gestione finanziaria',
-    paymentMethod: 'Bonifico bancario',
-    transactionId: null
-  },
-  {
-    id: '4',
-    type: 'commission' as const,
-    brand: 'Frames',
-    brandLogo: '',
-    newsletter: 'Marketing Espresso',
-    collaborationId: 'collab-001',
-    amount: -45, // 15% commission
-    status: 'paid' as const,
-    paymentDate: '2025-01-10',
-    dueDate: '2025-01-10',
-    invoiceNumber: 'COM-2025-001',
-    description: 'Commissione piattaforma (15%)',
-    paymentMethod: 'Trattenuta automatica',
-    transactionId: 'TXN-ABC123'
-  },
-  {
-    id: '5',
-    type: 'earning' as const,
-    brand: 'HealthCare Pro',
-    brandLogo: '',
-    newsletter: 'Marketing Espresso',
-    collaborationId: 'collab-004',
-    amount: 400,
-    status: 'paid' as const,
-    paymentDate: '2024-12-28',
-    dueDate: '2024-12-30',
-    invoiceNumber: 'INV-2024-045',
-    description: 'Newsletter dedicata prodotti sanitari',
-    paymentMethod: 'Bonifico bancario',
-    transactionId: 'TXN-XYZ789'
-  }
-]
+// Real payments data - will be fetched from API
+const mockPayments: any[] = []
 
 type PaymentStatus = 'paid' | 'pending' | 'overdue' | 'cancelled'
 type PaymentType = 'earning' | 'commission' | 'refund'
 
-// Mock data for earnings chart - in real app this would come from API
-const mockEarningsData = [
-  { month: 'Gen', earnings: 1200, transactions: 8 },
-  { month: 'Feb', earnings: 1800, transactions: 12 },
-  { month: 'Mar', earnings: 2200, transactions: 15 },
-  { month: 'Apr', earnings: 1650, transactions: 11 },
-  { month: 'Mag', earnings: 2800, transactions: 18 },
-  { month: 'Giu', earnings: 3200, transactions: 21 },
-  { month: 'Lug', earnings: 2900, transactions: 19 },
-  { month: 'Ago', earnings: 3500, transactions: 23 },
-  { month: 'Set', earnings: 4100, transactions: 27 },
-  { month: 'Ott', earnings: 3800, transactions: 25 },
-  { month: 'Nov', earnings: 4500, transactions: 29 },
-  { month: 'Dic', earnings: 5200, transactions: 34 }
-]
+// Real earnings data - will be fetched from API
+const mockEarningsData: any[] = []
 
 export default function PaymentsPage() {
   const { user, loading: authLoading } = useAuth()

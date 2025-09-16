@@ -19,21 +19,8 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Sidebar from '../../components/Sidebar'
 
-// Enhanced campaign data structure with payment types
-const campaigns = [
-  { id: 1, title: 'Lancia la Nuova App Fintech', brand: 'FinanceFlow', budget: '€2,500 - €5,000', category: 'Fintech', paymentType: 'PPC', deadline: '2024-03-15', description: 'Promuovi la nostra innovativa app fintech che rivoluziona i pagamenti digitali per PMI e freelance.' },
-  { id: 2, title: 'Promozione Corso Marketing Digitale', brand: 'MarketingPro Academy', budget: '€800 - €1,500', category: 'Marketing', paymentType: 'Pay per Lead', deadline: '2024-03-20', description: 'Corsi di marketing digitale per professionisti. Cerchiamo newsletter nel settore business e formazione.' },
-  { id: 3, title: 'Startup Week Milano 2024', brand: 'Startup Events', budget: '€1,200 - €2,000', category: 'Eventi', paymentType: 'Pay per Action', deadline: '2024-03-10', description: 'Il più grande evento startup d\'Italia. Registrazioni aperte per partecipanti e sponsor.' },
-  { id: 4, title: 'E-commerce Platform Launch', brand: 'ShopTech', budget: '€3,000 - €6,000', category: 'Tech', paymentType: 'PPC', deadline: '2024-03-25', description: 'Piattaforma e-commerce next-gen con AI integrata per ottimizzare vendite e customer experience.' },
-  { id: 5, title: 'Sustainable Fashion Week', brand: 'EcoStyle', budget: '€1,500 - €2,500', category: 'Lifestyle', paymentType: 'Pay per Lead', deadline: '2024-03-18', description: 'Moda sostenibile e circolare. Evento dedicato a brand etici e consumatori consapevoli.' },
-  { id: 6, title: 'Crypto Trading Course', brand: 'CryptoLearn', budget: '€2,000 - €4,000', category: 'Fintech', paymentType: 'PPC', deadline: '2024-03-22', description: 'Corsi avanzati di trading crypto e DeFi. Target: investitori e trader esperti.' },
-  { id: 7, title: 'Remote Work Tools', brand: 'WorkFlow', budget: '€1,800 - €3,000', category: 'Tech', paymentType: 'Pay per Action', deadline: '2024-03-28', description: 'Suite completa per lavoro remoto e gestione team distribuiti. Aumenta produttività del 40%.' },
-  { id: 8, title: 'Health Tech Innovation', brand: 'MedTech Solutions', budget: '€4,000 - €8,000', category: 'Tech', paymentType: 'PPC', deadline: '2024-03-30', description: 'Tecnologie medicali innovative per telemedicina e monitoraggio pazienti IoT.' },
-  { id: 9, title: 'Digital Marketing Summit', brand: 'MarketCon', budget: '€1,200 - €2,200', category: 'Marketing', paymentType: 'Pay per Lead', deadline: '2024-03-16', description: 'Summit internazionale con i migliori esperti di marketing digitale e growth hacking.' },
-  { id: 10, title: 'Green Energy Startup', brand: 'EcoEnergy', budget: '€2,500 - €4,500', category: 'Startup', paymentType: 'Pay per Action', deadline: '2024-04-02', description: 'Startup cleantech che sviluppa soluzioni per energie rinnovabili e storage.' },
-  { id: 11, title: 'Food Delivery Innovation', brand: 'QuickEats', budget: '€3,500 - €5,500', category: 'Startup', paymentType: 'PPC', deadline: '2024-03-26', description: 'Delivery ultra-rapido con droni e AI per predizione domanda. Expansion in 10 città italiane.' },
-  { id: 12, title: 'EdTech Platform Beta', brand: 'LearnSmart', budget: '€1,600 - €2,800', category: 'Tech', paymentType: 'Pay per Lead', deadline: '2024-03-24', description: 'Piattaforma adaptive learning con AI che personalizza percorsi formativi per ogni studente.' }
-]
+// Real campaigns data - will be fetched from API
+const campaigns: any[] = []
 
 const categories = [
   { value: 'all', label: 'Tutte le categorie' },
@@ -158,61 +145,69 @@ export default function MarketplacePage() {
 
           {/* Campaigns Table */}
           <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Campagna</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Brand</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Categoria</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Payment Type</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Scadenza</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Azione</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {paginatedCampaigns.map((campaign) => (
-                    <tr key={campaign.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-slate-900 text-sm">{campaign.title}</div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Building className="w-3 h-3 text-slate-400" />
-                          <span className="text-sm text-slate-600">{campaign.brand}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                          {campaign.category}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <CreditCard className="w-3 h-3 text-slate-400" />
-                          <span className="text-xs text-slate-600">{campaign.paymentType}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1 text-sm text-slate-600">
-                          <Clock className="w-3 h-3" />
-                          {new Date(campaign.deadline).toLocaleDateString('it-IT')}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <button 
-                          onClick={() => handleShowDetails(campaign)}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-slate-600 text-white text-xs rounded-md hover:bg-slate-700 transition-colors"
-                        >
-                          Dettagli
-                          <ChevronRight className="w-3 h-3" />
-                        </button>
-                      </td>
+            {paginatedCampaigns.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Campagna</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Brand</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Categoria</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Payment Type</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Scadenza</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Azione</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paginatedCampaigns.map((campaign) => (
+                      <tr key={campaign.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-slate-900 text-sm">{campaign.title}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <Building className="w-3 h-3 text-slate-400" />
+                            <span className="text-sm text-slate-600">{campaign.brand}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                            {campaign.category}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1">
+                            <CreditCard className="w-3 h-3 text-slate-400" />
+                            <span className="text-xs text-slate-600">{campaign.paymentType}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1 text-sm text-slate-600">
+                            <Clock className="w-3 h-3" />
+                            {new Date(campaign.deadline).toLocaleDateString('it-IT')}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <button 
+                            onClick={() => handleShowDetails(campaign)}
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-slate-600 text-white text-xs rounded-md hover:bg-slate-700 transition-colors"
+                          >
+                            Dettagli
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-slate-900 mb-2">Nessuna campagna disponibile</h3>
+                <p className="text-slate-500 text-sm">Le campagne pubblicitarie appariranno qui quando saranno disponibili.</p>
+              </div>
+            )}
           </div>
 
           {/* Pagination */}

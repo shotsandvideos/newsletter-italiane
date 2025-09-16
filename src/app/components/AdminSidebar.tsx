@@ -18,7 +18,7 @@ import {
   FileText,
   Crown,
 } from 'lucide-react'
-import { useAuth } from '../../hooks/useAuth'
+// import { useAuth } from '../../hooks/useAuth' // Removed for localStorage admin
 import { cn } from '../../lib/utils'
 
 interface AdminSidebarProps {
@@ -46,10 +46,11 @@ const bottomNavigation = [
 
 export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: AdminSidebarProps) {
   const pathname = usePathname()
-  const { user, profile, signOut } = useAuth()
   
   const handleSignOut = async () => {
-    await signOut()
+    // Remove localStorage admin session
+    localStorage.removeItem('adminSession')
+    window.location.href = '/admin/login'
   }
 
   return (
@@ -91,7 +92,7 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-semibold text-slate-900 truncate">
-                {profile?.first_name || profile?.username || user?.email?.split('@')[0] || 'Admin'}
+                Admin
               </h2>
             </div>
             <div className="flex items-center gap-2">

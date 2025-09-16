@@ -53,130 +53,7 @@ export default function AdminPagamentiPage() {
     setLoading(false)
   }, [router])
 
-  const payments = [
-    {
-      id: 'PAY-2024-001',
-      type: 'newsletter_revenue',
-      author: {
-        name: 'Marco Rossi',
-        email: 'marco.rossi@email.com',
-        newsletter: 'Tech Weekly'
-      },
-      amount: 850.00,
-      currency: 'EUR',
-      status: 'completed',
-      method: 'bank_transfer',
-      createdAt: '2024-02-20T14:30:00Z',
-      processedAt: '2024-02-20T16:45:00Z',
-      description: 'Pagamento per newsletter "AI Revolution: 10 Tool che Cambieranno il Tuo Business"',
-      escrowDetails: {
-        held: false,
-        releaseDate: null,
-        holdReason: null
-      },
-      bankDetails: {
-        iban: 'IT60 X054 2811 1010 0000 0123 456',
-        beneficiary: 'Marco Rossi'
-      }
-    },
-    {
-      id: 'PAY-2024-002',
-      type: 'collaboration_payment',
-      author: {
-        name: 'Anna Bianchi',
-        email: 'anna.bianchi@email.com',
-        newsletter: 'Startup Italia'
-      },
-      amount: 1200.00,
-      currency: 'EUR',
-      status: 'pending',
-      method: 'bank_transfer',
-      createdAt: '2024-02-20T10:15:00Z',
-      processedAt: null,
-      description: 'Pagamento collaborazione con FinanceFlow',
-      escrowDetails: {
-        held: true,
-        releaseDate: '2024-02-25T00:00:00Z',
-        holdReason: 'In attesa di completamento deliverable'
-      },
-      bankDetails: {
-        iban: 'IT12 Y012 3456 7890 1234 5678 901',
-        beneficiary: 'Anna Bianchi'
-      }
-    },
-    {
-      id: 'PAY-2024-003',
-      type: 'refund',
-      author: {
-        name: 'Luigi Verdi',
-        email: 'luigi.verdi@email.com',
-        newsletter: 'Crypto Italia'
-      },
-      amount: -300.00,
-      currency: 'EUR',
-      status: 'processing',
-      method: 'bank_transfer',
-      createdAt: '2024-02-19T16:20:00Z',
-      processedAt: null,
-      description: 'Rimborso per collaborazione cancellata con CryptoTech',
-      escrowDetails: {
-        held: false,
-        releaseDate: null,
-        holdReason: null
-      },
-      bankDetails: {
-        iban: 'IT89 Z098 7654 3210 9876 5432 109',
-        beneficiary: 'Luigi Verdi'
-      }
-    },
-    {
-      id: 'PAY-2024-004',
-      type: 'newsletter_revenue',
-      author: {
-        name: 'Giulia Neri',
-        email: 'giulia.neri@email.com',
-        newsletter: 'Marketing Pro'
-      },
-      amount: 680.50,
-      currency: 'EUR',
-      status: 'failed',
-      method: 'bank_transfer',
-      createdAt: '2024-02-19T12:00:00Z',
-      processedAt: null,
-      description: 'Pagamento per newsletter "Marketing Automation: Le Migliori Strategie"',
-      escrowDetails: {
-        held: false,
-        releaseDate: null,
-        holdReason: null
-      },
-      bankDetails: {
-        iban: 'IT45 W876 5432 1098 7654 3210 987',
-        beneficiary: 'Giulia Neri'
-      },
-      failureReason: 'IBAN non valido'
-    },
-    {
-      id: 'PAY-2024-005',
-      type: 'platform_fee',
-      author: {
-        name: 'Sistema',
-        email: 'system@newsletteritaliane.com',
-        newsletter: 'Platform'
-      },
-      amount: 125.75,
-      currency: 'EUR',
-      status: 'completed',
-      method: 'internal',
-      createdAt: '2024-02-18T23:59:00Z',
-      processedAt: '2024-02-18T23:59:30Z',
-      description: 'Commissione piattaforma (15% su €838.33)',
-      escrowDetails: {
-        held: false,
-        releaseDate: null,
-        holdReason: null
-      }
-    }
-  ]
+  const payments = []
 
   const filters = [
     { value: 'all', label: 'Tutti', count: payments.length },
@@ -371,121 +248,131 @@ export default function AdminPagamentiPage() {
               </div>
 
               <div className="divide-y divide-slate-200">
-                {filteredPayments.map((payment) => {
-                  const statusInfo = getStatusInfo(payment.status)
-                  const StatusIcon = statusInfo.icon
-                  const typeInfo = getPaymentTypeInfo(payment.type)
-                  const isNegative = payment.amount < 0
+                {filteredPayments.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <CreditCard className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                    <h4 className="font-medium text-slate-900 mb-2">Nessun pagamento</h4>
+                    <p className="text-slate-500">
+                      Non ci sono transazioni da visualizzare
+                    </p>
+                  </div>
+                ) : (
+                  filteredPayments.map((payment) => {
+                    const statusInfo = getStatusInfo(payment.status)
+                    const StatusIcon = statusInfo.icon
+                    const typeInfo = getPaymentTypeInfo(payment.type)
+                    const isNegative = payment.amount < 0
 
-                  return (
-                    <div key={payment.id} className="p-6 hover:bg-slate-50 transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start gap-4">
-                            <div className="flex-shrink-0">
-                              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                                {(() => {
-                                  const IconComponent = typeInfo.icon
-                                  return <IconComponent className="w-6 h-6 text-red-600" />
-                                })()}
+                    return (
+                      <div key={payment.id} className="p-6 hover:bg-slate-50 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start gap-4">
+                              <div className="flex-shrink-0">
+                                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                                  {(() => {
+                                    const IconComponent = typeInfo.icon
+                                    return <IconComponent className="w-6 h-6 text-red-600" />
+                                  })()}
+                                </div>
                               </div>
-                            </div>
-                            
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h4 className="text-lg font-semibold text-slate-900">
-                                  {payment.id}
-                                </h4>
-                                <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
-                                  <StatusIcon className="w-3 h-3" />
-                                  {statusInfo.label}
-                                </span>
-                                {payment.escrowDetails.held && (
-                                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium flex items-center gap-1">
-                                    <Shield className="w-3 h-3" />
-                                    Escrow
+                              
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <h4 className="text-lg font-semibold text-slate-900">
+                                    {payment.id}
+                                  </h4>
+                                  <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                                    <StatusIcon className="w-3 h-3" />
+                                    {statusInfo.label}
                                   </span>
-                                )}
-                              </div>
+                                  {payment.escrowDetails.held && (
+                                    <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full font-medium flex items-center gap-1">
+                                      <Shield className="w-3 h-3" />
+                                      Escrow
+                                    </span>
+                                  )}
+                                </div>
 
-                              <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
-                                <span className={`font-medium ${typeInfo.color}`}>
-                                  {typeInfo.label}
-                                </span>
-                                {payment.author.name !== 'Sistema' && (
+                                <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
+                                  <span className={`font-medium ${typeInfo.color}`}>
+                                    {typeInfo.label}
+                                  </span>
+                                  {payment.author.name !== 'Sistema' && (
+                                    <div className="flex items-center gap-1">
+                                      <User className="w-4 h-4" />
+                                      <span>{payment.author.name}</span>
+                                    </div>
+                                  )}
                                   <div className="flex items-center gap-1">
-                                    <User className="w-4 h-4" />
-                                    <span>{payment.author.name}</span>
+                                    <Calendar className="w-4 h-4" />
+                                    <span>{new Date(payment.createdAt).toLocaleDateString('it-IT')}</span>
+                                  </div>
+                                </div>
+
+                                <p className="text-sm text-slate-600 mb-4">
+                                  {payment.description}
+                                </p>
+
+                                {payment.status === 'failed' && payment.failureReason && (
+                                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
+                                    <XCircle className="w-4 h-4 text-red-600" />
+                                    <p className="text-sm text-red-700">
+                                      <strong>Errore:</strong> {payment.failureReason}
+                                    </p>
                                   </div>
                                 )}
-                                <div className="flex items-center gap-1">
-                                  <Calendar className="w-4 h-4" />
-                                  <span>{new Date(payment.createdAt).toLocaleDateString('it-IT')}</span>
-                                </div>
-                              </div>
 
-                              <p className="text-sm text-slate-600 mb-4">
-                                {payment.description}
-                              </p>
+                                {payment.escrowDetails.held && payment.escrowDetails.holdReason && (
+                                  <div className="flex items-center gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg mb-4">
+                                    <Shield className="w-4 h-4 text-purple-600" />
+                                    <div>
+                                      <p className="text-sm font-medium text-purple-800">Fondi in escrow</p>
+                                      <p className="text-sm text-purple-700">{payment.escrowDetails.holdReason}</p>
+                                      {payment.escrowDetails.releaseDate && (
+                                        <p className="text-xs text-purple-600 mt-1">
+                                          Rilascio previsto: {new Date(payment.escrowDetails.releaseDate).toLocaleDateString('it-IT')}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
 
-                              {payment.status === 'failed' && payment.failureReason && (
-                                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
-                                  <XCircle className="w-4 h-4 text-red-600" />
-                                  <p className="text-sm text-red-700">
-                                    <strong>Errore:</strong> {payment.failureReason}
-                                  </p>
-                                </div>
-                              )}
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <button className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                      <Eye className="w-4 h-4" />
+                                      Dettagli
+                                    </button>
+                                    
+                                    {payment.status === 'failed' && (
+                                      <button className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors">
+                                        <CheckCircle className="w-4 h-4" />
+                                        Riprova
+                                      </button>
+                                    )}
 
-                              {payment.escrowDetails.held && payment.escrowDetails.holdReason && (
-                                <div className="flex items-center gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg mb-4">
-                                  <Shield className="w-4 h-4 text-purple-600" />
-                                  <div>
-                                    <p className="text-sm font-medium text-purple-800">Fondi in escrow</p>
-                                    <p className="text-sm text-purple-700">{payment.escrowDetails.holdReason}</p>
-                                    {payment.escrowDetails.releaseDate && (
-                                      <p className="text-xs text-purple-600 mt-1">
-                                        Rilascio previsto: {new Date(payment.escrowDetails.releaseDate).toLocaleDateString('it-IT')}
-                                      </p>
+                                    {payment.escrowDetails.held && (
+                                      <button className="flex items-center gap-1 px-3 py-1.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                                        <Shield className="w-4 h-4" />
+                                        Rilascia
+                                      </button>
                                     )}
                                   </div>
-                                </div>
-                              )}
 
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <button className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                    <Eye className="w-4 h-4" />
-                                    Dettagli
-                                  </button>
-                                  
-                                  {payment.status === 'failed' && (
-                                    <button className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors">
-                                      <CheckCircle className="w-4 h-4" />
-                                      Riprova
-                                    </button>
-                                  )}
-
-                                  {payment.escrowDetails.held && (
-                                    <button className="flex items-center gap-1 px-3 py-1.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
-                                      <Shield className="w-4 h-4" />
-                                      Rilascia
-                                    </button>
-                                  )}
-                                </div>
-
-                                <div className="text-right">
-                                  <div className={`text-xl font-bold flex items-center gap-1 ${
-                                    isNegative ? 'text-red-600' : 'text-emerald-600'
-                                  }`}>
-                                    {isNegative ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
-                                    {isNegative ? '-' : ''}€{Math.abs(payment.amount).toLocaleString()}
-                                  </div>
-                                  <div className="text-xs text-slate-500">
-                                    {payment.processedAt ? 
-                                      `Elaborato ${new Date(payment.processedAt).toLocaleString('it-IT')}` :
-                                      'In elaborazione'
-                                    }
+                                  <div className="text-right">
+                                    <div className={`text-xl font-bold flex items-center gap-1 ${
+                                      isNegative ? 'text-red-600' : 'text-emerald-600'
+                                    }`}>
+                                      {isNegative ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                                      {isNegative ? '-' : ''}€{Math.abs(payment.amount).toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-slate-500">
+                                      {payment.processedAt ? 
+                                        `Elaborato ${new Date(payment.processedAt).toLocaleString('it-IT')}` :
+                                        'In elaborazione'
+                                      }
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -493,9 +380,9 @@ export default function AdminPagamentiPage() {
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })
+                )}
               </div>
             </div>
           </div>

@@ -125,3 +125,95 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
+
+export async function PATCH(request: Request) {
+  try {
+    const currentUserData = await getCurrentUser()
+    
+    if (!currentUserData?.user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { id, open_rate, ctr_rate, cadence, signup_url, sponsorship_price } = body
+
+    if (!id) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Newsletter ID is required' 
+      }, { status: 400 })
+    }
+
+    // Validate at least one editable field is provided
+    if (open_rate === undefined && ctr_rate === undefined && !cadence && !signup_url && sponsorship_price === undefined) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'At least one field must be provided for update' 
+      }, { status: 400 })
+    }
+
+    const supabase = await createSupabaseServerClient()
+
+    // Check if user owns this newsletter
+    const { data: existingNewsletter } = await supabase
+      .from('newsletters')
+      .select('user_id, review_status')
+      .eq('id', id)
+      .single()
+
+    if (!existingNewsletter || existingNewsletter.user_id !== currentUserData.user.id) {
+      return NextResponse.json({ success: false, error: 'Newsletter not found or unauthorized' }, { status: 404 })
+    }
+
+    // Build update data with only allowed fields
+    const updateData: any = {
+      updated_at: new Date().toISOString(),
+      review_status: 'in_review' // Reset to in_review on any modification
+    }
+
+    // Only include provided fields
+    if (open_rate !== undefined) updateData.open_rate = parseFloat(open_rate) || 0
+    if (ctr_rate !== undefined) updateData.ctr_rate = parseFloat(ctr_rate) || 0
+    if (cadence !== undefined) updateData.cadence = cadence
+    if (signup_url !== undefined) updateData.signup_url = signup_url
+    if (sponsorship_price !== undefined) updateData.sponsorship_price = parseInt(sponsorship_price) || 0
+
+    // Update newsletter
+    const { data: updatedNewsletter, error } = await supabase
+      .from('newsletters')
+      .update(updateData)
+      .eq('id', id)
+      .eq('user_id', currentUserData.user.id) // Double check ownership
+      .select(`
+        id,
+        user_id,
+        title,
+        description,
+        category,
+        language,
+        signup_url,
+        cadence,
+        audience_size,
+        monetization,
+        contact_email,
+        linkedin_profile,
+        open_rate,
+        ctr_rate,
+        sponsorship_price,
+        review_status,
+        created_at,
+        updated_at
+      `)
+      .single()
+
+    if (error) {
+      console.error('Error updating newsletter:', error)
+      return NextResponse.json({ success: false, error: `Database error: ${error.message}` }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, data: updatedNewsletter })
+  } catch (error) {
+    console.error('Error in newsletters PATCH API:', error)
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+  }
+}

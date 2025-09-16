@@ -585,6 +585,15 @@ export default function NewslettersPage() {
                               >
                                 <Eye className="w-4 h-4" />
                               </a>
+                              {newsletter.review_status === 'approved' && (
+                                <Link
+                                  href={`/dashboard/newsletters/edit/${newsletter.id}`}
+                                  className="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                                  title="Modifica"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Link>
+                              )}
                               {newsletter.review_status === 'rejected' && (
                                 <button
                                   onClick={() => handleDeleteNewsletter(newsletter)}

@@ -167,16 +167,6 @@ export default function PaymentsPage() {
               <h1 className="text-xl font-semibold text-gray-900">Pagamenti</h1>
               <CreditCard className="w-5 h-5 text-slate-500" />
             </div>
-            <div className="flex items-center gap-3">
-              <button className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50">
-                <Download className="w-4 h-4" />
-                Esporta
-              </button>
-              <button className="inline-flex items-center gap-2 px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700">
-                <Receipt className="w-4 h-4" />
-                Nuova fattura
-              </button>
-            </div>
           </div>
         </header>
 

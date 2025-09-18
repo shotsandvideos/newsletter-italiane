@@ -1,45 +1,61 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   Users,
   Clock,
   CheckCircle,
   XCircle,
-  Euro,
-  Filter,
+  Calendar,
   Search,
   ChevronRight,
   ChevronLeft,
   Menu,
   AlertCircle,
+  ExternalLink,
+  FileText,
+  Image,
+  Link,
 } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import Sidebar from '../../components/Sidebar'
 
-// Real collaborations data - will be fetched from API
-const collaborations: any[] = []
+interface Collaboration {
+  id: string
+  proposal_id: string
+  newsletter_id: string
+  brand: string
+  newsletter: string
+  status: string
+  sponsorship_type: string
+  product_type: string
+  campaign_start_date: string
+  campaign_end_date: string
+  selected_run_date: string
+  ideal_target_audience: string
+  admin_assets_images?: string[]
+  admin_copy_text?: string
+  admin_brief_text?: string
+  admin_tracking_links?: string[]
+  calendar_event?: any
+}
 
 const statusFilters = [
   { value: 'all', label: 'Tutti gli stati' },
   { value: 'active', label: 'Attive' },
-  { value: 'pending', label: 'In attesa' },
-  { value: 'completed', label: 'Completate' },
-  { value: 'cancelled', label: 'Cancellate' }
+  { value: 'scheduled', label: 'Programmate' },
+  { value: 'completed', label: 'Completate' }
 ]
 
 const getStatusInfo = (status: string) => {
   switch (status) {
     case 'active':
       return { label: 'Attiva', color: 'text-green-600', bgColor: 'bg-green-100', icon: CheckCircle }
-    case 'pending':
-      return { label: 'In attesa', color: 'text-yellow-600', bgColor: 'bg-yellow-100', icon: Clock }
+    case 'scheduled':
+      return { label: 'Programmata', color: 'text-blue-600', bgColor: 'bg-blue-100', icon: Calendar }
     case 'completed':
-      return { label: 'Completata', color: 'text-blue-600', bgColor: 'bg-blue-100', icon: CheckCircle }
-    case 'cancelled':
-      return { label: 'Cancellata', color: 'text-red-600', bgColor: 'bg-red-100', icon: XCircle }
+      return { label: 'Completata', color: 'text-slate-600', bgColor: 'bg-slate-100', icon: CheckCircle }
     default:
       return { label: status, color: 'text-slate-600', bgColor: 'bg-slate-100', icon: AlertCircle }
   }
@@ -52,6 +68,10 @@ export default function CollaborationsPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [collaborations, setCollaborations] = useState<Collaboration[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedCollaboration, setSelectedCollaboration] = useState<Collaboration | null>(null)
+  const [showDetailModal, setShowDetailModal] = useState(false)
   const itemsPerPage = 12
 
   useEffect(() => {
@@ -59,6 +79,30 @@ export default function CollaborationsPage() {
       router.push('/auth/sign-in')
     }
   }, [authLoading, user, router])
+
+  useEffect(() => {
+    if (user) {
+      fetchCollaborations()
+    }
+  }, [user])
+
+  const fetchCollaborations = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/collaborations')
+      const result = await response.json()
+      
+      if (result.success) {
+        setCollaborations(result.data)
+      } else {
+        console.error('Error fetching collaborations:', result.error)
+      }
+    } catch (error) {
+      console.error('Error fetching collaborations:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Filter and pagination
   const filteredCollaborations = collaborations.filter(collaboration => {
@@ -72,7 +116,7 @@ export default function CollaborationsPage() {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedCollaborations = filteredCollaborations.slice(startIndex, startIndex + itemsPerPage)
 
-  if (authLoading) {
+  if (authLoading || loading) {
     return (
       <div className="flex h-screen">
         <Sidebar 
@@ -154,49 +198,73 @@ export default function CollaborationsPage() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Brand</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Newsletter</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Stato</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Valore</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Scadenza</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Tipo</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Data Pubblicazione</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Assets</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Azione</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {paginatedCollaborations.map((collaboration) => {
-                    const statusInfo = getStatusInfo(collaboration.status)
-                    const StatusIcon = statusInfo.icon
-                    
-                    return (
-                      <tr key={collaboration.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-slate-900 text-sm">{collaboration.brand}</div>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-slate-600">{collaboration.newsletter}</td>
-                        <td className="px-4 py-3">
-                          <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusInfo.bgColor} ${statusInfo.color}`}>
-                            <StatusIcon className="w-3 h-3" />
-                            {statusInfo.label}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1 text-sm text-slate-600">
-                            <Euro className="w-3 h-3" />
-                            {collaboration.value}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1 text-sm text-slate-600">
-                            <Clock className="w-3 h-3" />
-                            {new Date(collaboration.deadline).toLocaleDateString('it-IT')}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <button className="inline-flex items-center gap-1 px-3 py-1 bg-slate-600 text-white text-xs rounded-md hover:bg-slate-700 transition-colors">
-                            Dettagli
-                            <ChevronRight className="w-3 h-3" />
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
+                  {paginatedCollaborations.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
+                        Nessuna collaborazione trovata
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedCollaborations.map((collaboration) => {
+                      const statusInfo = getStatusInfo(collaboration.status)
+                      const StatusIcon = statusInfo.icon
+                      
+                      // Check if assets are available
+                      const hasAssets = collaboration.admin_copy_text || 
+                                      (collaboration.admin_assets_images && collaboration.admin_assets_images.length > 0) || 
+                                      (collaboration.admin_tracking_links && collaboration.admin_tracking_links.length > 0)
+                      
+                      return (
+                        <tr key={collaboration.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-slate-900 text-sm">{collaboration.brand}</div>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-slate-600">{collaboration.newsletter}</td>
+                          <td className="px-4 py-3">
+                            <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusInfo.bgColor} ${statusInfo.color}`}>
+                              <StatusIcon className="w-3 h-3" />
+                              {statusInfo.label}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="text-sm text-slate-600">
+                              {collaboration.sponsorship_type}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1 text-sm text-slate-600">
+                              <Calendar className="w-3 h-3" />
+                              {new Date(collaboration.selected_run_date).toLocaleDateString('it-IT')}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            {hasAssets ? (
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                            ) : null}
+                          </td>
+                          <td className="px-4 py-3">
+                            <button 
+                              onClick={() => {
+                                setSelectedCollaboration(collaboration)
+                                setShowDetailModal(true)
+                              }}
+                              className="inline-flex items-center gap-1 px-3 py-1 bg-slate-600 text-white text-xs rounded-md hover:bg-slate-700 transition-colors"
+                            >
+                              Dettagli
+                              <ChevronRight className="w-3 h-3" />
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
@@ -245,6 +313,155 @@ export default function CollaborationsPage() {
           )}
         </main>
       </div>
+
+      {/* Detail Modal */}
+      {showDetailModal && selectedCollaboration && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                    Collaborazione con {selectedCollaboration.brand}
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusInfo(selectedCollaboration.status).bgColor} ${getStatusInfo(selectedCollaboration.status).color}`}>
+                      {React.createElement(getStatusInfo(selectedCollaboration.status).icon, { className: 'w-3 h-3' })}
+                      {getStatusInfo(selectedCollaboration.status).label}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="p-2 text-slate-400 hover:text-slate-600"
+                >
+                  <XCircle className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Campaign Details */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-slate-900 border-b pb-2">Dettagli Campagna</h3>
+                  
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Newsletter</label>
+                    <p className="text-sm text-slate-900">{selectedCollaboration.newsletter}</p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Tipo Sponsorizzazione</label>
+                    <p className="text-sm text-slate-900">{selectedCollaboration.sponsorship_type}</p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Tipo Prodotto</label>
+                    <p className="text-sm text-slate-900">{selectedCollaboration.product_type}</p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Data Pubblicazione Scelta</label>
+                    <p className="text-sm text-slate-900">
+                      {new Date(selectedCollaboration.selected_run_date).toLocaleDateString('it-IT')}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Periodo Campagna</label>
+                    <p className="text-sm text-slate-900">
+                      {new Date(selectedCollaboration.campaign_start_date).toLocaleDateString('it-IT')} - {new Date(selectedCollaboration.campaign_end_date).toLocaleDateString('it-IT')}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Target Audience</label>
+                    <p className="text-sm text-slate-900">{selectedCollaboration.ideal_target_audience}</p>
+                  </div>
+                </div>
+
+                {/* Admin Materials */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-slate-900 border-b pb-2">Materiali Admin</h3>
+                  
+                  {selectedCollaboration.admin_copy_text && (
+                    <div>
+                      <label className="text-sm font-medium text-slate-600 flex items-center gap-1">
+                        <FileText className="w-4 h-4" />
+                        Testo Copy
+                      </label>
+                      <div className="mt-1 p-3 bg-slate-50 rounded-lg text-sm text-slate-900 whitespace-pre-wrap">
+                        {selectedCollaboration.admin_copy_text}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedCollaboration.admin_brief_text && (
+                    <div>
+                      <label className="text-sm font-medium text-slate-600 flex items-center gap-1">
+                        <FileText className="w-4 h-4" />
+                        Brief
+                      </label>
+                      <div className="mt-1 p-3 bg-slate-50 rounded-lg text-sm text-slate-900 whitespace-pre-wrap">
+                        {selectedCollaboration.admin_brief_text}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedCollaboration.admin_assets_images && selectedCollaboration.admin_assets_images.length > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-slate-600 flex items-center gap-1">
+                        <Image className="w-4 h-4" />
+                        Immagini ({selectedCollaboration.admin_assets_images.length})
+                      </label>
+                      <div className="mt-1 grid grid-cols-2 gap-2">
+                        {selectedCollaboration.admin_assets_images.map((image, index) => (
+                          <div key={index} className="aspect-square bg-slate-100 rounded-lg flex items-center justify-center">
+                            <a href={image} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1">
+                              <ExternalLink className="w-3 h-3" />
+                              Immagine {index + 1}
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedCollaboration.admin_tracking_links && selectedCollaboration.admin_tracking_links.length > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-slate-600 flex items-center gap-1">
+                        <Link className="w-4 h-4" />
+                        Link di Tracking
+                      </label>
+                      <div className="mt-1 space-y-1">
+                        {selectedCollaboration.admin_tracking_links.map((link, index) => (
+                          <a
+                            key={index}
+                            href={link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-sm text-blue-600 hover:text-blue-800 break-all"
+                          >
+                            {link}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end mt-6 pt-4 border-t">
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                >
+                  Chiudi
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

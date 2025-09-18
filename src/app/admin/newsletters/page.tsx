@@ -230,7 +230,7 @@ export default function AdminNewslettersPage() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50">
+    <div className="flex h-screen bg-slate-50 admin-panel">
       <AdminSidebar 
         isMobileOpen={isMobileMenuOpen}
         onMobileClose={() => setIsMobileMenuOpen(false)}
@@ -244,11 +244,11 @@ export default function AdminNewslettersPage() {
                 onClick={() => setIsMobileMenuOpen(true)}
                 className="lg:hidden p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md"
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="icon-inline" />
               </button>
               <div className="flex items-center gap-2">
-                <Mail className="w-6 h-6 text-red-600" />
-                <h1 className="text-xl font-semibold text-slate-900">Gestione Newsletter</h1>
+                <Mail className="icon-counter text-red-600" />
+                <h1 className="heading-page text-slate-900">Gestione Newsletter</h1>
               </div>
             </div>
           </div>
@@ -258,89 +258,82 @@ export default function AdminNewslettersPage() {
           <div className="space-y-6">
             {/* Stats Overview */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              <div className="bg-white p-4 rounded-lg border border-slate-200">
+              <div className="card-uniform">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-red-100 rounded-lg">
-                    <CheckCircle className="w-4 h-4 text-red-600" />
+                    <CheckCircle className="icon-inline text-red-600" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-slate-900">
+                    <p className="heading-block font-bold text-slate-900">
                       {newsletters.filter(n => n.status === 'approved').length}
                     </p>
-                    <p className="text-xs text-slate-600">Approvate</p>
+                    <p className="text-micro text-slate-600">Approvate</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-lg border border-slate-200">
+              <div className="card-uniform">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-yellow-100 rounded-lg">
-                    <Clock className="w-4 h-4 text-yellow-600" />
+                    <Clock className="icon-inline text-yellow-600" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-slate-900">
+                    <p className="heading-block font-bold text-slate-900">
                       {newsletters.filter(n => n.status === 'in_review').length}
                     </p>
-                    <p className="text-xs text-slate-600">In revisione</p>
+                    <p className="text-micro text-slate-600">In revisione</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-lg border border-slate-200">
+              <div className="card-uniform">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-red-100 rounded-lg">
-                    <XCircle className="w-4 h-4 text-red-600" />
+                    <XCircle className="icon-inline text-red-600" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-slate-900">
+                    <p className="heading-block font-bold text-slate-900">
                       {newsletters.filter(n => n.status === 'rejected').length}
                     </p>
-                    <p className="text-xs text-slate-600">Rifiutate</p>
+                    <p className="text-micro text-slate-600">Rifiutate</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-lg border border-slate-200">
+              <div className="card-uniform">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-100 rounded-lg">
-                    <User className="w-4 h-4 text-blue-600" />
+                    <User className="icon-inline text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-slate-900">
+                    <p className="heading-block font-bold text-slate-900">
                       {newsletters.filter(n => n.status === 'approved').reduce((sum, n) => sum + n.subscribers, 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-slate-600">Iscritti totali</p>
+                    <p className="text-micro text-slate-600">Iscritti totali</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-lg border border-slate-200">
+              <div className="card-uniform">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-green-100 rounded-lg">
-                    <TrendingUp className="w-4 h-4 text-green-600" />
+                    <TrendingUp className="icon-inline text-green-600" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-slate-900">
+                    <p className="heading-block font-bold text-slate-900">
                       {(() => {
                         const approvedNewsletters = newsletters.filter(n => n.status === 'approved')
                         if (approvedNewsletters.length === 0) return '0%'
-                        // Calcola un open rate medio realistico basato sui dati della newsletter
+                        // Media aritmetica semplice degli open rate individuali
                         const avgOpenRate = approvedNewsletters.reduce((sum, n) => {
-                          const baseRate = 22 // 22% baseline (tipico per newsletter)
-                          const subscriberFactor = n.subscribers > 5000 ? 3 : n.subscribers > 1000 ? 1 : -2 // Newsletter grandi hanno open rate più alto
-                          const categoryFactor = n.rawData?.category === 'Technology' ? 2 : 
-                                               n.rawData?.category === 'Finance' ? 3 : 
-                                               n.rawData?.category === 'Health' ? 1 : 0
-                          // Usa l'ID della newsletter per generare un "hash" consistente
-                          const hash = n.id.split('').reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)), 0)
-                          const consistentVariation = (hash % 10) - 5 // Variazione ±5% consistente
-                          
-                          return sum + Math.max(15, Math.min(35, baseRate + subscriberFactor + categoryFactor + consistentVariation))
+                          // Calcola open rate individuale per ogni newsletter
+                          const individualOpenRate = n.open_rate || 22.5 // Se non presente, usa valore default
+                          return sum + individualOpenRate
                         }, 0) / approvedNewsletters.length
                         return avgOpenRate.toFixed(1) + '%'
                       })()}
                     </p>
-                    <p className="text-xs text-slate-600">Open rate medio</p>
+                    <p className="text-micro text-slate-600">Open rate medio</p>
                   </div>
                 </div>
               </div>
@@ -349,7 +342,7 @@ export default function AdminNewslettersPage() {
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 icon-inline text-slate-400" />
                 <input
                   type="text"
                   placeholder="Cerca newsletter, autori o categorie..."
@@ -376,9 +369,9 @@ export default function AdminNewslettersPage() {
             </div>
 
             {/* Newsletters List */}
-            <div className="bg-white rounded-lg border border-slate-200">
+            <div className="card-uniform">
               <div className="p-4 border-b border-slate-200">
-                <h3 className="text-base font-semibold text-slate-900">
+                <h3 className="heading-section text-slate-900">
                   Newsletter ({filteredNewsletters.length})
                 </h3>
               </div>
@@ -418,7 +411,7 @@ export default function AdminNewslettersPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0 pr-4">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-sm font-medium text-slate-900 truncate">
+                            <h4 className="heading-sub text-slate-900 truncate">
                               {newsletter.title}
                             </h4>
                             <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
@@ -429,15 +422,15 @@ export default function AdminNewslettersPage() {
 
                           <div className="flex items-center gap-3 text-xs text-slate-600 mb-2">
                             <span className="flex items-center gap-1">
-                              <User className="w-3 h-3" />
+                              <User className="icon-inline" style={{width: '12px', height: '12px'}} />
                               {newsletter.author.name}
                             </span>
                             <span className="flex items-center gap-1">
-                              <Mail className="w-3 h-3" />
+                              <Mail className="icon-inline" style={{width: '12px', height: '12px'}} />
                               {newsletter.author.newsletter}
                             </span>
                             <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
+                              <Calendar className="icon-inline" style={{width: '12px', height: '12px'}} />
                               {newsletter.publishedAt ? 
                                 new Date(newsletter.publishedAt).toLocaleDateString('it-IT') :
                                 'Non pubblicata'
@@ -473,7 +466,7 @@ export default function AdminNewslettersPage() {
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => openDetailsModal(newsletter)}
-                            className="px-3 py-1.5 bg-slate-600 text-white text-xs rounded hover:bg-slate-700 transition-colors font-medium"
+                            className="btn-uniform bg-slate-600 text-white hover:bg-slate-700"
                             title="Visualizza dettagli"
                           >
                             Dettagli
@@ -487,7 +480,7 @@ export default function AdminNewslettersPage() {
                               className="p-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
                               title="Visualizza newsletter"
                             >
-                              <Eye className="w-3 h-3" />
+                              <Eye className="icon-inline" style={{width: '12px', height: '12px'}} />
                             </a>
                           )}
                           
@@ -512,7 +505,7 @@ export default function AdminNewslettersPage() {
                       disabled={currentPage === 1}
                       className="p-1.5 text-slate-400 hover:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="icon-inline" />
                     </button>
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                       <button
@@ -532,7 +525,7 @@ export default function AdminNewslettersPage() {
                       disabled={currentPage === totalPages}
                       className="p-1.5 text-slate-400 hover:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="icon-inline" />
                     </button>
                   </div>
                 </div>
@@ -555,7 +548,7 @@ export default function AdminNewslettersPage() {
                 onClick={closeDetailsModal}
                 className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
               >
-                <X className="w-5 h-5" />
+                <X className="icon-inline" />
               </button>
             </div>
             

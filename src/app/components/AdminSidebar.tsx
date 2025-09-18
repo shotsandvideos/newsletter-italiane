@@ -73,9 +73,9 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
         <div className="flex justify-end p-4 lg:hidden">
           <button
             onClick={onMobileClose}
-            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="touch-target p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg smooth-interaction"
           >
-            <X className="w-5 h-5" />
+            <X className="icon-inline" />
           </button>
         </div>
 
@@ -83,7 +83,7 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
         <div className="flex items-center gap-4 px-6 py-6 border-b border-slate-100">
           <div className="relative">
             <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-sm">
-              <Shield className="w-5 h-5 text-white" />
+              <Shield className="icon-inline text-white" />
             </div>
             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white flex items-center justify-center">
               <Crown className="w-2.5 h-2.5 text-white" />
@@ -91,21 +91,22 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold text-slate-900 truncate">
+              <h2 className="sidebar-text font-semibold text-slate-900 truncate">
                 Admin
               </h2>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              <p className="text-xs text-red-600 font-medium">Super Administrator</p>
+              <p className="text-micro text-red-600 font-medium">Super Administrator</p>
             </div>
           </div>
           <button
             onClick={handleSignOut}
-            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            className="touch-target p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg smooth-interaction"
             title="Esci"
+            aria-label="Esci dall'account"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="icon-inline" />
           </button>
         </div>
 
@@ -120,23 +121,17 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
-                    "hover:bg-slate-50",
+                    "touch-target group flex items-center gap-3 px-3 py-2 sidebar-text font-medium rounded-lg smooth-interaction",
+                    "hover:bg-slate-50 focus:ring-2 focus:ring-slate-200 focus:outline-none",
                     isActive
-                      ? 'bg-red-50 text-red-700 shadow-sm border border-red-100'
-                      : 'text-slate-700 hover:text-slate-900'
+                      ? 'bg-slate-100 text-slate-900'
+                      : 'text-slate-600 hover:text-slate-900'
                   )}
                 >
-                  <item.icon className={cn(
-                    "w-4 h-4 transition-colors",
-                    isActive ? 'text-red-600' : 'text-slate-500 group-hover:text-slate-700'
-                  )} />
+                  <item.icon className="icon-inline text-slate-500" />
                   <div className="flex-1">
-                    <div className="text-sm font-medium">{item.name}</div>
+                    <div className="sidebar-text font-medium">{item.name}</div>
                   </div>
-                  {isActive && (
-                    <div className="w-1.5 h-6 bg-red-500 rounded-full"></div>
-                  )}
                 </Link>
               )
             })}
@@ -152,23 +147,17 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "group flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
-                      "hover:bg-slate-50",
+                      "touch-target group flex items-center gap-3 px-3 py-2 sidebar-text font-medium rounded-lg smooth-interaction",
+                      "hover:bg-slate-50 focus:ring-2 focus:ring-slate-200 focus:outline-none",
                       isActive
-                        ? 'bg-red-50 text-red-700 shadow-sm border border-red-100'
-                        : 'text-slate-700 hover:text-slate-900'
+                        ? 'bg-slate-100 text-slate-900'
+                        : 'text-slate-600 hover:text-slate-900'
                     )}
                   >
-                    <item.icon className={cn(
-                      "w-4 h-4 transition-colors",
-                      isActive ? 'text-red-600' : 'text-slate-500 group-hover:text-slate-700'
-                    )} />
+                    <item.icon className="icon-inline text-slate-500" />
                     <div className="flex-1">
-                      <div className="text-sm font-medium">{item.name}</div>
+                      <div className="sidebar-text font-medium">{item.name}</div>
                     </div>
-                    {isActive && (
-                      <div className="w-1.5 h-6 bg-red-500 rounded-full"></div>
-                    )}
                   </Link>
                 )
               })}
@@ -189,25 +178,23 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
+                    "touch-target group flex items-center gap-3 px-3 py-2 sidebar-text font-medium rounded-lg smooth-interaction",
                     isCreatorSwitch
-                      ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100"
-                      : "hover:bg-slate-50",
+                      ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 focus:ring-2 focus:ring-emerald-200 focus:outline-none"
+                      : "hover:bg-slate-50 focus:ring-2 focus:ring-slate-200 focus:outline-none",
                     isActive && !isCreatorSwitch
                       ? 'bg-slate-100 text-slate-900'
                       : !isCreatorSwitch && 'text-slate-600 hover:text-slate-900'
                   )}
                 >
                   <item.icon className={cn(
-                    "w-4 h-4 transition-colors",
+                    "icon-inline",
                     isCreatorSwitch
                       ? 'text-emerald-600'
-                      : isActive 
-                      ? 'text-slate-700' 
-                      : 'text-slate-500 group-hover:text-slate-700'
+                      : 'text-slate-500'
                   )} />
                   <div className="flex-1">
-                    <div className="text-sm font-medium">{item.name}</div>
+                    <div className="sidebar-text font-medium">{item.name}</div>
                   </div>
                 </Link>
               )

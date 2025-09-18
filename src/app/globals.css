@@ -192,7 +192,8 @@ html {
 
 body {
   font-family: var(--font-plus-jakarta-sans), 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  line-height: 1.6; /* Improved readability */
+  font-size: 12px; /* Base body: 12px */
+  line-height: 1.5; /* Specified line-height */
   color: var(--foreground);
   background-color: var(--background);
   min-height: 100vh;
@@ -355,45 +356,71 @@ input:focus, textarea:focus, select:focus {
   background-color: var(--muted);
 }
 
-/* Typography Scale */
-.text-display-lg {
-  @apply text-5xl font-bold;
+/* SISTEMA TIPOGRAFICO RIGIDO - BASE 12px */
+
+/* Titoli pagina: 24px */
+.heading-page {
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 600; /* semibold */
   letter-spacing: var(--tracking-tight);
 }
 
-.text-display-md {
-  @apply text-4xl font-bold;
-  letter-spacing: var(--tracking-tight);
+/* Titoli sezione: 20px */  
+.heading-section {
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 600; /* semibold */
+  letter-spacing: var(--tracking-normal);
 }
 
-.text-display-sm {
-  @apply text-3xl font-bold;
-  letter-spacing: var(--tracking-tight);
+/* Titoli blocco: 16px */
+.heading-block {
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 600; /* semibold */
+  letter-spacing: var(--tracking-normal);
 }
 
-.text-headline-lg {
-  @apply text-2xl font-semibold;
+/* Sottosezioni: 14px */
+.heading-sub {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600; /* semibold */
+  letter-spacing: var(--tracking-normal);
 }
 
-.text-headline-md {
-  @apply text-xl font-semibold;
+/* Testo base: 12px (body) */
+.body-text {
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 400; /* regular */
+  letter-spacing: var(--tracking-normal);
 }
 
-.text-headline-sm {
-  @apply text-lg font-semibold;
+/* Microcopy: 11px */
+.text-micro {
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 400; /* regular */
+  letter-spacing: var(--tracking-normal);
 }
 
-.text-body-lg {
-  @apply text-base;
+/* Sidebar: 12px */
+.sidebar-text {
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 400; /* regular */
+  letter-spacing: var(--tracking-normal);
 }
 
-.text-body-md {
-  @apply text-sm;
-}
-
-.text-body-sm {
-  @apply text-xs;
-}
+/* Utility classes per retrocompatibilità */
+.heading-xl { @extend .heading-page; }
+.heading-lg { @extend .heading-section; }
+.heading-md { @extend .heading-block; }
+.heading-sm { @extend .heading-sub; }
+.body-sm { @extend .body-text; }
+.caption { @extend .text-micro; }
 
 /* Modern Spacing System */
 .space-section {
@@ -566,4 +593,355 @@ input:focus, textarea:focus, select:focus {
 
 .card-tilt:hover {
   transform: perspective(1000px) rotateX(var(--rotate-x, 0)) rotateY(var(--rotate-y, 0)) scale3d(1.05, 1.05, 1.05);
+}
+
+/* Consistent placeholder styling for the entire application */
+#__next input::placeholder,
+#__next textarea::placeholder {
+  color: #6B7280 !important;
+  opacity: 1 !important;
+}
+
+/* Fallback for apps without Next.js root wrapper */
+html input::placeholder,
+html textarea::placeholder {
+  color: #6B7280 !important;
+  opacity: 1 !important;
+}
+
+/* COMPONENTI E LAYOUT UNIFORMI */
+
+/* Pulsanti: altezza min 32px, icone baseline-aligned */
+.btn-uniform {
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-uniform:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-uniform:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-uniform:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Tabelle: intestazioni 14px, celle 12px, altezza riga min 32px */
+.table-uniform {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-uniform th {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 8px 12px;
+  min-height: 32px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.table-uniform td {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 8px 12px;
+  min-height: 32px;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.table-uniform tr:hover {
+  background-color: var(--muted);
+}
+
+/* Card uniformi */
+.card-uniform {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-uniform:hover {
+  border-color: var(--muted-foreground);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Icone: 16px in linea testo, 20px nei contatori, monocromatiche */
+.icon-inline {
+  width: 16px;
+  height: 16px;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.icon-counter {
+  width: 20px;
+  height: 20px;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+/* Stati uniformi con contrasto WCAG 4.5:1 */
+.focus-uniform:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.hover-uniform:hover {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.active-uniform:active {
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.disabled-uniform:disabled,
+.disabled-uniform[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Griglia 4px per spacing */
+.grid-4 { gap: 4px; }
+.grid-8 { gap: 8px; }
+.grid-12 { gap: 12px; }
+.grid-16 { gap: 16px; }
+.grid-20 { gap: 20px; }
+.grid-24 { gap: 24px; }
+
+/* Padding e margin uniformi */
+.p-4px { padding: 4px; }
+.p-8px { padding: 8px; }
+.p-12px { padding: 12px; }
+.p-16px { padding: 16px; }
+.p-20px { padding: 20px; }
+.p-24px { padding: 24px; }
+
+.m-4px { margin: 4px; }
+.m-8px { margin: 8px; }
+.m-12px { margin: 12px; }
+.m-16px { margin: 16px; }
+.m-20px { margin: 20px; }
+.m-24px { margin: 24px; }
+
+/* Admin panel e user dashboard con base 12px effettivi */
+.admin-panel,
+.user-dashboard {
+  font-size: 12px; /* Effettivi 12px */
+  line-height: 1.5;
+}
+
+.admin-panel *,
+.user-dashboard * {
+  box-sizing: border-box;
+}
+
+/* Sidebar uniforme: 12px */
+.admin-panel .sidebar-text,
+.user-dashboard .sidebar-text {
+  font-size: 12px !important;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+/* User Dashboard icon color */
+.user-dashboard .icon-user {
+  color: #67e294 !important;
+}
+
+/* Admin panel icon color and accent */
+.admin-panel .icon-admin {
+  color: #543B68 !important;
+}
+
+.admin-panel .accent-admin {
+  background-color: #543B68 !important;
+  color: white !important;
+}
+
+/* Global color replacements */
+.bg-red-600 {
+  background-color: #543B68 !important;
+}
+
+.bg-red-700 {
+  background-color: #432d54 !important;
+}
+
+.hover\:bg-red-700:hover {
+  background-color: #432d54 !important;
+}
+
+.text-red-600 {
+  color: #543B68 !important;
+}
+
+.border-red-500 {
+  border-color: #543B68 !important;
+}
+
+.focus\:ring-red-500:focus {
+  --tw-ring-color: #543B68 !important;
+}
+
+/* UX/UI Improvements */
+
+/* Minimum touch targets for mobile accessibility */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Improved focus states for accessibility */
+.focus-visible:focus-visible {
+  outline: 2px solid #543B68;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Smooth micro-interactions */
+.smooth-interaction {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.smooth-interaction:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.smooth-interaction:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Better card hover states */
+.modern-card {
+  background: white;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-card:hover {
+  border-color: rgb(203 213 225);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Improved button states */
+.btn-enhanced {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-enhanced:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(84, 59, 104, 0.25);
+}
+
+.btn-enhanced:active {
+  transform: translateY(0);
+}
+
+/* Loading skeleton animations */
+@keyframes skeleton {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: skeleton 1.5s infinite;
+  border-radius: 4px;
+}
+
+/* Mobile-first responsive utilities */
+.mobile-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .mobile-stack {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Improved table responsiveness */
+.responsive-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.responsive-table th,
+.responsive-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgb(226 232 240);
+}
+
+@media (max-width: 767px) {
+  .responsive-table thead {
+    display: none;
+  }
+  
+  .responsive-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid rgb(226 232 240);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  .responsive-table td {
+    display: block;
+    border: none;
+    padding: 0.5rem 0;
+  }
+  
+  .responsive-table td:before {
+    content: attr(data-label) ": ";
+    font-weight: 600;
+    color: rgb(71 85 105);
+  }
 }

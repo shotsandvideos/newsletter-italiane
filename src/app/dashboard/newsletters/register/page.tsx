@@ -28,7 +28,10 @@ export default function RegisterNewsletterPage() {
     linkedin_profile: '',
     open_rate: '',
     ctr_rate: '',
-    sponsorship_price: ''
+    sponsorship_price: '',
+    author_first_name: '',
+    author_last_name: '',
+    author_email: user?.email || ''
   })
 
   const [logoFile, setLogoFile] = useState<File | null>(null)
@@ -93,15 +96,26 @@ export default function RegisterNewsletterPage() {
     setIsSubmitting(true)
     setErrors({})
 
+    // Verifica che l'email sia disponibile
+    if (!formData.author_email) {
+      setErrors({ author_email: 'Email non disponibile. Verificare l\'account o effettuare nuovamente il login.' })
+      setIsSubmitting(false)
+      return
+    }
+
     try {
+      console.log('Form data before validation:', formData)
       // Validate form data
-      const validatedData = createNewsletterSchema.parse({
+      const dataToValidate = {
         ...formData,
         audience_size: parseInt(formData.audience_size) || 0,
         open_rate: parseFloat(formData.open_rate) || 0,
         ctr_rate: parseFloat(formData.ctr_rate) || 0,
         sponsorship_price: parseInt(formData.sponsorship_price) || 0
-      })
+      }
+      console.log('Data to validate:', dataToValidate)
+      const validatedData = createNewsletterSchema.parse(dataToValidate)
+      console.log('Validated data:', validatedData)
 
       const response = await fetch('/api/newsletters', {
         method: 'POST',
@@ -159,7 +173,7 @@ export default function RegisterNewsletterPage() {
                 Newsletter Registrata!
               </h1>
               <p className="text-muted-foreground mb-4">
-                La tua newsletter è stata inviata per la revisione. Ti contatteremo appena sarà approvata.
+                La tua newsletter è ora in stato Pending. Ti contatteremo appena sarà approvata.
               </p>
               <p className="text-sm text-muted-foreground">
                 Reindirizzamento alla dashboard...
@@ -220,10 +234,10 @@ export default function RegisterNewsletterPage() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-foreground">
-                    Registra la tua Newsletter
+                    Registra la tua Newsletter - VERSIONE AGGIORNATA
                   </h2>
                   <p className="text-muted-foreground text-sm">
-                    Compila i dettagli della tua newsletter per inviarla in revisione
+                    Compila i dettagli della tua newsletter per impostare lo stato Pending
                   </p>
                 </div>
               </div>
@@ -249,7 +263,7 @@ export default function RegisterNewsletterPage() {
                       value={formData.title}
                       onChange={handleInputChange}
                       placeholder="es. Marketing Weekly, Tech Insights..."
-                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                         errors.title ? 'border-red-500' : 'border-border'
                       }`}
                       required
@@ -283,6 +297,72 @@ export default function RegisterNewsletterPage() {
                     </select>
                     {errors.category && (
                       <p className="text-red-500 text-xs mt-1">{errors.category}</p>
+                    )}
+                  </div>
+
+                  {/* Author First Name */}
+                  <div>
+                    <label htmlFor="author_first_name" className="block text-xs font-medium text-foreground mb-1">
+                      Nome autore *
+                    </label>
+                    <input
+                      type="text"
+                      id="author_first_name"
+                      name="author_first_name"
+                      value={formData.author_first_name}
+                      onChange={handleInputChange}
+                      placeholder="es. Mario"
+                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                        errors.author_first_name ? 'border-red-500' : 'border-border'
+                      }`}
+                      required
+                    />
+                    {errors.author_first_name && (
+                      <p className="text-red-500 text-xs mt-1">{errors.author_first_name}</p>
+                    )}
+                  </div>
+
+                  {/* Author Last Name */}
+                  <div>
+                    <label htmlFor="author_last_name" className="block text-xs font-medium text-foreground mb-1">
+                      Cognome autore *
+                    </label>
+                    <input
+                      type="text"
+                      id="author_last_name"
+                      name="author_last_name"
+                      value={formData.author_last_name}
+                      onChange={handleInputChange}
+                      placeholder="es. Rossi"
+                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                        errors.author_last_name ? 'border-red-500' : 'border-border'
+                      }`}
+                      required
+                    />
+                    {errors.author_last_name && (
+                      <p className="text-red-500 text-xs mt-1">{errors.author_last_name}</p>
+                    )}
+                  </div>
+
+                  {/* Author Email */}
+                  <div>
+                    <label htmlFor="author_email" className="block text-xs font-medium text-foreground mb-1">
+                      Email autore *
+                    </label>
+                    <input
+                      type="email"
+                      id="author_email"
+                      name="author_email"
+                      value={formData.author_email}
+                      readOnly
+                      className="w-full px-3 py-2 text-sm border rounded-lg bg-slate-50 text-slate-600 cursor-not-allowed border-border"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      📧 Email di registrazione dell'account
+                    </p>
+                    {!formData.author_email && (
+                      <p className="text-red-500 text-xs mt-1">Email non disponibile. Verificare l'account.</p>
                     )}
                   </div>
 
@@ -340,7 +420,7 @@ export default function RegisterNewsletterPage() {
                       value={formData.signup_url}
                       onChange={handleInputChange}
                       placeholder="https://tuanewsletter.substack.com"
-                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                         errors.signup_url ? 'border-red-500' : 'border-border'
                       }`}
                       required
@@ -363,7 +443,7 @@ export default function RegisterNewsletterPage() {
                       value={formData.linkedin_profile}
                       onChange={handleInputChange}
                       placeholder="https://linkedin.com/in/tuoprofilo"
-                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                         errors.linkedin_profile ? 'border-red-500' : 'border-border'
                       }`}
                     />
@@ -393,7 +473,7 @@ export default function RegisterNewsletterPage() {
                       onChange={handleInputChange}
                       placeholder="es. 1500"
                       min="0"
-                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                         errors.audience_size ? 'border-red-500' : 'border-border'
                       }`}
                       required
@@ -418,7 +498,7 @@ export default function RegisterNewsletterPage() {
                       min="0"
                       max="100"
                       step="0.1"
-                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                         errors.open_rate ? 'border-red-500' : 'border-border'
                       }`}
                       required
@@ -443,7 +523,7 @@ export default function RegisterNewsletterPage() {
                       min="0"
                       max="100"
                       step="0.1"
-                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                         errors.ctr_rate ? 'border-red-500' : 'border-border'
                       }`}
                       required
@@ -487,7 +567,7 @@ export default function RegisterNewsletterPage() {
                       onChange={handleInputChange}
                       placeholder="es. 150"
                       min="0"
-                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                         errors.sponsorship_price ? 'border-red-500' : 'border-border'
                       }`}
                       required
@@ -497,27 +577,6 @@ export default function RegisterNewsletterPage() {
                     )}
                   </div>
 
-                  {/* Email di Contatto Business */}
-                  <div>
-                    <label htmlFor="contact_email" className="block text-xs font-medium text-foreground mb-1">
-                      Email di contatto business *
-                    </label>
-                    <input
-                      type="email"
-                      id="contact_email"
-                      name="contact_email"
-                      value={formData.contact_email}
-                      onChange={handleInputChange}
-                      placeholder="ciao@letmetell.it"
-                      className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                        errors.contact_email ? 'border-red-500' : 'border-border'
-                      }`}
-                      required
-                    />
-                    {errors.contact_email && (
-                      <p className="text-red-500 text-xs mt-1">{errors.contact_email}</p>
-                    )}
-                  </div>
                 </div>
 
                 {/* Descrizione Newsletter - Span 2 columns */}
@@ -532,7 +591,7 @@ export default function RegisterNewsletterPage() {
                     onChange={handleInputChange}
                     placeholder="Scrivi qui la descrizione della tua newsletter"
                     rows={3}
-                    className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 resize-none ${
+                    className={`w-full px-3 py-2 text-sm border rounded-lg bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none ${
                       errors.description ? 'border-red-500' : 'border-border'
                     }`}
                     required
@@ -573,7 +632,7 @@ export default function RegisterNewsletterPage() {
                 </div>
 
                 <p className="text-xs text-muted-foreground">
-                  * La newsletter sarà sottoposta a revisione prima della pubblicazione
+                  * La newsletter sarà in stato Pending prima della pubblicazione
                 </p>
               </div>
             </form>

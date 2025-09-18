@@ -13,7 +13,8 @@ import {
   Filter,
   ChevronDown,
   Menu,
-  X
+  X,
+  DollarSign
 } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
@@ -80,6 +81,14 @@ export default function AnalyticsPage() {
       changeType: 'neutral',
       icon: MousePointer,
       description: 'media del periodo'
+    },
+    {
+      name: 'CPC',
+      value: '€0.00',
+      change: '+€0.00',
+      changeType: 'neutral',
+      icon: DollarSign,
+      description: 'costo per click'
     }
   ]
 
@@ -181,7 +190,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {stats.map((stat) => (
           <div key={stat.name} className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-slate-300 transition-colors">
             <div className="flex items-center justify-between">
@@ -271,27 +280,6 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Top Performing Content */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900">Top Newsletter</h3>
-            <p className="text-sm text-slate-500 mt-1">Le più performanti del periodo</p>
-          </div>
-          <button className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors">
-            <Filter className="w-4 h-4" />
-            Filtri
-          </button>
-        </div>
-
-        <div className="flex items-center justify-center h-32">
-          <div className="text-center">
-            <div className="text-slate-400 text-lg mb-2">📧</div>
-            <p className="text-slate-500 text-sm">Nessuna newsletter inviata</p>
-            <p className="text-slate-400 text-xs mt-1">Le performance delle tue newsletter appariranno qui</p>
-          </div>
-        </div>
-      </div>
           </div>
         </main>
       </div>

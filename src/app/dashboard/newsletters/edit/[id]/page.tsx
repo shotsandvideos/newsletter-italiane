@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '../../../../../hooks/useAuth'
 import { SENDING_FREQUENCIES } from '../../../../lib/validations'
-import { ArrowLeft, Save, AlertCircle, Menu } from 'lucide-react'
+import { ArrowLeft, Save, AlertCircle, Menu, Clock, CheckCircle, XCircle } from 'lucide-react'
 import Link from 'next/link'
 import Sidebar from '../../../../components/Sidebar'
 
@@ -20,6 +20,31 @@ export default function EditNewsletterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [success, setSuccess] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  // Helper functions for status display
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved': return 'text-slate-700 bg-slate-100'
+      case 'rejected': return 'text-slate-700 bg-slate-100'
+      default: return 'text-slate-700 bg-slate-100'
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'approved': return <CheckCircle className="w-4 h-4 text-slate-500" />
+      case 'rejected': return <XCircle className="w-4 h-4 text-slate-500" />
+      default: return <Clock className="w-4 h-4 text-slate-500" />
+    }
+  }
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'approved': return 'Approvata'
+      case 'rejected': return 'Rifiutata'
+      default: return 'Pending'
+    }
+  }
 
   const [formData, setFormData] = useState({
     open_rate: '',
@@ -57,7 +82,8 @@ export default function EditNewsletterPage() {
           return
         }
 
-        if (userNewsletter.review_status !== 'approved') {
+        // Consenti modifica per newsletter in stato Pending, rifiutate e approvate
+        if (!['approved', 'in_review', 'rejected'].includes(userNewsletter.review_status)) {
           router.push('/dashboard/newsletters')
           return
         }
@@ -161,7 +187,7 @@ export default function EditNewsletterPage() {
                 Newsletter Aggiornata!
               </h1>
               <p className="text-muted-foreground mb-4">
-                Le modifiche sono state salvate e la newsletter è stata rimessa in revisione.
+                Le modifiche sono state salvate e la newsletter è ora in stato Pending.
               </p>
               <p className="text-sm text-muted-foreground">
                 Reindirizzamento alla lista...
@@ -214,17 +240,28 @@ export default function EditNewsletterPage() {
               </Link>
               
               {newsletter && (
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Save className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Save className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-foreground">
+                        {newsletter.title}
+                      </h2>
+                      <p className="text-muted-foreground text-sm">
+                        Modifica i campi consentiti - La newsletter tornerà in stato Pending dopo la modifica
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-foreground">
-                      {newsletter.title}
-                    </h2>
-                    <p className="text-muted-foreground text-sm">
-                      Modifica i campi consentiti - La newsletter tornerà in revisione dopo la modifica
-                    </p>
+                  
+                  {/* Status Badge */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Stato attuale:</span>
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusColor(newsletter.review_status)}`}>
+                      {getStatusIcon(newsletter.review_status)}
+                      {getStatusText(newsletter.review_status)}
+                    </span>
                   </div>
                 </div>
               )}
@@ -369,7 +406,7 @@ export default function EditNewsletterPage() {
                   <div className="flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-yellow-600" />
                     <p className="text-yellow-800 text-sm font-medium">
-                      Attenzione: Dopo la modifica la newsletter tornerà in stato "In revisione"
+                      Attenzione: Dopo la modifica la newsletter tornerà in stato "Pending"
                     </p>
                   </div>
                 </div>

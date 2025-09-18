@@ -12,15 +12,21 @@ import {
   Menu,
   X,
   Building,
-  CreditCard
+  CreditCard,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Target,
+  MessageSquare,
+  Send
 } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Sidebar from '../../components/Sidebar'
 
-// Real campaigns data - will be fetched from API
-const campaigns: any[] = []
+// State for proposals data
+const initialProposals: any[] = []
 
 const categories = [
   { value: 'all', label: 'Tutte le categorie' },
@@ -38,37 +44,145 @@ export default function MarketplacePage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [selectedCampaign, setSelectedCampaign] = useState(null)
+  const [selectedProposal, setSelectedProposal] = useState(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [proposals, setProposals] = useState(initialProposals)
+  const [selectedRunDate, setSelectedRunDate] = useState('')
+  const [declineReason, setDeclineReason] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [chatMessage, setChatMessage] = useState('')
+  const [sendingMessage, setSendingMessage] = useState(false)
   const itemsPerPage = 12
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/auth/sign-in')
+    } else if (user) {
+      fetchProposals()
     }
   }, [authLoading, user, router])
 
-  // Filter and pagination
-  const filteredCampaigns = campaigns.filter(campaign => {
-    const matchesCategory = selectedCategory === 'all' || campaign.category.toLowerCase() === selectedCategory
-    const matchesSearch = campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         campaign.brand.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesCategory && matchesSearch
-  })
+  const fetchProposals = async () => {
+    try {
+      const response = await fetch('/api/proposals')
+      if (response.ok) {
+        const data = await response.json()
+        setProposals(data.data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching proposals:', error)
+    }
+  }
 
-  const handleShowDetails = (campaign) => {
-    setSelectedCampaign(campaign)
+  const handleShowDetails = (proposal) => {
+    setSelectedProposal(proposal)
     setShowDetailsModal(true)
+    setSelectedRunDate('')
+    setDeclineReason('')
+    setChatMessage('')
   }
 
   const handleCloseDetails = () => {
-    setSelectedCampaign(null)
+    setSelectedProposal(null)
     setShowDetailsModal(false)
+    setSelectedRunDate('')
+    setDeclineReason('')
+    setChatMessage('')
   }
 
-  const totalPages = Math.ceil(filteredCampaigns.length / itemsPerPage)
+  const handleAcceptProposal = async () => {
+    if (!selectedProposal || !selectedRunDate) return
+
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('/api/proposals', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          proposal_newsletter_id: selectedProposal.proposal_newsletter_id,
+          action: 'accept',
+          selected_run_date: selectedRunDate
+        })
+      })
+
+      if (response.ok) {
+        await fetchProposals()
+        handleCloseDetails()
+      }
+    } catch (error) {
+      console.error('Error accepting proposal:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleRejectProposal = async () => {
+    if (!selectedProposal || !declineReason.trim()) return
+
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('/api/proposals', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          proposal_newsletter_id: selectedProposal.proposal_newsletter_id,
+          action: 'reject',
+          decline_reason: declineReason.trim()
+        })
+      })
+
+      if (response.ok) {
+        await fetchProposals()
+        handleCloseDetails()
+      }
+    } catch (error) {
+      console.error('Error rejecting proposal:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleSendMessage = async () => {
+    if (!selectedProposal || !chatMessage.trim()) return
+
+    setSendingMessage(true)
+    try {
+      const response = await fetch(`/api/proposals/${selectedProposal.id}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: chatMessage.trim()
+        })
+      })
+
+      if (response.ok) {
+        setChatMessage('')
+        // Show success feedback or close modal
+      }
+    } catch (error) {
+      console.error('Error sending message:', error)
+    } finally {
+      setSendingMessage(false)
+    }
+  }
+
+  // Filter and pagination
+  const filteredProposals = proposals.filter(proposal => {
+    const matchesSearch = proposal.brand_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         proposal.product_type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         proposal.sponsorship_type?.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesSearch
+  })
+
+  const totalPages = Math.ceil(filteredProposals.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedCampaigns = filteredCampaigns.slice(startIndex, startIndex + itemsPerPage)
+  const paginatedProposals = filteredProposals.slice(startIndex, startIndex + itemsPerPage)
 
   if (authLoading) {
     return (
@@ -98,7 +212,7 @@ export default function MarketplacePage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md"
+                className="lg:hidden touch-target p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md smooth-interaction"
               >
                 <Menu className="w-5 h-5" />
               </button>
@@ -116,83 +230,81 @@ export default function MarketplacePage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Cerca campagne..."
+                placeholder="Cerca proposte per brand, prodotto o tipo..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm"
+                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm placeholder-gray-400"
               />
             </div>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 border border-slate-200 rounded-lg text-sm"
-            >
-              {categories.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
-              ))}
-            </select>
           </div>
 
           {/* Results count */}
           <div className="flex justify-between items-center mb-4">
             <p className="text-sm text-slate-600">
-              {filteredCampaigns.length} campagn{filteredCampaigns.length === 1 ? 'a' : 'e'} trovat{filteredCampaigns.length === 1 ? 'a' : 'e'}
+              {filteredProposals.length} propost{filteredProposals.length === 1 ? 'a' : 'e'} trovat{filteredProposals.length === 1 ? 'a' : 'e'}
             </p>
             <p className="text-sm text-slate-500">
               Pagina {currentPage} di {totalPages}
             </p>
           </div>
 
-          {/* Campaigns Table */}
-          <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-            {paginatedCampaigns.length > 0 ? (
+          {/* Proposals Table */}
+          <div className="modern-card overflow-hidden">
+            {paginatedProposals.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="responsive-table">
                   <thead className="bg-slate-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Campagna</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Brand</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Categoria</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Payment Type</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Scadenza</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Newsletter</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Sponsorship</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Prodotto</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Periodo Campagna</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Assets</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Azione</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {paginatedCampaigns.map((campaign) => (
-                      <tr key={campaign.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-slate-900 text-sm">{campaign.title}</div>
+                    {paginatedProposals.map((proposal) => (
+                      <tr key={`${proposal.id}-${proposal.newsletter_id}`} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-4 py-3" data-label="Brand">
+                          <div className="font-medium text-slate-900 text-sm">{proposal.brand_name}</div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <Building className="w-3 h-3 text-slate-400" />
-                            <span className="text-sm text-slate-600">{campaign.brand}</span>
-                          </div>
+                        <td className="px-4 py-3" data-label="Newsletter">
+                          <div className="text-sm text-slate-900 font-medium">{proposal.newsletter_title}</div>
                         </td>
-                        <td className="px-4 py-3">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                            {campaign.category}
+                        <td className="px-4 py-3" data-label="Sponsorship">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                            {proposal.sponsorship_type}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1">
-                            <CreditCard className="w-3 h-3 text-slate-400" />
-                            <span className="text-xs text-slate-600">{campaign.paymentType}</span>
+                        <td className="px-4 py-3" data-label="Prodotto">
+                          <div className="flex items-center gap-2">
+                            <Building className="w-3 h-3 text-slate-400" />
+                            <span className="text-sm text-slate-600">{proposal.product_type}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3" data-label="Periodo Campagna">
                           <div className="flex items-center gap-1 text-sm text-slate-600">
-                            <Clock className="w-3 h-3" />
-                            {new Date(campaign.deadline).toLocaleDateString('it-IT')}
+                            <Calendar className="w-3 h-3" />
+                            {new Date(proposal.campaign_start_date).toLocaleDateString('it-IT')} - {new Date(proposal.campaign_end_date).toLocaleDateString('it-IT')}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3" data-label="Assets">
+                          {proposal.status === 'accepted' && (
+                            (proposal.admin_copy_text || 
+                             (proposal.admin_assets_images && proposal.admin_assets_images.length > 0) || 
+                             (proposal.admin_tracking_links && proposal.admin_tracking_links.length > 0)) ? (
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                            ) : null
+                          )}
+                        </td>
+                        <td className="px-4 py-3" data-label="Azione">
                           <button 
-                            onClick={() => handleShowDetails(campaign)}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-slate-600 text-white text-xs rounded-md hover:bg-slate-700 transition-colors"
+                            onClick={() => handleShowDetails(proposal)}
+                            className="btn-enhanced touch-target inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
                           >
-                            Dettagli
+                            Applica
                             <ChevronRight className="w-3 h-3" />
                           </button>
                         </td>
@@ -204,8 +316,8 @@ export default function MarketplacePage() {
             ) : (
               <div className="text-center py-12">
                 <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-slate-900 mb-2">Nessuna campagna disponibile</h3>
-                <p className="text-slate-500 text-sm">Le campagne pubblicitarie appariranno qui quando saranno disponibili.</p>
+                <h3 className="text-lg font-medium text-slate-900 mb-2">Nessuna proposta disponibile</h3>
+                <p className="text-slate-500 text-sm">Le proposte di collaborazione appariranno qui quando saranno disponibili.</p>
               </div>
             )}
           </div>
@@ -216,7 +328,7 @@ export default function MarketplacePage() {
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="touch-target flex items-center gap-2 px-3 py-2 body-sm bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed smooth-interaction"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Precedente
@@ -244,7 +356,7 @@ export default function MarketplacePage() {
               <button
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="touch-target flex items-center gap-2 px-3 py-2 body-sm bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed smooth-interaction"
               >
                 Successiva
                 <ChevronRight className="w-4 h-4" />
@@ -254,16 +366,16 @@ export default function MarketplacePage() {
         </main>
       </div>
 
-      {/* Campaign Details Modal */}
-      {showDetailsModal && selectedCampaign && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      {/* Proposal Details Modal */}
+      {showDetailsModal && selectedProposal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeInUp">
+          <div className="modern-card bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900">Dettagli Campagna</h3>
+              <h3 className="text-lg font-semibold text-slate-900">Dettagli Proposta</h3>
               <button 
                 onClick={handleCloseDetails}
-                className="p-1 hover:bg-slate-100 rounded-md transition-colors"
+                className="touch-target p-1 hover:bg-slate-100 rounded-md smooth-interaction"
               >
                 <X className="w-5 h-5 text-slate-500" />
               </button>
@@ -272,96 +384,157 @@ export default function MarketplacePage() {
             {/* Modal Content */}
             <div className="px-6 py-6">
               <div className="space-y-6">
-                {/* Campaign Title */}
+                {/* Proposal Title */}
                 <div>
-                  <h4 className="text-xl font-bold text-slate-900 mb-2">{selectedCampaign.title}</h4>
+                  <h4 className="text-xl font-bold text-slate-900 mb-2">{selectedProposal.brand_name}</h4>
                   <div className="flex items-center gap-2 text-slate-600">
                     <Building className="w-4 h-4" />
-                    <span>{selectedCampaign.brand}</span>
+                    <span>{selectedProposal.sponsorship_type}</span>
                   </div>
                 </div>
 
-                {/* Campaign Info Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Proposal Info Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-slate-50 p-4 rounded-lg">
-                    <div className="text-xs text-slate-500 uppercase font-medium mb-1">Categoria</div>
-                    <div className="text-sm font-medium text-slate-900">{selectedCampaign.category}</div>
+                    <div className="text-xs text-slate-500 uppercase font-medium mb-1">Prodotto</div>
+                    <div className="text-sm font-medium text-slate-900">{selectedProposal.product_type}</div>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-lg">
-                    <div className="text-xs text-slate-500 uppercase font-medium mb-1">Payment Type</div>
-                    <div className="text-sm font-medium text-slate-900">{selectedCampaign.paymentType}</div>
-                  </div>
-                  <div className="bg-slate-50 p-4 rounded-lg">
-                    <div className="text-xs text-slate-500 uppercase font-medium mb-1">Budget</div>
-                    <div className="text-sm font-medium text-slate-900">{selectedCampaign.budget}</div>
+                    <div className="text-xs text-slate-500 uppercase font-medium mb-1">Tipo Sponsorship</div>
+                    <div className="text-sm font-medium text-slate-900">{selectedProposal.sponsorship_type}</div>
                   </div>
                 </div>
 
-                {/* Description */}
+                {/* Target Audience */}
                 <div>
-                  <h5 className="text-sm font-medium text-slate-900 mb-2">Descrizione</h5>
-                  <p className="text-sm text-slate-600 leading-relaxed">{selectedCampaign.description}</p>
-                </div>
-
-                {/* Requirements */}
-                <div>
-                  <h5 className="text-sm font-medium text-slate-900 mb-2">Requisiti</h5>
-                  <ul className="text-sm text-slate-600 space-y-1">
-                    <li>• Newsletter attiva nel settore {selectedCampaign.category.toLowerCase()}</li>
-                    <li>• Minimo 1,000 iscritti attivi</li>
-                    <li>• Open rate superiore al 20%</li>
-                    <li>• Archivio newsletter pubblico</li>
-                  </ul>
+                  <h5 className="text-sm font-medium text-slate-900 mb-2">Target Audience Ideale</h5>
+                  <p className="text-sm text-slate-600 leading-relaxed">{selectedProposal.ideal_target_audience}</p>
                 </div>
 
                 {/* Timeline */}
                 <div>
-                  <h5 className="text-sm font-medium text-slate-900 mb-2">Timeline</h5>
+                  <h5 className="text-sm font-medium text-slate-900 mb-2">Periodo Campagna</h5>
                   <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <Clock className="w-4 h-4" />
-                    <span>Scadenza candidature: {new Date(selectedCampaign.deadline).toLocaleDateString('it-IT', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}</span>
+                    <Calendar className="w-4 h-4" />
+                    <span>Dal {new Date(selectedProposal.campaign_start_date).toLocaleDateString('it-IT')} al {new Date(selectedProposal.campaign_end_date).toLocaleDateString('it-IT')}</span>
                   </div>
                 </div>
 
-                {/* Payment Info */}
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h5 className="text-sm font-medium text-slate-900 mb-2 flex items-center gap-2">
-                    <CreditCard className="w-4 h-4" />
-                    Dettagli Pagamento
-                  </h5>
-                  <div className="space-y-1 text-sm text-slate-700">
-                    <div>Tipologia: <span className="font-medium">{selectedCampaign.paymentType}</span></div>
-                    <div>Budget: <span className="font-medium">{selectedCampaign.budget}</span></div>
-                    {selectedCampaign.paymentType === 'PPC' && (
-                      <div className="text-xs text-slate-600 mt-2">Pagamento basato su click effettivi generati</div>
+                {/* Admin Materials - Only show if proposal is accepted */}
+                {selectedProposal.status === 'accepted' && (
+                  selectedProposal.admin_copy_text || 
+                  (selectedProposal.admin_assets_images && selectedProposal.admin_assets_images.length > 0) || 
+                  (selectedProposal.admin_tracking_links && selectedProposal.admin_tracking_links.length > 0)
+                ) && (
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <h5 className="text-sm font-medium text-slate-900 mb-3">Materiali Forniti</h5>
+                    
+                    {selectedProposal.admin_copy_text && (
+                      <div className="mb-3">
+                        <div className="text-xs text-slate-500 uppercase font-medium mb-1">Copy Text</div>
+                        <p className="text-sm text-slate-700 bg-white p-2 rounded border">{selectedProposal.admin_copy_text}</p>
+                      </div>
                     )}
-                    {selectedCampaign.paymentType === 'Pay per Lead' && (
-                      <div className="text-xs text-slate-600 mt-2">Pagamento per ogni lead qualificato generato</div>
+                    
+                    {selectedProposal.admin_assets_images && selectedProposal.admin_assets_images.length > 0 && (
+                      <div className="mb-3">
+                        <div className="text-xs text-slate-500 uppercase font-medium mb-1">Immagini</div>
+                        <div className="text-sm text-slate-700 bg-white p-2 rounded border">
+                          {selectedProposal.admin_assets_images.join(', ')}
+                        </div>
+                      </div>
                     )}
-                    {selectedCampaign.paymentType === 'Pay per Action' && (
-                      <div className="text-xs text-slate-600 mt-2">Pagamento per azione completata (registrazione, acquisto, etc.)</div>
+                    
+                    {selectedProposal.admin_tracking_links && selectedProposal.admin_tracking_links.length > 0 && (
+                      <div className="mb-3">
+                        <div className="text-xs text-slate-500 uppercase font-medium mb-1">Link di Tracking</div>
+                        <div className="text-sm text-slate-700 bg-white p-2 rounded border">
+                          {selectedProposal.admin_tracking_links.join(', ')}
+                        </div>
+                      </div>
                     )}
                   </div>
+                )}
+
+                {/* Run Date Selection */}
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h5 className="text-sm font-medium text-slate-900 mb-3">Seleziona Data di Erogazione</h5>
+                  <input
+                    type="date"
+                    value={selectedRunDate}
+                    onChange={(e) => setSelectedRunDate(e.target.value)}
+                    min={selectedProposal.campaign_start_date}
+                    max={selectedProposal.campaign_end_date}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-slate-600 mt-2">Seleziona una data all'interno del periodo della campagna</p>
+                </div>
+
+                {/* Decline Reason */}
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <h5 className="text-sm font-medium text-slate-900 mb-3">Motivo di Rifiuto (opzionale)</h5>
+                  <textarea
+                    value={declineReason}
+                    onChange={(e) => setDeclineReason(e.target.value)}
+                    placeholder="Inserisci il motivo del rifiuto se decidi di non accettare..."
+                    rows={3}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+                  />
+                </div>
+
+                {/* Chat Section */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h5 className="text-sm font-medium text-slate-900 mb-3 flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    Invia Messaggio
+                  </h5>
+                  <textarea
+                    value={chatMessage}
+                    onChange={(e) => setChatMessage(e.target.value)}
+                    placeholder="Scrivi un messaggio per l'admin riguardo questa proposta..."
+                    rows={3}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
+                  />
+                  <button
+                    onClick={handleSendMessage}
+                    disabled={!chatMessage.trim() || sendingMessage}
+                    className="btn-enhanced touch-target mt-2 flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white body-sm rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed smooth-interaction"
+                  >
+                    <Send className="w-3 h-3" />
+                    {sendingMessage ? 'Invio...' : 'Invia Messaggio'}
+                  </button>
                 </div>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
+            <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
               <button 
                 onClick={handleCloseDetails}
-                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors"
+                className="touch-target px-4 py-2 body-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-md hover:bg-slate-50 smooth-interaction"
               >
                 Chiudi
               </button>
-              <button className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors">
-                Applica alla Campagna
-              </button>
+              
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleRejectProposal}
+                  disabled={!declineReason.trim() || isSubmitting}
+                  className="btn-enhanced touch-target flex items-center gap-2 px-4 py-2 bg-red-600 text-white body-sm font-medium rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed smooth-interaction"
+                >
+                  <XCircle className="w-4 h-4" />
+                  {isSubmitting ? 'Rifiuto...' : 'Rifiuta'}
+                </button>
+                
+                <button 
+                  onClick={handleAcceptProposal}
+                  disabled={!selectedRunDate || isSubmitting}
+                  className="btn-enhanced touch-target flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white body-sm font-medium rounded-md hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed smooth-interaction"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  {isSubmitting ? 'Accetto...' : 'Accetta'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -28,6 +28,8 @@ export default function AdminCalendarioPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month')
+  const [events, setEvents] = useState([])
+  const [eventsLoading, setEventsLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
@@ -49,43 +51,50 @@ export default function AdminCalendarioPage() {
     setLoading(false)
   }, [router])
 
-  const events = []
-
-  const getEventTypeInfo = (type: string) => {
-    switch (type) {
-      case 'newsletter_deadline':
-        return { label: 'Deadline Newsletter', icon: Mail, color: 'text-blue-600', bgColor: 'bg-blue-100' }
-      case 'payment_due':
-        return { label: 'Pagamento', icon: Euro, color: 'text-green-600', bgColor: 'bg-green-100' }
-      case 'content_review':
-        return { label: 'Revisione Contenuti', icon: Eye, color: 'text-orange-600', bgColor: 'bg-orange-100' }
-      case 'meeting':
-        return { label: 'Meeting', icon: Users, color: 'text-purple-600', bgColor: 'bg-purple-100' }
-      case 'campaign_deadline':
-        return { label: 'Scadenza Campagna', icon: AlertCircle, color: 'text-red-600', bgColor: 'bg-red-100' }
-      case 'report':
-        return { label: 'Report', icon: CalendarDays, color: 'text-slate-600', bgColor: 'bg-slate-100' }
-      case 'newsletter_published':
-        return { label: 'Newsletter Pubblicata', icon: CheckCircle, color: 'text-emerald-600', bgColor: 'bg-emerald-100' }
-      case 'verification':
-        return { label: 'Verifica', icon: AlertCircle, color: 'text-yellow-600', bgColor: 'bg-yellow-100' }
-      default:
-        return { label: type, icon: Calendar, color: 'text-slate-600', bgColor: 'bg-slate-100' }
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchEvents()
     }
+  }, [isAuthenticated, selectedDate])
+
+  const fetchEvents = async () => {
+    try {
+      setEventsLoading(true)
+      const month = selectedDate.getMonth() + 1
+      const year = selectedDate.getFullYear()
+      
+      const response = await fetch(`/api/admin/calendar?month=${month}&year=${year}`, {
+        headers: {
+          'x-admin-auth': 'admin-panel'
+        }
+      })
+      const result = await response.json()
+      
+      if (result.success) {
+        setEvents(result.data)
+      } else {
+        console.error('Error fetching events:', result.error)
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error)
+    } finally {
+      setEventsLoading(false)
+    }
+  }
+
+  const getEventTypeInfo = (sponsorshipType: string) => {
+    // Map sponsorship types to appropriate display info
+    return { label: 'Campagna Sponsorizzata', icon: Users, color: 'text-red-600', bgColor: 'bg-red-100' }
   }
 
   const getStatusInfo = (status: string) => {
     switch (status) {
-      case 'upcoming':
-        return { label: 'In arrivo', color: 'bg-blue-100 text-blue-700' }
-      case 'pending':
-        return { label: 'In attesa', color: 'bg-yellow-100 text-yellow-700' }
       case 'scheduled':
-        return { label: 'Programmato', color: 'bg-purple-100 text-purple-700' }
+        return { label: 'Programmato', color: 'bg-blue-100 text-blue-700' }
       case 'completed':
-        return { label: 'Completato', color: 'bg-emerald-100 text-emerald-700' }
-      case 'overdue':
-        return { label: 'Scaduto', color: 'bg-red-100 text-red-700' }
+        return { label: 'Completato', color: 'bg-green-100 text-green-700' }
+      case 'cancelled':
+        return { label: 'Cancellato', color: 'bg-red-100 text-red-700' }
       default:
         return { label: status, color: 'bg-slate-100 text-slate-700' }
     }
@@ -102,25 +111,22 @@ export default function AdminCalendarioPage() {
   // Get events for today and upcoming
   const today = new Date()
   const todayEvents = events.filter(event => {
-    const eventDate = new Date(event.date)
+    const eventDate = new Date(event.event_date)
     return eventDate.toDateString() === today.toDateString()
   })
 
   const upcomingEvents = events
     .filter(event => {
-      const eventDate = new Date(event.date)
+      const eventDate = new Date(event.event_date)
       return eventDate > today && eventDate <= new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
     })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
 
   const eventStats = {
     total: events.length,
-    today: todayEvents.length,
-    pending: events.filter(e => e.status === 'pending').length,
-    overdue: events.filter(e => {
-      const eventDate = new Date(e.date)
-      return eventDate < today && !['completed'].includes(e.status)
-    }).length
+    scheduled: events.filter(e => e.status === 'scheduled').length,
+    completed: events.filter(e => e.status === 'completed').length,
+    cancelled: events.filter(e => e.status === 'cancelled').length
   }
 
   if (loading) {
@@ -136,7 +142,7 @@ export default function AdminCalendarioPage() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50">
+    <div className="flex h-screen bg-slate-50 admin-panel">
       <AdminSidebar 
         isMobileOpen={isMobileMenuOpen}
         onMobileClose={() => setIsMobileMenuOpen(false)}
@@ -173,10 +179,6 @@ export default function AdminCalendarioPage() {
                   </button>
                 ))}
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                <Plus className="w-4 h-4" />
-                Nuovo Evento
-              </button>
             </div>
           </div>
         </header>
@@ -187,8 +189,8 @@ export default function AdminCalendarioPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white p-6 rounded-2xl border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-xl">
-                    <CalendarDays className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-red-100 rounded-xl">
+                    <CalendarDays className="w-5 h-5 text-red-600" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-slate-900">
@@ -201,28 +203,28 @@ export default function AdminCalendarioPage() {
 
               <div className="bg-white p-6 rounded-2xl border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-xl">
-                    <Clock className="w-5 h-5 text-green-600" />
+                  <div className="p-2 bg-blue-100 rounded-xl">
+                    <Clock className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-slate-900">
-                      {eventStats.today}
+                      {eventStats.scheduled}
                     </p>
-                    <p className="text-sm text-slate-600">Eventi oggi</p>
+                    <p className="text-sm text-slate-600">Programmati</p>
                   </div>
                 </div>
               </div>
 
               <div className="bg-white p-6 rounded-2xl border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-100 rounded-xl">
-                    <AlertCircle className="w-5 h-5 text-yellow-600" />
+                  <div className="p-2 bg-green-100 rounded-xl">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-slate-900">
-                      {eventStats.pending}
+                      {eventStats.completed}
                     </p>
-                    <p className="text-sm text-slate-600">In attesa</p>
+                    <p className="text-sm text-slate-600">Completati</p>
                   </div>
                 </div>
               </div>
@@ -234,9 +236,9 @@ export default function AdminCalendarioPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-slate-900">
-                      {eventStats.overdue}
+                      {eventStats.cancelled}
                     </p>
-                    <p className="text-sm text-slate-600">Scaduti</p>
+                    <p className="text-sm text-slate-600">Cancellati</p>
                   </div>
                 </div>
               </div>
@@ -259,30 +261,27 @@ export default function AdminCalendarioPage() {
                   ) : (
                     <div className="space-y-4">
                       {todayEvents.map((event) => {
-                        const typeInfo = getEventTypeInfo(event.type)
+                        const typeInfo = getEventTypeInfo(event.sponsorship_type)
                         const statusInfo = getStatusInfo(event.status)
                         const TypeIcon = typeInfo.icon
 
                         return (
-                          <div key={event.id} className={`p-4 rounded-lg border-l-4 ${getPriorityColor(event.priority)} bg-slate-50`}>
+                          <div key={event.id} className="p-4 rounded-lg border-l-4 border-l-red-500 bg-slate-50">
                             <div className="flex items-start gap-3">
                               <div className={`p-2 ${typeInfo.bgColor} rounded-lg`}>
                                 <TypeIcon className={`w-4 h-4 ${typeInfo.color}`} />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <h4 className="font-medium text-slate-900">{event.title}</h4>
+                                  <h4 className="font-medium text-slate-900">{event.brand_name} - {event.newsletter_title}</h4>
                                   <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${statusInfo.color}`}>
                                     {statusInfo.label}
                                   </span>
                                 </div>
-                                <p className="text-sm text-slate-600 mb-2">{event.description}</p>
+                                <p className="text-sm text-slate-600 mb-2">{event.description || `${event.sponsorship_type} - ${event.product_type}`}</p>
                                 <div className="flex items-center gap-4 text-xs text-slate-500">
-                                  <span>{new Date(event.date).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</span>
-                                  <span>{event.author}</span>
-                                  {event.amount && (
-                                    <span className="font-medium text-green-600">€{event.amount}</span>
-                                  )}
+                                  <span>{event.newsletter_author}</span>
+                                  <span>{event.sponsorship_type}</span>
                                 </div>
                               </div>
                             </div>
@@ -310,36 +309,33 @@ export default function AdminCalendarioPage() {
                   ) : (
                     <div className="space-y-4">
                       {upcomingEvents.slice(0, 5).map((event) => {
-                        const typeInfo = getEventTypeInfo(event.type)
+                        const typeInfo = getEventTypeInfo(event.sponsorship_type)
                         const statusInfo = getStatusInfo(event.status)
                         const TypeIcon = typeInfo.icon
 
                         return (
-                          <div key={event.id} className={`p-4 rounded-lg border-l-4 ${getPriorityColor(event.priority)} hover:bg-slate-50 transition-colors`}>
+                          <div key={event.id} className="p-4 rounded-lg border-l-4 border-l-red-500 hover:bg-slate-50 transition-colors">
                             <div className="flex items-start gap-3">
                               <div className={`p-2 ${typeInfo.bgColor} rounded-lg`}>
                                 <TypeIcon className={`w-4 h-4 ${typeInfo.color}`} />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <h4 className="font-medium text-slate-900">{event.title}</h4>
+                                  <h4 className="font-medium text-slate-900">{event.brand_name} - {event.newsletter_title}</h4>
                                   <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${statusInfo.color}`}>
                                     {statusInfo.label}
                                   </span>
                                 </div>
-                                <p className="text-sm text-slate-600 mb-2 line-clamp-1">{event.description}</p>
+                                <p className="text-sm text-slate-600 mb-2 line-clamp-1">{event.description || `${event.sponsorship_type} - ${event.product_type}`}</p>
                                 <div className="flex items-center gap-4 text-xs text-slate-500">
-                                  <span>{new Date(event.date).toLocaleDateString('it-IT')}</span>
-                                  <span>{new Date(event.date).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</span>
-                                  <span>{event.author}</span>
+                                  <span>{new Date(event.event_date).toLocaleDateString('it-IT')}</span>
+                                  <span>{event.newsletter_author}</span>
+                                  <span>{event.sponsorship_type}</span>
                                 </div>
                               </div>
                               <div className="flex items-center gap-1">
                                 <button className="p-1.5 text-slate-400 hover:text-slate-600 rounded">
                                   <Eye className="w-4 h-4" />
-                                </button>
-                                <button className="p-1.5 text-slate-400 hover:text-slate-600 rounded">
-                                  <Edit className="w-4 h-4" />
                                 </button>
                               </div>
                             </div>
@@ -380,7 +376,7 @@ export default function AdminCalendarioPage() {
                 ) : (
                   <div className="space-y-4">
                     {events.slice(0, 8).map((event) => {
-                      const typeInfo = getEventTypeInfo(event.type)
+                      const typeInfo = getEventTypeInfo(event.sponsorship_type)
                       const statusInfo = getStatusInfo(event.status)
                       const TypeIcon = typeInfo.icon
 
@@ -392,47 +388,33 @@ export default function AdminCalendarioPage() {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-3 mb-2">
-                              <h4 className="font-semibold text-slate-900">{event.title}</h4>
+                              <h4 className="font-semibold text-slate-900">{event.brand_name} - {event.newsletter_title}</h4>
                               <span className={`px-3 py-1 text-xs rounded-full font-medium ${statusInfo.color}`}>
                                 {statusInfo.label}
                               </span>
-                              {event.priority === 'high' && (
-                                <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium">
-                                  Alta priorità
-                                </span>
-                              )}
                             </div>
                             
-                            <p className="text-sm text-slate-600 mb-3">{event.description}</p>
+                            <p className="text-sm text-slate-600 mb-3">{event.description || `${event.sponsorship_type} - ${event.product_type}`}</p>
                             
                             <div className="flex items-center gap-6 text-sm text-slate-500">
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-4 h-4" />
-                                <span>{new Date(event.date).toLocaleDateString('it-IT')}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-4 h-4" />
-                                <span>{new Date(event.date).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span>{new Date(event.event_date).toLocaleDateString('it-IT')}</span>
                               </div>
                               <div className="flex items-center gap-1">
                                 <Users className="w-4 h-4" />
-                                <span>{event.author}</span>
+                                <span>{event.newsletter_author}</span>
                               </div>
-                              {event.amount && (
-                                <div className="flex items-center gap-1">
-                                  <Euro className="w-4 h-4" />
-                                  <span className="font-medium text-green-600">€{event.amount}</span>
-                                </div>
-                              )}
+                              <div className="flex items-center gap-1">
+                                <Mail className="w-4 h-4" />
+                                <span>{event.newsletter_email}</span>
+                              </div>
                             </div>
                           </div>
                           
                           <div className="flex items-center gap-1">
                             <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
                               <Eye className="w-4 h-4" />
-                            </button>
-                            <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
-                              <Edit className="w-4 h-4" />
                             </button>
                           </div>
                         </div>

@@ -44,6 +44,24 @@ export default function NewslettersPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingNewsletter, setDeletingNewsletter] = useState<Newsletter | null>(null)
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false)
+  const [sortField, setSortField] = useState<'open_rate' | 'ctr' | null>(null)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
+  const [editingNewsletter, setEditingNewsletter] = useState<Newsletter | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState<CreateNewsletterInput>({
+    nome_newsletter: '',
+    url_archivio: '',
+    categoria: undefined,
+    numero_iscritti: undefined,
+    open_rate: undefined,
+    ctr: undefined,
+    prezzo_sponsorizzazione: undefined,
+    email_contatto: '',
+    descrizione: '',
+    frequenza_invio: undefined,
+    linkedin_profile: ''
+  })
+  const [formErrors, setFormErrors] = useState<Partial<CreateNewsletterInput>>({})
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -218,19 +236,35 @@ export default function NewslettersPage() {
     switch (review_status) {
       case 'approved': return 'Approvata'
       case 'rejected': return 'Rifiutata'
-      case 'in_review': return 'In Revisione'
-      default: return 'In Revisione'
+      case 'in_review': return 'Pending'
+      default: return 'Pending'
     }
   }
 
   const filteredNewsletters = useMemo(() => {
-    return newsletters.filter(newsletter => {
+    let filtered = newsletters.filter(newsletter => {
       const matchesSearch = (newsletter.title?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase()) ||
                            (newsletter.category?.toLowerCase() || '').includes(debouncedSearchQuery.toLowerCase())
       const matchesStatus = statusFilter === 'all' || newsletter.review_status === statusFilter
       return matchesSearch && matchesStatus
     })
-  }, [newsletters, debouncedSearchQuery, statusFilter])
+
+    // Apply sorting
+    if (sortField) {
+      filtered = filtered.sort((a, b) => {
+        const aValue = sortField === 'open_rate' ? (a.open_rate || 0) : (a.ctr || 0)
+        const bValue = sortField === 'open_rate' ? (b.open_rate || 0) : (b.ctr || 0)
+        
+        if (sortDirection === 'asc') {
+          return aValue - bValue
+        } else {
+          return bValue - aValue
+        }
+      })
+    }
+
+    return filtered
+  }, [newsletters, debouncedSearchQuery, statusFilter, sortField, sortDirection])
 
   const stats = useMemo(() => {
     const approvedNewsletters = newsletters.filter(n => n.review_status === 'approved')
@@ -242,6 +276,15 @@ export default function NewslettersPage() {
       totalSubscribers: approvedNewsletters.reduce((sum, n) => sum + (n.audience_size || 0), 0)
     }
   }, [newsletters])
+
+  const handleSort = (field: 'open_rate' | 'ctr') => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortDirection('desc')
+    }
+  }
 
   const handleEditNewsletter = (newsletter: Newsletter) => {
     setEditingNewsletter(newsletter)
@@ -260,6 +303,37 @@ export default function NewslettersPage() {
       linkedin_profile: newsletter.linkedin_profile || ''
     })
     // Edit functionality removed - using dedicated page
+  }
+
+  const handleDeleteNewsletter = (newsletter: Newsletter) => {
+    setDeletingNewsletter(newsletter)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!deletingNewsletter) return
+
+    try {
+      const response = await fetch(`/api/newsletters/${deletingNewsletter.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const result: ApiResponse = await response.json()
+
+      if (result.success) {
+        // Remove newsletter from local state
+        setNewsletters(prev => prev.filter(n => n.id !== deletingNewsletter.id))
+        setShowDeleteModal(false)
+        setDeletingNewsletter(null)
+      } else {
+        console.error('Error deleting newsletter:', result.error)
+      }
+    } catch (error) {
+      console.error('Error deleting newsletter:', error)
+    }
   }
 
   const handleCloseForm = () => {
@@ -311,29 +385,6 @@ export default function NewslettersPage() {
     }
   }
 
-  const handleDeleteNewsletter = (newsletter: Newsletter) => {
-    setDeletingNewsletter(newsletter)
-    setShowDeleteModal(true)
-  }
-
-  const confirmDelete = async () => {
-    if (!deletingNewsletter) return
-    
-    try {
-      const response = await fetch(`/api/newsletters/${deletingNewsletter.id}`, {
-        method: 'DELETE'
-      })
-      
-      if (response.ok) {
-        setNewsletters(newsletters.filter(n => n.id !== deletingNewsletter.id))
-        setShowDeleteModal(false)
-        setDeletingNewsletter(null)
-      }
-    } catch (error) {
-      console.error('Error deleting newsletter:', error)
-    }
-  }
-
   if (authLoading || loading) {
     return (
       <div className="flex h-screen">
@@ -357,7 +408,7 @@ export default function NewslettersPage() {
                 Newsletter registrata!
               </p>
               <p className="text-sm text-green-700">
-                La tua newsletter è stata inviata per la revisione.
+                La tua newsletter è stata inviata ed è ora in stato Pending.
               </p>
             </div>
             <button
@@ -441,7 +492,7 @@ export default function NewslettersPage() {
                   </div>
                   <div className="ml-4">
                     <p className="text-2xl font-semibold text-gray-900">{stats.in_review}</p>
-                    <p className="text-sm text-gray-600">In revisione</p>
+                    <p className="text-sm text-gray-600">Pending</p>
                   </div>
                 </div>
               </div>
@@ -481,7 +532,7 @@ export default function NewslettersPage() {
                   className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">Tutti gli stati</option>
-                  <option value="in_review">In revisione</option>
+                  <option value="in_review">Pending</option>
                   <option value="approved">Approvate</option>
                   <option value="rejected">Rifiutate</option>
                 </select>
@@ -532,7 +583,18 @@ export default function NewslettersPage() {
                   <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
                       <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Newsletter</th>
-                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Categoria</th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider cursor-pointer hover:bg-slate-100" onClick={() => handleSort('open_rate')}>
+                        Open Rate
+                        {sortField === 'open_rate' && (
+                          <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </th>
+                      <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider cursor-pointer hover:bg-slate-100" onClick={() => handleSort('ctr')}>
+                        CTR
+                        {sortField === 'ctr' && (
+                          <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </th>
                       <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Iscritti</th>
                       <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Status</th>
                       <th className="text-left px-4 py-2 text-xs font-medium text-slate-700 uppercase tracking-wider">Data</th>
@@ -553,9 +615,20 @@ export default function NewslettersPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              {newsletter.category}
-                            </span>
+                            <div className="flex items-center gap-1">
+                              <TrendingUp className="w-3 h-3 text-slate-400" />
+                              <span className="text-sm font-medium text-slate-900">
+                                {newsletter.open_rate ? `${newsletter.open_rate}%` : '0%'}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1">
+                              <Eye className="w-3 h-3 text-slate-400" />
+                              <span className="text-sm font-medium text-slate-900">
+                                {newsletter.ctr ? `${newsletter.ctr}%` : '0%'}
+                              </span>
+                            </div>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-1">
@@ -585,7 +658,7 @@ export default function NewslettersPage() {
                               >
                                 <Eye className="w-4 h-4" />
                               </a>
-                              {newsletter.review_status === 'approved' && (
+                              {['approved', 'in_review', 'rejected'].includes(newsletter.review_status) && (
                                 <Link
                                   href={`/dashboard/newsletters/edit/${newsletter.id}`}
                                   className="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
@@ -594,15 +667,13 @@ export default function NewslettersPage() {
                                   <Edit className="w-4 h-4" />
                                 </Link>
                               )}
-                              {newsletter.review_status === 'rejected' && (
-                                <button
-                                  onClick={() => handleDeleteNewsletter(newsletter)}
-                                  className="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                                  title="Elimina"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              )}
+                              <button
+                                onClick={() => handleDeleteNewsletter(newsletter)}
+                                className="p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Elimina"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
                           </td>
                         </tr>

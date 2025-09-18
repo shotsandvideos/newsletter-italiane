@@ -31,6 +31,9 @@ export async function GET() {
         open_rate,
         ctr_rate,
         sponsorship_price,
+        author_first_name,
+        author_last_name,
+        author_email,
         review_status,
         created_at,
         updated_at
@@ -59,15 +62,28 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
+    console.log('Received POST data:', body)
     const supabase = await createSupabaseServerClient()
 
     // Validate required fields
-    if (!body.title || !body.description || !body.category || !body.signup_url || !body.contact_email || 
-        body.audience_size === undefined || body.open_rate === undefined || body.ctr_rate === undefined || 
-        body.sponsorship_price === undefined) {
+    const missingFields = []
+    if (!body.title) missingFields.push('title')
+    if (!body.description) missingFields.push('description')
+    if (!body.category) missingFields.push('category')
+    if (!body.signup_url) missingFields.push('signup_url')
+    if (!body.contact_email) missingFields.push('contact_email')
+    if (body.audience_size === undefined) missingFields.push('audience_size')
+    if (body.open_rate === undefined) missingFields.push('open_rate')
+    if (body.ctr_rate === undefined) missingFields.push('ctr_rate')
+    if (body.sponsorship_price === undefined) missingFields.push('sponsorship_price')
+    if (!body.author_first_name) missingFields.push('author_first_name')
+    if (!body.author_last_name) missingFields.push('author_last_name')
+    if (!body.author_email) missingFields.push('author_email')
+
+    if (missingFields.length > 0) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Missing required fields' 
+        error: `Missing required fields: ${missingFields.join(', ')}` 
       }, { status: 400 })
     }
 
@@ -88,6 +104,9 @@ export async function POST(request: Request) {
       open_rate: parseFloat(body.open_rate) || 0,
       ctr_rate: parseFloat(body.ctr_rate) || 0,
       sponsorship_price: parseInt(body.sponsorship_price) || 0,
+      author_first_name: body.author_first_name,
+      author_last_name: body.author_last_name,
+      author_email: body.author_email,
       review_status: 'in_review' // Always starts in review
     }
 
@@ -200,6 +219,9 @@ export async function PATCH(request: Request) {
         open_rate,
         ctr_rate,
         sponsorship_price,
+        author_first_name,
+        author_last_name,
+        author_email,
         review_status,
         created_at,
         updated_at

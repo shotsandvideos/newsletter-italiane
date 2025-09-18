@@ -27,7 +27,7 @@ export default function AdminInboxPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [selectedFilter, setSelectedFilter] = useState('all')
+  const [selectedFilter, setSelectedFilter] = useState('active')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedMessage, setSelectedMessage] = useState(null)
   const router = useRouter()
@@ -54,10 +54,8 @@ export default function AdminInboxPage() {
   const messages = []
 
   const filters = [
-    { value: 'all', label: 'Tutti i messaggi', count: messages.length },
-    { value: 'unread', label: 'Non letti', count: messages.filter(m => m.status === 'unread').length },
-    { value: 'starred', label: 'Importanti', count: messages.filter(m => m.starred).length },
-    { value: 'high', label: 'Alta priorità', count: messages.filter(m => m.priority === 'high').length }
+    { value: 'active', label: 'Attive', count: messages.filter(m => m.status !== 'archived').length },
+    { value: 'archived', label: 'Archiviate', count: messages.filter(m => m.status === 'archived').length }
   ]
 
   const getPriorityColor = (priority: string) => {
@@ -80,10 +78,8 @@ export default function AdminInboxPage() {
   }
 
   const filteredMessages = messages.filter(message => {
-    const matchesFilter = selectedFilter === 'all' ||
-      (selectedFilter === 'unread' && message.status === 'unread') ||
-      (selectedFilter === 'starred' && message.starred) ||
-      (selectedFilter === 'high' && message.priority === 'high')
+    const matchesFilter = (selectedFilter === 'active' && message.status !== 'archived') ||
+      (selectedFilter === 'archived' && message.status === 'archived')
     
     const matchesSearch = message.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
       message.from.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -105,7 +101,7 @@ export default function AdminInboxPage() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50">
+    <div className="flex h-screen bg-slate-50 admin-panel">
       <AdminSidebar 
         isMobileOpen={isMobileMenuOpen}
         onMobileClose={() => setIsMobileMenuOpen(false)}

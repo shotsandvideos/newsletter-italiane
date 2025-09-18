@@ -100,7 +100,24 @@ export const createNewsletterSchema = z.object({
   sponsorship_price: z
     .number()
     .min(0, 'Il prezzo deve essere almeno 0€')
-    .int('Il prezzo deve essere un numero intero')
+    .int('Il prezzo deve essere un numero intero'),
+
+  author_first_name: z
+    .string()
+    .min(2, 'Il nome deve essere di almeno 2 caratteri')
+    .max(50, 'Il nome non può superare 50 caratteri')
+    .trim(),
+
+  author_last_name: z
+    .string()
+    .min(2, 'Il cognome deve essere di almeno 2 caratteri')
+    .max(50, 'Il cognome non può superare 50 caratteri')
+    .trim(),
+
+  author_email: z
+    .string()
+    .email('Inserisci un\'email valida per l\'autore')
+    .trim()
 })
 
 // Type inference
@@ -130,6 +147,9 @@ export interface Newsletter {
   open_rate: number
   ctr_rate: number
   sponsorship_price: number
+  author_first_name: string
+  author_last_name: string
+  author_email: string
   review_status: 'in_review' | 'approved' | 'rejected'
   created_at: string
   updated_at: string

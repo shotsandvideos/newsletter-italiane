@@ -25,7 +25,10 @@ ADD COLUMN IF NOT EXISTS linkedin_profile TEXT,
 ADD COLUMN IF NOT EXISTS open_rate DECIMAL(5,2) DEFAULT 0,
 ADD COLUMN IF NOT EXISTS ctr_rate DECIMAL(5,2) DEFAULT 0,
 ADD COLUMN IF NOT EXISTS sponsorship_price INTEGER DEFAULT 0,
-ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
+ADD COLUMN IF NOT EXISTS rejection_reason TEXT,
+ADD COLUMN IF NOT EXISTS author_first_name TEXT,
+ADD COLUMN IF NOT EXISTS author_last_name TEXT,
+ADD COLUMN IF NOT EXISTS author_email TEXT;
 
 -- Remove unused columns
 ALTER TABLE newsletters 
@@ -71,6 +74,9 @@ COMMENT ON COLUMN newsletters.open_rate IS 'Average open rate percentage (0-100)
 COMMENT ON COLUMN newsletters.ctr_rate IS 'Average click-through rate percentage (0-100)';
 COMMENT ON COLUMN newsletters.sponsorship_price IS 'Sponsorship price in euros';
 COMMENT ON COLUMN newsletters.rejection_reason IS 'Reason for newsletter rejection (only when review_status is rejected)';
+COMMENT ON COLUMN newsletters.author_first_name IS 'First name of the newsletter author';
+COMMENT ON COLUMN newsletters.author_last_name IS 'Last name of the newsletter author';
+COMMENT ON COLUMN newsletters.author_email IS 'Email address of the newsletter author';
 
 -- Update existing records to have default values for new fields
 UPDATE newsletters 

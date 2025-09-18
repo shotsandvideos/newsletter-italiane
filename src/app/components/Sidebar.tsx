@@ -76,9 +76,9 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
         <div className="flex justify-end p-4 lg:hidden">
           <button
             onClick={onMobileClose}
-            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="touch-target p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg smooth-interaction"
           >
-            <X className="w-5 h-5" />
+            <X className="icon-inline" />
           </button>
         </div>
 
@@ -96,7 +96,7 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold text-slate-900 truncate">
+              <h2 className="sidebar-text font-semibold text-slate-900 truncate">
                 {profile?.first_name && profile?.last_name 
                   ? `${profile.first_name} ${profile.last_name}` 
                   : profile?.first_name 
@@ -106,15 +106,16 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-              <p className="text-xs text-emerald-600 font-medium">Creator Attivo</p>
+              <p className="text-micro text-emerald-600 font-medium">Creator Attivo</p>
             </div>
           </div>
           <button
             onClick={handleSignOut}
-            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            className="touch-target p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg smooth-interaction"
             title="Esci"
+            aria-label="Esci dall'account"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="icon-inline" />
           </button>
         </div>
 
@@ -129,14 +130,14 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200",
-                    "hover:bg-slate-50",
+                    "touch-target group flex items-center gap-3 px-3 py-2 sidebar-text font-medium rounded-lg smooth-interaction",
+                    "hover:bg-slate-50 focus:ring-2 focus:ring-slate-200 focus:outline-none",
                     isActive
                       ? 'bg-slate-100 text-slate-900'
                       : 'text-slate-600 hover:text-slate-900'
                   )}
                 >
-                  <item.icon className="w-4 h-4 text-slate-500" />
+                  <item.icon className="icon-inline text-slate-500" />
                   <div className="flex-1">
                     <div className="font-medium">{item.name}</div>
                   </div>
@@ -155,14 +156,14 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "group flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200",
-                      "hover:bg-slate-50",
+                      "touch-target group flex items-center gap-3 px-3 py-2 sidebar-text font-medium rounded-lg smooth-interaction",
+                      "hover:bg-slate-50 focus:ring-2 focus:ring-slate-200 focus:outline-none",
                       isActive
                         ? 'bg-slate-100 text-slate-900'
                         : 'text-slate-600 hover:text-slate-900'
                     )}
                   >
-                    <item.icon className="w-4 h-4 text-slate-500" />
+                    <item.icon className="icon-inline text-slate-500" />
                     <div className="flex-1">
                       <div className="font-medium">{item.name}</div>
                     </div>
@@ -179,9 +180,9 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
           {isAdmin && (
             <Link
               href="/admin"
-              className="flex items-center gap-3 px-3 py-2 mb-2 text-xs font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+              className="touch-target flex items-center gap-3 px-3 py-2 mb-2 sidebar-text font-medium text-slate-600 hover:bg-slate-50 rounded-lg smooth-interaction focus:ring-2 focus:ring-slate-200 focus:outline-none"
             >
-              <Shield className="w-4 h-4 text-slate-500" />
+              <Shield className="icon-inline text-slate-500" />
               <div className="flex-1">
                 <div className="font-medium">Admin Panel</div>
               </div>
@@ -197,14 +198,14 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200",
-                    "hover:bg-slate-50",
+                    "touch-target group flex items-center gap-3 px-3 py-2 sidebar-text font-medium rounded-lg smooth-interaction",
+                    "hover:bg-slate-50 focus:ring-2 focus:ring-slate-200 focus:outline-none",
                     isActive
                       ? 'bg-slate-100 text-slate-900'
                       : 'text-slate-600 hover:text-slate-900'
                   )}
                 >
-                  <item.icon className="w-4 h-4 text-slate-500" />
+                  <item.icon className="icon-inline text-slate-500" />
                   <div className="flex-1">
                     <div className="font-medium">{item.name}</div>
                   </div>

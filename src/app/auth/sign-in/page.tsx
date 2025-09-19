@@ -52,11 +52,7 @@ export default function SignInPage() {
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-          scopes: 'openid email profile',
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
+          scopes: 'openid email profile'
         }
       })
       

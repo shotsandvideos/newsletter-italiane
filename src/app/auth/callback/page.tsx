@@ -137,6 +137,16 @@ function AuthCallbackContent() {
           Attendere prego...
         </p>
         
+        {/* Debug info for production only */}
+        {process.env.NODE_ENV === 'production' && (
+          <div className="mt-4 p-3 bg-gray-100 rounded-lg text-xs max-w-md mx-auto">
+            <p><strong>URL:</strong> {typeof window !== 'undefined' ? window.location.href : 'Loading...'}</p>
+            <p><strong>Code:</strong> {searchParams.get('code') ? 'Present' : 'Not found'}</p>
+            <p><strong>Error:</strong> {searchParams.get('error') || 'None'}</p>
+            <p><strong>Status:</strong> {status}</p>
+          </div>
+        )}
+        
       </div>
     </div>
   )

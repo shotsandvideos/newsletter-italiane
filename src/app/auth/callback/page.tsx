@@ -7,26 +7,21 @@ import { createSupabaseClient } from '../../../lib/supabase'
 function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [status, setStatus] = useState('Processando autenticazione...')
-  const [currentUrl, setCurrentUrl] = useState('')
+  const [status, setStatus] = useState('Accesso in corso...')
 
   useEffect(() => {
-    // Set current URL for debugging (client-side only)
-    if (typeof window !== 'undefined') {
-      setCurrentUrl(window.location.href)
-    }
 
-    // Safety timeout - redirect after 10 seconds if still stuck
+    // Safety timeout - redirect after 5 seconds if still stuck (emergency fallback only)
     const safetyTimeout = setTimeout(() => {
       console.log('OAuth callback timeout - redirecting to sign-in')
       setStatus('Timeout - reindirizzamento...')
       router.push('/auth/sign-in?error=' + encodeURIComponent('Timeout durante l\'autenticazione'))
-    }, 10000)
+    }, 5000)
 
     const handleAuthCallback = async () => {
       try {
         console.log('OAuth callback started')
-        setStatus('Verificando credenziali...')
+        setStatus('Verifica in corso...')
         
         const supabase = createSupabaseClient()
         console.log('Supabase client created')
@@ -47,7 +42,7 @@ function AuthCallbackContent() {
 
         if (code) {
           console.log('Found OAuth code, exchanging for session...')
-          setStatus('Completando l\'accesso...')
+          setStatus('Quasi fatto...')
           
           // Direct exchange approach for better performance
           let data, exchangeError
@@ -76,7 +71,7 @@ function AuthCallbackContent() {
           
           if (data.session) {
             console.log('Session established successfully')
-            setStatus('Accesso completato! Reindirizzamento...')
+            setStatus('Accesso completato!')
             clearTimeout(safetyTimeout)
             
             // Immediate redirect for better performance
@@ -142,14 +137,6 @@ function AuthCallbackContent() {
           Attendere prego...
         </p>
         
-        {/* Debug info in development */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
-            <p><strong>URL:</strong> {currentUrl}</p>
-            <p><strong>Code:</strong> {searchParams.get('code') ? 'Present' : 'Not found'}</p>
-            <p><strong>Error:</strong> {searchParams.get('error') || 'None'}</p>
-          </div>
-        )}
       </div>
     </div>
   )

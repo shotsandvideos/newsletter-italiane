@@ -8,8 +8,14 @@ function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState('Processando autenticazione...')
+  const [currentUrl, setCurrentUrl] = useState('')
 
   useEffect(() => {
+    // Set current URL for debugging (client-side only)
+    if (typeof window !== 'undefined') {
+      setCurrentUrl(window.location.href)
+    }
+
     // Safety timeout - redirect after 30 seconds if still stuck
     const safetyTimeout = setTimeout(() => {
       console.log('OAuth callback timeout - redirecting to sign-in')
@@ -149,7 +155,7 @@ function AuthCallbackContent() {
         {/* Debug info in development */}
         {process.env.NODE_ENV === 'development' && (
           <div className="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
-            <p><strong>URL:</strong> {window.location.href}</p>
+            <p><strong>URL:</strong> {currentUrl}</p>
             <p><strong>Code:</strong> {searchParams.get('code') ? 'Present' : 'Not found'}</p>
             <p><strong>Error:</strong> {searchParams.get('error') || 'None'}</p>
           </div>

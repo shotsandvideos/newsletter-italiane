@@ -32,7 +32,7 @@ const navigationItems = [
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleMouseEnter = (title: string) => {
     if (hoverTimeoutRef.current) {

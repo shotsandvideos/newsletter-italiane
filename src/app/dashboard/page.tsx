@@ -56,16 +56,14 @@ export default function DashboardPage() {
   const [calendarEvents, setCalendarEvents] = useState<Array<{ title: string, date: string, time?: string }>>([])
   const [loadingEvents, setLoadingEvents] = useState(false)
 
-  console.log('Dashboard render - user:', user?.email || 'no user', 'authLoading:', authLoading, 'loading:', loading)
 
   // Redirect if not authenticated - only after loading is complete
   useEffect(() => {
     // Only redirect if we're sure auth has finished loading and there's no user
     if (authLoading === false && !user) {
-      console.log('Auth loading complete, no user found, redirecting to sign-in')
       const redirectTimer = setTimeout(() => {
         router.push('/auth/sign-in')
-      }, 1000) // Give a bit more time for auth state to settle
+      }, 1000)
       
       return () => clearTimeout(redirectTimer)
     }
@@ -255,20 +253,9 @@ export default function DashboardPage() {
     )
   }
 
-  // Debug: se ancora bianca, mostra questo
+  // Redirect if no user after auth loading is complete
   if (!user && !authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center p-8">
-          <h1 className="text-2xl font-bold mb-4 text-foreground">Debug: No user found</h1>
-          <p className="mb-2 text-muted-foreground">authLoading: {String(authLoading)}</p>
-          <p className="mb-4 text-muted-foreground">loading: {String(loading)}</p>
-          <a href="/auth/sign-in" className="bg-primary text-primary-foreground px-4 py-2 rounded">
-            Go to Sign In
-          </a>
-        </div>
-      </div>
-    )
+    return null // Will redirect via useEffect
   }
 
   return (

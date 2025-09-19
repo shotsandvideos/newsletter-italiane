@@ -41,15 +41,23 @@ function AuthCallbackContent() {
           console.log('Found OAuth code, exchanging for session...')
           setStatus('Completando l\'accesso...')
           
-          // Exchange the code for a session (try newer method first)
+          // Use getUser to handle the OAuth callback properly with PKCE
           let data, exchangeError
           try {
-            const result = await supabase.auth.exchangeCodeForSession(code)
-            data = result.data
+            // First, let Supabase handle the OAuth callback
+            const result = await supabase.auth.getUser()
+            data = { session: result.data }
             exchangeError = result.error
+            
+            if (!result.data.user) {
+              // If no user found, try exchangeCodeForSession
+              const sessionResult = await supabase.auth.exchangeCodeForSession(code)
+              data = sessionResult.data
+              exchangeError = sessionResult.error
+            }
           } catch (methodError: any) {
-            console.log('exchangeCodeForSession not available, trying alternative...')
-            // Fallback for older Supabase versions
+            console.log('Trying getSession as fallback...')
+            // Final fallback
             const result = await supabase.auth.getSession()
             data = result.data
             exchangeError = result.error

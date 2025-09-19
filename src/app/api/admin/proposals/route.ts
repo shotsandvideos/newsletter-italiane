@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
     const supabase = createSupabaseServiceClient()
     
-    // Get all proposals with their newsletter relationships
+    // Get all proposals with their newsletter relationships and author profiles
     const { data: proposals, error } = await supabase
       .from('proposals')
       .select(`

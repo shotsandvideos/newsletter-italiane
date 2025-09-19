@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
@@ -12,7 +13,6 @@ import {
   HelpCircle,
   X,
   LogOut,
-  Inbox,
   Shield,
   CheckCircle,
   BarChart3,
@@ -28,7 +28,6 @@ interface SidebarProps {
 
 const navigation = [
   { name: 'Home', href: '/dashboard', icon: Home },
-  { name: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
   { name: 'Newsletter', href: '/dashboard/newsletters', icon: Mail },
   { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   { name: 'Marketplace', href: '/dashboard/marketplace', icon: ShoppingBag },
@@ -48,12 +47,21 @@ const bottomNavigation = [
 export default function Sidebar({ isMobileOpen = false, onMobileClose }: SidebarProps) {
   const pathname = usePathname()
   const { user, profile, signOut } = useAuth()
+  const [isSigningOut, setIsSigningOut] = useState(false)
   
   // Check if user is admin
   const isAdmin = profile?.role === 'admin'
   
   const handleSignOut = async () => {
-    await signOut()
+    try {
+      setIsSigningOut(true)
+      console.log('Starting logout process...')
+      await signOut()
+      console.log('Logout completed')
+    } catch (error) {
+      console.error('Logout error:', error)
+      setIsSigningOut(false)
+    }
   }
 
   return (
@@ -111,11 +119,16 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
           </div>
           <button
             onClick={handleSignOut}
-            className="touch-target p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg smooth-interaction"
-            title="Esci"
-            aria-label="Esci dall'account"
+            disabled={isSigningOut}
+            className="touch-target p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg smooth-interaction disabled:opacity-50 disabled:cursor-not-allowed"
+            title={isSigningOut ? "Disconnessione..." : "Esci"}
+            aria-label={isSigningOut ? "Disconnessione in corso..." : "Esci dall'account"}
           >
-            <LogOut className="icon-inline" />
+            {isSigningOut ? (
+              <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <LogOut className="icon-inline" />
+            )}
           </button>
         </div>
 

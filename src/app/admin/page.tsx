@@ -39,32 +39,41 @@ export default function AdminDashboard() {
     try {
       console.log('Fetching all newsletters for admin...')
       
-      const response = await fetch('/api/newsletters-all')
+      const response = await fetch('/api/newsletters-all', {
+        headers: {
+          'x-admin-auth': 'admin-panel'
+        }
+      })
       
       if (response.ok) {
         const data = await response.json()
         console.log('All newsletters response:', data)
         
         if (data.success && data.data) {
-          // Filter pending newsletters
-          const pending = data.data.filter((n: any) => n.status === 'pending')
-          const approved = data.data.filter((n: any) => n.status === 'approved')
+          // Filter newsletters by review_status (not status)
+          const pending = data.data.filter((n: any) => n.review_status === 'pending')
+          const approved = data.data.filter((n: any) => n.review_status === 'approved')
+          const inReview = data.data.filter((n: any) => n.review_status === 'in_review')
+          
+          // Count unique authors who have at least one approved newsletter (active authors)
+          const activeAuthorIds = new Set(approved.map((n: any) => n.user_id))
+          const activeAuthors = activeAuthorIds.size
           
           setPendingNewsletters(pending)
           setStats(prev => ({
             ...prev,
-            pendingProposals: pending.length,
+            pendingProposals: inReview.length,
             activeNewsletters: approved.length,
-            activeAuthors: new Set(approved.map((n: any) => n.user_id)).size
+            activeAuthors: activeAuthors
           }))
           
-          console.log(`Found ${pending.length} pending newsletters out of ${data.data.length} total`)
+          console.log(`Found: ${approved.length} approved, ${inReview.length} in review, ${activeAuthors} active authors`)
         }
       } else {
         console.log('Failed to fetch newsletters:', response.status)
       }
     } catch (error) {
-      console.error('Error fetching pending newsletters:', error)
+      console.error('Error fetching newsletters:', error)
     }
   }
 
@@ -246,15 +255,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button 
-                onClick={() => {
-                  localStorage.removeItem('adminSession')
-                  router.push('/admin/login')
-                }}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors"
-              >
-                Esci
-              </button>
+              {/* Pulsante Esci rimosso */}
             </div>
           </div>
         </header>

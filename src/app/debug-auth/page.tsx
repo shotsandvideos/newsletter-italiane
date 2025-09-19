@@ -6,8 +6,8 @@ import { useAuth } from '../../hooks/useAuth'
 
 export default function DebugAuthPage() {
   const [status, setStatus] = useState<any>({})
-  const [email, setEmail] = useState('demo@frames.it')
-  const [password, setPassword] = useState('Demo123456!')
+  const [email, setEmail] = useState('ciao@letmetell.it')
+  const [password, setPassword] = useState('')
   const { user, profile, session, loading: authLoading } = useAuth()
   const supabase = createSupabaseClient()
 
@@ -30,6 +30,36 @@ export default function DebugAuthPage() {
     } catch (e: any) {
       console.error('❌ Supabase error:', e.message)
       checks['supabase_error'] = e.message
+    }
+
+    // Check specific user profile in database
+    try {
+      console.log('👤 Checking ciao@letmetell.it profile...')
+      const { data: profileByEmail, error: profileEmailError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', 'ciao@letmetell.it')
+        .single()
+      
+      const { data: profileById, error: profileIdError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', '75d93b50-c2db-4302-8672-e6126616df71')
+        .single()
+      
+      checks['profile_by_email'] = profileByEmail ? 'Found' : 'None'
+      checks['profile_by_id'] = profileById ? 'Found' : 'None'
+      checks['profile_email_error'] = profileEmailError?.message || 'None'
+      checks['profile_id_error'] = profileIdError?.message || 'None'
+      
+      if (profileByEmail) {
+        checks['profile_data_email'] = profileByEmail.email
+        checks['profile_data_role'] = profileByEmail.role
+        checks['profile_data_active'] = profileByEmail.is_active
+      }
+    } catch (e: any) {
+      console.error('❌ Profile check error:', e.message)
+      checks['profile_check_error'] = e.message
     }
 
     // Check auth hook

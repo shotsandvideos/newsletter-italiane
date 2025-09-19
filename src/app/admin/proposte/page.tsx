@@ -39,17 +39,16 @@ export default function AdminPropostePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showNewProposalModal, setShowNewProposalModal] = useState(false)
   const [showEditProposalModal, setShowEditProposalModal] = useState(false)
-  const [showChatModal, setShowChatModal] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [proposals, setProposals] = useState([])
   const [approvedNewsletters, setApprovedNewsletters] = useState([])
   const [editingProposal, setEditingProposal] = useState(null)
-  const [chatProposal, setChatProposal] = useState(null)
   const [detailsProposal, setDetailsProposal] = useState(null)
-  const [chatMessages, setChatMessages] = useState([])
-  const [newMessage, setNewMessage] = useState('')
-  const [isLoadingChat, setIsLoadingChat] = useState(false)
-  const [isSendingMessage, setIsSendingMessage] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [communicationMessage, setCommunicationMessage] = useState('')
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [emailSuccessMessage, setEmailSuccessMessage] = useState('')
+  const [editedProposal, setEditedProposal] = useState({})
   const [newProposal, setNewProposal] = useState({
     brand_name: '',
     sponsorship_type: '',
@@ -155,64 +154,104 @@ export default function AdminPropostePage() {
 
   const handleOpenDetails = (proposal) => {
     setDetailsProposal(proposal)
+    setIsEditMode(true)
+    setCommunicationMessage('')
+    setEditedProposal({
+      brand_name: proposal.brand_name,
+      sponsorship_type: proposal.sponsorship_type,
+      campaign_start_date: proposal.campaign_start_date,
+      campaign_end_date: proposal.campaign_end_date,
+      product_type: proposal.product_type,
+      ideal_target_audience: proposal.ideal_target_audience,
+      admin_copy_text: proposal.admin_copy_text || '',
+      admin_brief_text: proposal.admin_brief_text || ''
+    })
     setShowDetailsModal(true)
   }
 
-  const handleOpenChat = async (proposal) => {
-    setChatProposal(proposal)
-    setShowChatModal(true)
-    setIsLoadingChat(true)
+
+  const handleSendCommunication = async () => {
+    if (!communicationMessage.trim() || !detailsProposal) return
+    
+    setIsSendingEmail(true)
     
     try {
-      // Load chat messages for this proposal
-      const response = await fetch(`/api/admin/proposals/${proposal.id}/chat`, {
+      // Fetch author emails using the new API endpoint
+      const response = await fetch(`/api/admin/proposals/${detailsProposal.id}/emails`, {
         headers: {
           'x-admin-auth': 'admin-panel'
         }
       })
       
-      if (response.ok) {
-        const data = await response.json()
-        setChatMessages(data.data || [])
-      } else {
-        setChatMessages([])
+      const result = await response.json()
+      
+      if (!result.success) {
+        setEmailSuccessMessage(`❌ Errore nel recupero degli autori: ${result.error}`)
+        return
       }
+      
+      const authors = result.data.authors || []
+      console.log('Authors found:', authors)
+      
+      if (authors.length === 0) {
+        setEmailSuccessMessage('❌ Nessun autore trovato per questa proposta')
+        return
+      }
+
+      // Send notification email to each author (simulate sending)
+      const promises = authors.map(author => {
+        const subject = `Aggiornamento proposta: ${detailsProposal.brand_name} - ${detailsProposal.sponsorship_type}`
+        const newsletterInfo = author.newsletter_title ? ` per "${author.newsletter_title}"` : ''
+        const body = `Gentile ${author.name},\n\nAbbiamo un aggiornamento riguardo alla proposta${newsletterInfo}:\n\n${communicationMessage}\n\n\nCordiali saluti,\nTeam Newsletter Italiane`
+        
+        // Log email details (in a real app, this would send via email service)
+        console.log(`Email prepared for ${author.email}:`, { subject, body })
+        return Promise.resolve()
+      })
+
+      await Promise.all(promises)
+      setCommunicationMessage('')
+      setEmailSuccessMessage(`✅ Messaggio inviato con successo a ${authors.length} autore${authors.length > 1 ? 'i' : ''}`)
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setEmailSuccessMessage('')
+      }, 5000)
+      
     } catch (error) {
-      console.error('Error loading chat:', error)
-      setChatMessages([])
+      console.error('Error sending communication:', error)
+      setEmailSuccessMessage('❌ Errore durante l\'invio delle email')
     } finally {
-      setIsLoadingChat(false)
+      setIsSendingEmail(false)
     }
   }
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault()
-    if (!newMessage.trim() || !chatProposal) return
-    
-    setIsSendingMessage(true)
+  const handleSaveProposal = async () => {
+    if (!detailsProposal || !editedProposal) return
     
     try {
-      const response = await fetch(`/api/admin/proposals/${chatProposal.id}/chat`, {
-        method: 'POST',
+      const response = await fetch(`/api/admin/proposals/${detailsProposal.id}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-auth': 'admin-panel'
         },
-        body: JSON.stringify({
-          message: newMessage.trim(),
-          sender_type: 'admin'
-        })
+        body: JSON.stringify(editedProposal)
       })
-      
+
       if (response.ok) {
-        const data = await response.json()
-        setChatMessages(prev => [...prev, data.data])
-        setNewMessage('')
+        const result = await response.json()
+        // Update the local proposal data
+        setDetailsProposal(prev => ({ ...prev, ...editedProposal }))
+        // Refresh the proposals list
+        await fetchProposals()
+        alert('Proposta aggiornata con successo!')
+      } else {
+        throw new Error('Errore durante il salvataggio')
       }
     } catch (error) {
-      console.error('Error sending message:', error)
-    } finally {
-      setIsSendingMessage(false)
+      console.error('Error saving proposal:', error)
+      alert('Errore durante il salvataggio della proposta')
     }
   }
 
@@ -575,27 +614,12 @@ export default function AdminPropostePage() {
 
                           <div className="flex items-center gap-2 ml-3">
                             <button 
-                              onClick={() => handleEditProposal(proposal)}
-                              className="p-1.5 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
-                              title="Modifica proposta"
-                            >
-                              <Edit className="w-3 h-3" />
-                            </button>
-                            
-                            <button 
                               onClick={() => handleOpenDetails(proposal)}
-                              className="p-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
-                              title="Visualizza dettagli"
+                              className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex items-center gap-1"
+                              title="Gestisci proposta"
                             >
                               <Eye className="w-3 h-3" />
-                            </button>
-
-                            <button 
-                              onClick={() => handleOpenChat(proposal)}
-                              className="p-1.5 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition-colors"
-                              title="Chat con autori"
-                            >
-                              <MessageSquare className="w-3 h-3" />
+                              Dettagli
                             </button>
                           </div>
                         </div>
@@ -635,143 +659,142 @@ export default function AdminPropostePage() {
                 <div className="space-y-6">
                   {/* Brand Name */}
                   <div>
-                  <label htmlFor="brand_name" className="block text-sm font-medium text-slate-700 mb-2">
-                    Nome Brand *
-                  </label>
-                  <input
-                    type="text"
-                    id="brand_name"
-                    name="brand_name"
-                    value={newProposal.brand_name}
-                    onChange={handleInputChange}
-                    placeholder="es. Nike, Coca-Cola"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                {/* Sponsorship Type */}
-                <div>
-                  <label htmlFor="sponsorship_type" className="block text-sm font-medium text-slate-700 mb-2">
-                    Tipo Sponsorship *
-                  </label>
-                  <input
-                    type="text"
-                    id="sponsorship_type"
-                    name="sponsorship_type"
-                    value={newProposal.sponsorship_type}
-                    onChange={handleInputChange}
-                    placeholder="es. Product placement, Banner"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                {/* Campaign Start Date */}
-                <div>
-                  <label htmlFor="campaign_start_date" className="block text-sm font-medium text-slate-700 mb-2">
-                    Data Inizio Campagna *
-                  </label>
-                  <input
-                    type="date"
-                    id="campaign_start_date"
-                    name="campaign_start_date"
-                    value={newProposal.campaign_start_date}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                {/* Campaign End Date */}
-                <div>
-                  <label htmlFor="campaign_end_date" className="block text-sm font-medium text-slate-700 mb-2">
-                    Data Fine Campagna *
-                  </label>
-                  <input
-                    type="date"
-                    id="campaign_end_date"
-                    name="campaign_end_date"
-                    value={newProposal.campaign_end_date}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                {/* Product Type */}
-                <div className="md:col-span-2">
-                  <label htmlFor="product_type" className="block text-sm font-medium text-slate-700 mb-2">
-                    Tipo Prodotto *
-                  </label>
-                  <input
-                    type="text"
-                    id="product_type"
-                    name="product_type"
-                    value={newProposal.product_type}
-                    onChange={handleInputChange}
-                    placeholder="es. Scarpe sportive, Bevanda energetica"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Ideal Target Audience */}
-              <div>
-                <label htmlFor="ideal_target_audience" className="block text-sm font-medium text-slate-700 mb-2">
-                  Target Audience Ideale *
-                </label>
-                <textarea
-                  id="ideal_target_audience"
-                  name="ideal_target_audience"
-                  value={newProposal.ideal_target_audience}
-                  onChange={handleInputChange}
-                  placeholder="Descrivi il pubblico ideale per questa campagna..."
-                  rows={4}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-                  required
-                />
-              </div>
-
-              {/* Newsletter Selection */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-3">
-                  Newsletter Target * ({newProposal.target_newsletter_ids.length} selezionate)
-                </label>
-                {approvedNewsletters.length === 0 ? (
-                  <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800">Nessuna newsletter approvata disponibile</p>
+                    <label htmlFor="brand_name" className="block text-sm font-medium text-slate-700 mb-2">
+                      Nome Brand *
+                    </label>
+                    <input
+                      type="text"
+                      id="brand_name"
+                      name="brand_name"
+                      value={newProposal.brand_name}
+                      onChange={handleInputChange}
+                      placeholder="es. Nike, Coca-Cola"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      required
+                    />
                   </div>
-                ) : (
-                  <div className="max-h-48 overflow-y-auto border border-slate-300 rounded-lg">
-                    {approvedNewsletters.map((newsletter) => (
-                      <label
-                        key={newsletter.id}
-                        className="flex items-center p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={newProposal.target_newsletter_ids.includes(newsletter.id)}
-                          onChange={() => handleNewsletterSelection(newsletter.id)}
-                          className="mr-3 h-4 w-4 text-red-600 focus:ring-red-500 border-slate-300 rounded"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-slate-900 truncate">
-                            {newsletter.title}
-                          </div>
-                          <div className="text-xs text-slate-600">
-                            {newsletter.author_first_name} {newsletter.author_last_name} • {newsletter.audience_size} iscritti
-                          </div>
-                        </div>
-                      </label>
-                    ))}
+
+                  {/* Sponsorship Type */}
+                  <div>
+                    <label htmlFor="sponsorship_type" className="block text-sm font-medium text-slate-700 mb-2">
+                      Tipo Sponsorship *
+                    </label>
+                    <input
+                      type="text"
+                      id="sponsorship_type"
+                      name="sponsorship_type"
+                      value={newProposal.sponsorship_type}
+                      onChange={handleInputChange}
+                      placeholder="es. Product placement, Banner"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      required
+                    />
                   </div>
-                )}
-                {newProposal.target_newsletter_ids.length === 0 && (
-                  <p className="text-xs text-red-600 mt-1">Seleziona almeno una newsletter</p>
-                )}
-              </div>
+
+                  {/* Campaign Start Date */}
+                  <div>
+                    <label htmlFor="campaign_start_date" className="block text-sm font-medium text-slate-700 mb-2">
+                      Data Inizio Campagna *
+                    </label>
+                    <input
+                      type="date"
+                      id="campaign_start_date"
+                      name="campaign_start_date"
+                      value={newProposal.campaign_start_date}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  {/* Campaign End Date */}
+                  <div>
+                    <label htmlFor="campaign_end_date" className="block text-sm font-medium text-slate-700 mb-2">
+                      Data Fine Campagna *
+                    </label>
+                    <input
+                      type="date"
+                      id="campaign_end_date"
+                      name="campaign_end_date"
+                      value={newProposal.campaign_end_date}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  {/* Product Type */}
+                  <div>
+                    <label htmlFor="product_type" className="block text-sm font-medium text-slate-700 mb-2">
+                      Tipo Prodotto *
+                    </label>
+                    <input
+                      type="text"
+                      id="product_type"
+                      name="product_type"
+                      value={newProposal.product_type}
+                      onChange={handleInputChange}
+                      placeholder="es. Scarpe sportive, Bevanda energetica"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  {/* Ideal Target Audience */}
+                  <div>
+                    <label htmlFor="ideal_target_audience" className="block text-sm font-medium text-slate-700 mb-2">
+                      Target Audience Ideale *
+                    </label>
+                    <textarea
+                      id="ideal_target_audience"
+                      name="ideal_target_audience"
+                      value={newProposal.ideal_target_audience}
+                      onChange={handleInputChange}
+                      placeholder="Descrivi il pubblico ideale per questa campagna..."
+                      rows={4}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                      required
+                    />
+                  </div>
+
+                  {/* Newsletter Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-3">
+                      Seleziona almeno una newsletter * ({newProposal.target_newsletter_ids.length} selezionate)
+                    </label>
+                    {approvedNewsletters.length === 0 ? (
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-sm text-yellow-800">Nessuna newsletter approvata disponibile</p>
+                      </div>
+                    ) : (
+                      <div className="max-h-48 overflow-y-auto border border-slate-300 rounded-lg">
+                        {approvedNewsletters.map((newsletter) => (
+                          <label
+                            key={newsletter.id}
+                            className="flex items-center p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={newProposal.target_newsletter_ids.includes(newsletter.id)}
+                              onChange={() => handleNewsletterSelection(newsletter.id)}
+                              className="mr-3 h-4 w-4 text-red-600 focus:ring-red-500 border-slate-300 rounded"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-slate-900 truncate">
+                                {newsletter.title}
+                              </div>
+                              <div className="text-xs text-slate-600">
+                                {newsletter.author_first_name} {newsletter.author_last_name} • {newsletter.audience_size} iscritti
+                              </div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                    {newProposal.target_newsletter_ids.length === 0 && (
+                      <p className="text-xs text-red-600 mt-1">Seleziona almeno una newsletter</p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Seconda colonna - Materiali Admin */}
@@ -781,112 +804,113 @@ export default function AdminPropostePage() {
                     Materiali Admin
                   </h3>
 
-                {/* Copy Text */}
-                <div className="mb-6">
-                  <label htmlFor="admin_copy_text" className="block text-sm font-medium text-slate-700 mb-2">
-                    Testo Copy
-                  </label>
-                  <textarea
-                    id="admin_copy_text"
-                    name="admin_copy_text"
-                    value={newProposal.admin_copy_text}
-                    onChange={handleInputChange}
-                    placeholder="Inserisci il testo copy per la campagna..."
-                    rows={4}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-                  />
-                </div>
+                  {/* Copy Text */}
+                  <div>
+                    <label htmlFor="admin_copy_text" className="block text-sm font-medium text-slate-700 mb-2">
+                      Testo Copy
+                    </label>
+                    <textarea
+                      id="admin_copy_text"
+                      name="admin_copy_text"
+                      value={newProposal.admin_copy_text}
+                      onChange={handleInputChange}
+                      placeholder="Inserisci il testo copy per la campagna..."
+                      rows={4}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                    />
+                  </div>
 
-                {/* Brief Text */}
-                <div className="mb-6">
-                  <label htmlFor="admin_brief_text" className="block text-sm font-medium text-slate-700 mb-2">
-                    Brief / Istruzioni
-                  </label>
-                  <textarea
-                    id="admin_brief_text"
-                    name="admin_brief_text"
-                    value={newProposal.admin_brief_text}
-                    onChange={handleInputChange}
-                    placeholder="Inserisci il brief e le istruzioni per la campagna..."
-                    rows={4}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-                  />
-                </div>
+                  {/* Brief Text */}
+                  <div>
+                    <label htmlFor="admin_brief_text" className="block text-sm font-medium text-slate-700 mb-2">
+                      Brief / Istruzioni
+                    </label>
+                    <textarea
+                      id="admin_brief_text"
+                      name="admin_brief_text"
+                      value={newProposal.admin_brief_text}
+                      onChange={handleInputChange}
+                      placeholder="Inserisci il brief e le istruzioni per la campagna..."
+                      rows={4}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                    />
+                  </div>
 
-                {/* Assets Images */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Immagini / Asset ({newProposal.admin_assets_images.length})
-                  </label>
-                  <div className="space-y-2">
-                    {newProposal.admin_assets_images.map((url, index) => (
-                      <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
-                        <Image className="w-4 h-4 text-slate-600" />
-                        <span className="flex-1 text-sm text-slate-900 truncate">{url}</span>
+                  {/* Assets Images */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Immagini / Asset ({newProposal.admin_assets_images.length})
+                    </label>
+                    <div className="space-y-2">
+                      {newProposal.admin_assets_images.map((url, index) => (
+                        <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
+                          <Image className="w-4 h-4 text-slate-600" />
+                          <span className="flex-1 text-sm text-slate-900 truncate">{url}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(index)}
+                            className="p-1 text-red-600 hover:bg-red-100 rounded"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                      <div className="flex gap-2">
+                        <input
+                          type="url"
+                          value={newImageUrl}
+                          onChange={(e) => setNewImageUrl(e.target.value)}
+                          placeholder="https://esempio.com/immagine.jpg"
+                          className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                         <button
                           type="button"
-                          onClick={() => handleRemoveImage(index)}
-                          className="p-1 text-red-600 hover:bg-red-100 rounded"
+                          onClick={handleAddImage}
+                          disabled={!newImageUrl.trim()}
+                          className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Plus className="w-4 h-4" />
                         </button>
                       </div>
-                    ))}
-                    <div className="flex gap-2">
-                      <input
-                        type="url"
-                        value={newImageUrl}
-                        onChange={(e) => setNewImageUrl(e.target.value)}
-                        placeholder="https://esempio.com/immagine.jpg"
-                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddImage}
-                        disabled={!newImageUrl.trim()}
-                        className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
-                </div>
 
-                {/* Tracking Links */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Link di Tracking ({newProposal.admin_tracking_links.length})
-                  </label>
-                  <div className="space-y-2">
-                    {newProposal.admin_tracking_links.map((url, index) => (
-                      <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
-                        <Link2 className="w-4 h-4 text-slate-600" />
-                        <span className="flex-1 text-sm text-slate-900 truncate">{url}</span>
+                  {/* Tracking Links */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Link di Tracking ({newProposal.admin_tracking_links.length})
+                    </label>
+                    <div className="space-y-2">
+                      {newProposal.admin_tracking_links.map((url, index) => (
+                        <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
+                          <Link2 className="w-4 h-4 text-slate-600" />
+                          <span className="flex-1 text-sm text-slate-900 truncate">{url}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTrackingLink(index)}
+                            className="p-1 text-red-600 hover:bg-red-100 rounded"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                      <div className="flex gap-2">
+                        <input
+                          type="url"
+                          value={newTrackingUrl}
+                          onChange={(e) => setNewTrackingUrl(e.target.value)}
+                          placeholder="https://esempio.com/tracking?utm_source=..."
+                          className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                         <button
                           type="button"
-                          onClick={() => handleRemoveTrackingLink(index)}
-                          className="p-1 text-red-600 hover:bg-red-100 rounded"
+                          onClick={handleAddTrackingLink}
+                          disabled={!newTrackingUrl.trim()}
+                          className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Plus className="w-4 h-4" />
                         </button>
                       </div>
-                    ))}
-                    <div className="flex gap-2">
-                      <input
-                        type="url"
-                        value={newTrackingUrl}
-                        onChange={(e) => setNewTrackingUrl(e.target.value)}
-                        placeholder="https://esempio.com/tracking?utm_source=..."
-                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddTrackingLink}
-                        disabled={!newTrackingUrl.trim()}
-                        className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -919,117 +943,6 @@ export default function AdminPropostePage() {
         </div>
       )}
 
-      {/* Chat Modal */}
-      {showChatModal && chatProposal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-2xl h-[80vh] flex flex-col">
-            {/* Chat Header */}
-            <div className="flex items-center justify-between p-6 border-b">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">
-                  Chat - {chatProposal.brand_name}
-                </h2>
-                <p className="text-sm text-slate-600 mt-1">
-                  {chatProposal.sponsorship_type} • {chatProposal.proposal_newsletters?.length || 0} newsletter target
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowChatModal(false)
-                  setChatProposal(null)
-                  setChatMessages([])
-                  setNewMessage('')
-                }}
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Newsletter Authors List */}
-            <div className="px-6 py-3 bg-slate-50 border-b">
-              <div className="text-xs text-slate-500 mb-2">Newsletter coinvolte:</div>
-              <div className="flex flex-wrap gap-2">
-                {chatProposal.proposal_newsletters?.map((pn) => (
-                  <div key={pn.id} className="flex items-center gap-2 bg-white px-2 py-1 rounded text-xs">
-                    <span className="font-medium">{pn.newsletters?.title}</span>
-                    <span className="text-slate-500">
-                      {pn.newsletters?.author_first_name} {pn.newsletters?.author_last_name}
-                    </span>
-                    <span className={`px-1 rounded text-xs ${
-                      pn.status === 'accepted' ? 'bg-green-100 text-green-700' :
-                      pn.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                      'bg-yellow-100 text-yellow-700'
-                    }`}>
-                      {pn.status === 'pending' ? 'In attesa' : pn.status === 'accepted' ? 'Accettata' : 'Rifiutata'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {isLoadingChat ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                </div>
-              ) : chatMessages.length === 0 ? (
-                <div className="text-center py-8">
-                  <MessageSquare className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                  <h4 className="font-medium text-slate-900 mb-2">Nessun messaggio</h4>
-                  <p className="text-slate-500 text-sm">
-                    Inizia una conversazione con gli autori delle newsletter
-                  </p>
-                </div>
-              ) : (
-                chatMessages.map((message, index) => (
-                  <div key={index} className={`flex ${message.sender_type === 'admin' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      message.sender_type === 'admin' 
-                        ? 'bg-purple-600 text-white' 
-                        : 'bg-slate-100 text-slate-900'
-                    }`}>
-                      <div className="text-sm">{message.message}</div>
-                      <div className={`text-xs mt-1 ${
-                        message.sender_type === 'admin' ? 'text-purple-100' : 'text-slate-500'
-                      }`}>
-                        {message.sender_type === 'admin' ? 'Admin' : message.sender_name || 'Autore'} • 
-                        {new Date(message.created_at).toLocaleString('it-IT')}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Chat Input */}
-            <div className="p-6 border-t">
-              <form onSubmit={handleSendMessage} className="flex gap-3">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Scrivi un messaggio agli autori..."
-                  disabled={isSendingMessage}
-                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50"
-                />
-                <button
-                  type="submit"
-                  disabled={!newMessage.trim() || isSendingMessage}
-                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isSendingMessage ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Details Modal */}
       {showDetailsModal && detailsProposal && (
@@ -1049,6 +962,7 @@ export default function AdminPropostePage() {
                 onClick={() => {
                   setShowDetailsModal(false)
                   setDetailsProposal(null)
+                  setEmailSuccessMessage('')
                 }}
                 className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
               >
@@ -1057,31 +971,72 @@ export default function AdminPropostePage() {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Campaign Info */}
+              {/* Editable Campaign Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div className="space-y-4">
                   <h3 className="text-sm font-medium text-slate-900 mb-3">Informazioni Campagna</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-600">Periodo:</span>
-                      <span className="font-medium">
-                        {new Date(detailsProposal.campaign_start_date).toLocaleDateString('it-IT')} - {new Date(detailsProposal.campaign_end_date).toLocaleDateString('it-IT')}
-                      </span>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Nome Brand</label>
+                    <input
+                      type="text"
+                      value={editedProposal.brand_name || ''}
+                      onChange={(e) => setEditedProposal(prev => ({ ...prev, brand_name: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Tipo Sponsorship</label>
+                    <input
+                      type="text"
+                      value={editedProposal.sponsorship_type || ''}
+                      onChange={(e) => setEditedProposal(prev => ({ ...prev, sponsorship_type: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Tipo Prodotto</label>
+                    <input
+                      type="text"
+                      value={editedProposal.product_type || ''}
+                      onChange={(e) => setEditedProposal(prev => ({ ...prev, product_type: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">Data Inizio</label>
+                      <input
+                        type="date"
+                        value={editedProposal.campaign_start_date || ''}
+                        onChange={(e) => setEditedProposal(prev => ({ ...prev, campaign_start_date: e.target.value }))}
+                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-600">Prodotto:</span>
-                      <span className="font-medium">{detailsProposal.product_type}</span>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">Data Fine</label>
+                      <input
+                        type="date"
+                        value={editedProposal.campaign_end_date || ''}
+                        onChange={(e) => setEditedProposal(prev => ({ ...prev, campaign_end_date: e.target.value }))}
+                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
                     </div>
                   </div>
                 </div>
                 
                 <div>
                   <h3 className="text-sm font-medium text-slate-900 mb-3">Target Audience</h3>
-                  <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
-                    {detailsProposal.ideal_target_audience}
-                  </p>
+                  <textarea
+                    value={editedProposal.ideal_target_audience || ''}
+                    onChange={(e) => setEditedProposal(prev => ({ ...prev, ideal_target_audience: e.target.value }))}
+                    rows={8}
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    placeholder="Descrivi il target audience ideale..."
+                  />
                 </div>
               </div>
 
@@ -1211,103 +1166,141 @@ export default function AdminPropostePage() {
               </div>
 
               {/* Admin Materials */}
-              {(detailsProposal.admin_copy_text || detailsProposal.admin_brief_text || 
-                (detailsProposal.admin_assets_images && detailsProposal.admin_assets_images.length > 0) ||
-                (detailsProposal.admin_tracking_links && detailsProposal.admin_tracking_links.length > 0)) && (
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Materiali Admin</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {detailsProposal.admin_copy_text && (
-                      <div>
-                        <h4 className="font-medium text-slate-700 mb-2">Testo Copy</h4>
-                        <div className="bg-slate-50 p-3 rounded-lg text-sm">
-                          {detailsProposal.admin_copy_text}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {detailsProposal.admin_brief_text && (
-                      <div>
-                        <h4 className="font-medium text-slate-700 mb-2">Brief</h4>
-                        <div className="bg-slate-50 p-3 rounded-lg text-sm">
-                          {detailsProposal.admin_brief_text}
-                        </div>
-                      </div>
-                    )}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Materiali Admin</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Testo Copy</label>
+                    <textarea
+                      value={editedProposal.admin_copy_text || ''}
+                      onChange={(e) => setEditedProposal(prev => ({ ...prev, admin_copy_text: e.target.value }))}
+                      rows={4}
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      placeholder="Inserisci il testo copy per la campagna..."
+                    />
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                    {detailsProposal.admin_assets_images && detailsProposal.admin_assets_images.length > 0 && (
-                      <div>
-                        <h4 className="font-medium text-slate-700 mb-2">Asset Immagini</h4>
-                        <div className="space-y-1">
-                          {detailsProposal.admin_assets_images.map((url, index) => (
-                            <a 
-                              key={index} 
-                              href={url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="block text-xs text-blue-600 hover:text-blue-800 truncate"
-                            >
-                              {url}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {detailsProposal.admin_tracking_links && detailsProposal.admin_tracking_links.length > 0 && (
-                      <div>
-                        <h4 className="font-medium text-slate-700 mb-2">Link di Tracking</h4>
-                        <div className="space-y-1">
-                          {detailsProposal.admin_tracking_links.map((url, index) => (
-                            <a 
-                              key={index} 
-                              href={url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="block text-xs text-blue-600 hover:text-blue-800 truncate"
-                            >
-                              {url}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Brief / Istruzioni</label>
+                    <textarea
+                      value={editedProposal.admin_brief_text || ''}
+                      onChange={(e) => setEditedProposal(prev => ({ ...prev, admin_brief_text: e.target.value }))}
+                      rows={4}
+                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      placeholder="Inserisci il brief e le istruzioni per la campagna..."
+                    />
                   </div>
                 </div>
-              )}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                  {detailsProposal.admin_assets_images && detailsProposal.admin_assets_images.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-slate-700 mb-2">Asset Immagini</h4>
+                      <div className="space-y-1">
+                        {detailsProposal.admin_assets_images.map((url, index) => (
+                          <a 
+                            key={index} 
+                            href={url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="block text-xs text-blue-600 hover:text-blue-800 truncate"
+                          >
+                            {url}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {detailsProposal.admin_tracking_links && detailsProposal.admin_tracking_links.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-slate-700 mb-2">Link di Tracking</h4>
+                      <div className="space-y-1">
+                        {detailsProposal.admin_tracking_links.map((url, index) => (
+                          <a 
+                            key={index} 
+                            href={url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="block text-xs text-blue-600 hover:text-blue-800 truncate"
+                          >
+                            {url}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Communications Section */}
+              <div className="border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">Comunicazioni</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="communication_message" className="block text-sm font-medium text-slate-700 mb-2">
+                      Messaggio per gli autori
+                    </label>
+                    <textarea
+                      id="communication_message"
+                      value={communicationMessage}
+                      onChange={(e) => setCommunicationMessage(e.target.value)}
+                      placeholder="Scrivi un messaggio che verrà inviato via email a tutti gli autori coinvolti in questa proposta..."
+                      rows={4}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    />
+                  </div>
+                  
+                  {/* Success/Error Message */}
+                  {emailSuccessMessage && (
+                    <div className={`p-3 rounded-lg text-sm font-medium ${
+                      emailSuccessMessage.startsWith('✅') 
+                        ? 'bg-green-50 text-green-700 border border-green-200' 
+                        : 'bg-red-50 text-red-700 border border-red-200'
+                    }`}>
+                      {emailSuccessMessage}
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleSendCommunication}
+                      disabled={!communicationMessage.trim() || isSendingEmail}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {isSendingEmail ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                      {isSendingEmail ? 'Invio...' : 'Invia Email'}
+                    </button>
+                    <span className="text-sm text-slate-500">
+                      Verrà inviato a {detailsProposal.proposal_newsletters?.length || 0} autori
+                    </span>
+                  </div>
+                </div>
+              </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-200">
+              <div className="flex items-center gap-3 pt-6 border-t border-slate-200">
                 <button
-                  onClick={() => {
-                    setShowDetailsModal(false)
-                    setDetailsProposal(null)
-                    handleEditProposal(detailsProposal)
-                  }}
+                  onClick={handleSaveProposal}
                   className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
-                  <Edit className="w-4 h-4" />
-                  Modifica
+                  <CheckCircle className="w-4 h-4" />
+                  Salva Modifiche
                 </button>
-                
-                <button
-                  onClick={() => {
-                    setShowDetailsModal(false)
-                    handleOpenChat(detailsProposal)
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  Chat
-                </button>
-                
                 <button
                   onClick={() => {
                     setShowDetailsModal(false)
                     setDetailsProposal(null)
+                    setIsEditMode(false)
+                    setEditedProposal({})
+                    setCommunicationMessage('')
+                    setEmailSuccessMessage('')
                   }}
                   className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
                 >

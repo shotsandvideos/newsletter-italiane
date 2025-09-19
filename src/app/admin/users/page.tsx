@@ -7,11 +7,9 @@ import {
   Search,
   Menu,
   Mail,
-  MessageCircle,
-  Send,
+  Eye,
   X,
-  AlertCircle,
-  CheckCircle
+  ExternalLink
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
 
@@ -24,17 +22,21 @@ interface Author {
   newsletter_id: string
 }
 
+interface AuthorDetails {
+  newsletters: string[]
+  activeCampaigns: number
+  collaborationValue: number
+  email: string
+}
+
 export default function AdminAuthorsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [authors, setAuthors] = useState<Author[]>([])
-  const [showChatModal, setShowChatModal] = useState(false)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
-  const [chatMessage, setChatMessage] = useState('')
-  const [sendingMessage, setSendingMessage] = useState(false)
-  const [messageStatus, setMessageStatus] = useState<'success' | 'error' | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -67,15 +69,23 @@ export default function AdminAuthorsPage() {
       const data = await response.json()
       
       if (data.success) {
-        // Transform newsletter data to author data
-        const authorsData = data.data.map((newsletter: any) => ({
-          id: `${newsletter.author_email}-${newsletter.id}`, // Unique ID combining email and newsletter ID
-          author_first_name: newsletter.author_first_name || 'Nome',
-          author_last_name: newsletter.author_last_name || 'Cognome',
-          author_email: newsletter.author_email || 'email@example.com',
-          newsletter_name: newsletter.title,
-          newsletter_id: newsletter.id
-        }))
+        // Transform newsletter data to author data, removing duplicates by email
+        const uniqueAuthors = new Map()
+        data.data.forEach((newsletter: any) => {
+          const email = newsletter.author?.email || newsletter.user_id
+          if (!uniqueAuthors.has(email)) {
+            uniqueAuthors.set(email, {
+              id: newsletter.user_id || email,
+              author_first_name: newsletter.author?.first_name || 'Nome',
+              author_last_name: newsletter.author?.last_name || 'Cognome',
+              author_email: email,
+              newsletter_name: newsletter.title,
+              newsletter_id: newsletter.id
+            })
+          }
+        })
+        
+        const authorsData = Array.from(uniqueAuthors.values())
         
         setAuthors(authorsData)
         console.log(`Loaded ${authorsData.length} author records`)
@@ -85,54 +95,34 @@ export default function AdminAuthorsPage() {
     }
   }
 
-  const openChatModal = (author: Author) => {
-    setSelectedAuthor(author)
-    setShowChatModal(true)
-    setChatMessage('')
-    setMessageStatus(null)
+  const openDetailsModal = (author: Author) => {
+    setSelectedAuthor({
+      id: author.id,
+      author_first_name: author.author_first_name,
+      author_last_name: author.author_last_name,
+      author_email: author.author_email,
+      newsletter_name: author.newsletter_name,
+      newsletter_id: author.newsletter_id
+    })
+    setShowDetailsModal(true)
   }
 
-  const closeChatModal = () => {
-    setShowChatModal(false)
+  const closeDetailsModal = () => {
+    setShowDetailsModal(false)
     setSelectedAuthor(null)
-    setChatMessage('')
-    setMessageStatus(null)
   }
 
-  const sendChatMessage = async () => {
-    if (!selectedAuthor || !chatMessage.trim()) return
+  const handleContactAuthor = (email: string) => {
+    window.open(`mailto:${email}?subject=Contatto da Newsletter Italiane`, '_blank')
+  }
 
-    setSendingMessage(true)
-    
-    try {
-      // This would be the actual send_chat_message function/endpoint
-      const response = await fetch('/api/admin/send-chat-message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-auth': 'admin-panel'
-        },
-        body: JSON.stringify({
-          author_email: selectedAuthor.author_email,
-          newsletter_id: selectedAuthor.newsletter_id,
-          message: chatMessage.trim()
-        })
-      })
-
-      if (response.ok) {
-        setMessageStatus('success')
-        setChatMessage('')
-        setTimeout(() => {
-          closeChatModal()
-        }, 2000)
-      } else {
-        setMessageStatus('error')
-      }
-    } catch (error) {
-      console.error('Error sending message:', error)
-      setMessageStatus('error')
-    } finally {
-      setSendingMessage(false)
+  // Mock data for author details - in a real app this would come from API
+  const getAuthorDetails = (author: Author): AuthorDetails => {
+    return {
+      newsletters: [author.newsletter_name, 'Tech Weekly', 'Marketing Insights'].slice(0, Math.floor(Math.random() * 3) + 1),
+      activeCampaigns: Math.floor(Math.random() * 5) + 1,
+      collaborationValue: Math.floor(Math.random() * 5000) + 500,
+      email: author.author_email
     }
   }
 
@@ -239,12 +229,12 @@ export default function AdminAuthorsPage() {
 
                         <div className="flex items-center gap-2">
                           <button 
-                            onClick={() => openChatModal(author)}
+                            onClick={() => openDetailsModal(author)}
                             className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors font-medium flex items-center gap-1"
-                            title="Invia messaggio"
+                            title="Vedi dettagli autore"
                           >
-                            <MessageCircle className="w-3 h-3" />
-                            Chat
+                            <Eye className="w-3 h-3" />
+                            Dettagli
                           </button>
                         </div>
                       </div>
@@ -257,81 +247,82 @@ export default function AdminAuthorsPage() {
         </main>
       </div>
       
-      {/* Chat Modal */}
-      {showChatModal && selectedAuthor && (
+      {/* Author Details Modal */}
+      {showDetailsModal && selectedAuthor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full">
-            {/* Header Modal */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold text-slate-900">
-                Invia Messaggio
-              </h2>
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Users className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    {selectedAuthor.author_first_name} {selectedAuthor.author_last_name}
+                  </h3>
+                  <p className="text-sm text-slate-600">{selectedAuthor.author_email}</p>
+                </div>
+              </div>
               <button
-                onClick={closeChatModal}
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
+                onClick={closeDetailsModal}
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
-            
-            {/* Content Modal */}
-            <div className="p-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Destinatario
-                </label>
-                <p className="text-sm text-slate-900">
-                  {selectedAuthor.author_first_name} {selectedAuthor.author_last_name} ({selectedAuthor.author_email})
-                </p>
-                <p className="text-xs text-slate-500">
-                  Newsletter: {selectedAuthor.newsletter_name}
-                </p>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Messaggio
-                </label>
-                <textarea
-                  value={chatMessage}
-                  onChange={(e) => setChatMessage(e.target.value)}
-                  placeholder="Scrivi il tuo messaggio qui..."
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  rows={4}
-                />
-              </div>
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {(() => {
+                const details = getAuthorDetails(selectedAuthor)
+                return (
+                  <>
+                    {/* Newsletter Gestite */}
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-900 mb-3">Newsletter Gestite</h4>
+                      <div className="space-y-2">
+                        {details.newsletters.map((newsletter, index) => (
+                          <div key={index} className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-sm text-slate-900 font-medium">{newsletter}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
-              {messageStatus === 'success' && (
-                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <p className="text-green-800 text-sm">Messaggio inviato con successo!</p>
-                </div>
-              )}
+                    {/* Statistiche */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-blue-50 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-600">{details.activeCampaigns}</div>
+                        <div className="text-sm text-blue-800">Campagne Attive</div>
+                      </div>
+                      <div className="p-4 bg-green-50 rounded-lg">
+                        <div className="text-2xl font-bold text-green-600">€{details.collaborationValue.toLocaleString()}</div>
+                        <div className="text-sm text-green-800">Valore Collaborazione</div>
+                      </div>
+                    </div>
 
-              {messageStatus === 'error' && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <AlertCircle className="w-4 h-4 text-red-600" />
-                  <p className="text-red-800 text-sm">Errore nell'invio del messaggio</p>
-                </div>
-              )}
-
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  onClick={sendChatMessage}
-                  disabled={!chatMessage.trim() || sendingMessage}
-                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Send className="w-4 h-4" />
-                  {sendingMessage ? 'Invio...' : 'Invia Messaggio'}
-                </button>
-                
-                <button
-                  onClick={closeChatModal}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
-                >
-                  Annulla
-                </button>
-              </div>
+                    {/* Contatto */}
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-900 mb-3">Contatto</h4>
+                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-5 h-5 text-slate-400" />
+                          <span className="text-sm text-slate-900">{details.email}</span>
+                        </div>
+                        <button
+                          onClick={() => handleContactAuthor(details.email)}
+                          className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          Contatta
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )
+              })()} 
             </div>
           </div>
         </div>

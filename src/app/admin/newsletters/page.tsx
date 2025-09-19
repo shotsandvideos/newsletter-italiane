@@ -22,7 +22,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Info,
-  X
+  X,
+  Send,
+  Save
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
 
@@ -38,6 +40,11 @@ export default function AdminNewslettersPage() {
   const [selectedNewsletter, setSelectedNewsletter] = useState<any | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [editFormData, setEditFormData] = useState<any>({})
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const itemsPerPage = 12
   const router = useRouter()
 
@@ -98,6 +105,8 @@ export default function AdminNewslettersPage() {
           status: n.review_status,
           subscribers: n.audience_size || 0,
           category: n.category,
+          open_rate: n.open_rate || 0,
+          ctr: n.ctr_rate || 0,
           content: {
             excerpt: n.description,
             readTime: '5 min'
@@ -164,6 +173,120 @@ export default function AdminNewslettersPage() {
     setShowDetailsModal(false)
     setSelectedNewsletter(null)
     setRejectionReason('')
+    setIsEditMode(false)
+    setEditFormData({})
+    setSaveSuccess(false)
+    setSaveError('')
+  }
+
+  const handleEditNewsletter = (newsletter: any) => {
+    // Resetta messaggi
+    setSaveSuccess(false)
+    setSaveError('')
+    
+    // Attiva modalità edit nel modal
+    setIsEditMode(true)
+    setEditFormData({
+      title: newsletter.title,
+      description: newsletter.rawData?.description || '',
+      category: newsletter.rawData?.category || '',
+      language: newsletter.rawData?.language || 'Italiano',
+      cadence: newsletter.rawData?.cadence || '',
+      signup_url: newsletter.signup_url || '',
+      open_rate: newsletter.open_rate || 22.5,
+      ctr: newsletter.ctr || 3.5,
+      subscribers: newsletter.subscribers || 0
+    })
+  }
+
+  const handleSendEmail = (newsletter: any) => {
+    // Apre il client email con i dati precompilati
+    const subject = `Riguardo la newsletter: ${newsletter.title}`
+    const body = `Gentile ${newsletter.author.name},\\n\\nSpero che questo messaggio ti trovi bene.\\n\\nMi riferisco alla tua newsletter \"${newsletter.title}\".\\n\\n\\n\\nCordiali saluti,\\nTeam Newsletter Italiane`
+    const mailtoLink = `mailto:${newsletter.author.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    window.open(mailtoLink)
+  }
+
+  const handleSaveEdit = async () => {
+    try {
+      setIsSaving(true)
+      
+      // Validazione dei dati
+      if (!editFormData.title?.trim()) {
+        throw new Error('Il titolo è obbligatorio')
+      }
+      
+      // Prepara i dati per l'aggiornamento
+      const updateData = {
+        title: editFormData.title?.trim(),
+        description: editFormData.description?.trim() || '',
+        category: editFormData.category || '',
+        language: editFormData.language || 'Italiano',
+        cadence: editFormData.cadence || '',
+        signup_url: editFormData.signup_url?.trim() || '',
+        open_rate: parseFloat(editFormData.open_rate) || 0,
+        ctr_rate: parseFloat(editFormData.ctr) || 0,
+        audience_size: parseInt(editFormData.subscribers) || 0
+      }
+
+      // Chiamata API per salvare nel database
+      const response = await fetch(`/api/admin/newsletters/${selectedNewsletter.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-auth': 'admin-panel'
+        },
+        body: JSON.stringify(updateData)
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Errore durante il salvataggio')
+      }
+
+      // Aggiorna la newsletter selezionata con i dati dal server
+      const updatedSelectedNewsletter = {
+        ...selectedNewsletter,
+        title: result.data.title,
+        signup_url: result.data.signup_url,
+        open_rate: result.data.open_rate,
+        ctr: result.data.ctr_rate,
+        subscribers: result.data.audience_size,
+        rawData: result.data
+      }
+      setSelectedNewsletter(updatedSelectedNewsletter)
+      
+      // Esce dalla modalità edit
+      setIsEditMode(false)
+      setEditFormData({})
+      
+      // Ricarica la lista delle newsletter per assicurarsi che i dati siano sincronizzati
+      await fetchNewsletters()
+      
+      // Mostra messaggio di successo
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
+      
+    } catch (error) {
+      console.error('Error saving newsletter:', error)
+      setSaveError(error.message || 'Errore durante il salvataggio')
+      setTimeout(() => setSaveError(''), 5000)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false)
+    setEditFormData({})
+  }
+
+  const handleEditFieldChange = (field: string, value: any) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   const handleApproveFromModal = async () => {
@@ -179,6 +302,7 @@ export default function AdminNewslettersPage() {
       closeDetailsModal()
     }
   }
+
 
   const filters = [
     { value: 'all', label: 'Tutte', count: newsletters.length },
@@ -368,7 +492,7 @@ export default function AdminNewslettersPage() {
               </div>
             </div>
 
-            {/* Newsletters List */}
+            {/* Newsletters Table */}
             <div className="card-uniform">
               <div className="p-4 border-b border-slate-200">
                 <h3 className="heading-section text-slate-900">
@@ -376,122 +500,91 @@ export default function AdminNewslettersPage() {
                 </h3>
               </div>
 
-              <div className="divide-y divide-slate-200">
-                {accessError ? (
-                  <div className="p-12 text-center">
-                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.728-.833-2.498 0L4.316 15.5c-.77.833.192 2.5 1.732 2.5z" />
-                      </svg>
-                    </div>
-                    <h4 className="font-medium text-slate-900 mb-2">Accesso Negato</h4>
-                    <p className="text-slate-500 mb-4">{accessError}</p>
-                    <p className="text-sm text-slate-400">
-                      Effettua il login come amministratore dal pannello /admin
-                    </p>
+              {accessError ? (
+                <div className="p-12 text-center">
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.728-.833-2.498 0L4.316 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
                   </div>
-                ) : paginatedNewsletters.length === 0 ? (
-                  <div className="p-12 text-center">
-                    <Mail className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h4 className="font-medium text-slate-900 mb-2">Nessuna newsletter</h4>
-                    <p className="text-slate-500">
-                      {selectedFilter === 'all' 
-                        ? 'Non ci sono newsletter registrate'
-                        : `Non ci sono newsletter con stato "${filters.find(f => f.value === selectedFilter)?.label.toLowerCase()}"`
-                      }
-                    </p>
-                  </div>
-                ) : (
-                  paginatedNewsletters.map((newsletter) => {
-                  const statusInfo = getStatusInfo(newsletter.status)
-                  const StatusIcon = statusInfo.icon
+                  <h4 className="font-medium text-slate-900 mb-2">Accesso Negato</h4>
+                  <p className="text-slate-500 mb-4">{accessError}</p>
+                  <p className="text-sm text-slate-400">
+                    Effettua il login come amministratore dal pannello /admin
+                  </p>
+                </div>
+              ) : paginatedNewsletters.length === 0 ? (
+                <div className="p-12 text-center">
+                  <Mail className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <h4 className="font-medium text-slate-900 mb-2">Nessuna newsletter</h4>
+                  <p className="text-slate-500">
+                    {selectedFilter === 'all' 
+                      ? 'Non ci sono newsletter registrate'
+                      : `Non ci sono newsletter con stato "${filters.find(f => f.value === selectedFilter)?.label.toLowerCase()}"`
+                    }
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50">
+                        <th className="text-left py-3 px-4 font-medium text-slate-700">Newsletter</th>
+                        <th className="text-left py-3 px-4 font-medium text-slate-700">Open Rate</th>
+                        <th className="text-left py-3 px-4 font-medium text-slate-700">CTR</th>
+                        <th className="text-left py-3 px-4 font-medium text-slate-700">Iscritti</th>
+                        <th className="text-left py-3 px-4 font-medium text-slate-700">Stato</th>
+                        <th className="text-left py-3 px-4 font-medium text-slate-700">Azioni</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedNewsletters.map((newsletter) => {
+                        const statusInfo = getStatusInfo(newsletter.status)
+                        const StatusIcon = statusInfo.icon
+                        
+                        // Mock data for CTR if not available
+                        const openRate = newsletter.open_rate || 22.5
+                        const ctr = newsletter.ctr || (openRate * 0.15) // CTR is typically 10-20% of open rate
 
-                  return (
-                    <div key={newsletter.id} className="p-3 hover:bg-slate-50 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0 pr-4">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="heading-sub text-slate-900 truncate">
-                              {newsletter.title}
-                            </h4>
-                            <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
-                              <StatusIcon className="w-3 h-3" />
-                              {statusInfo.label}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-3 text-xs text-slate-600 mb-2">
-                            <span className="flex items-center gap-1">
-                              <User className="icon-inline" style={{width: '12px', height: '12px'}} />
-                              {newsletter.author.name}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Mail className="icon-inline" style={{width: '12px', height: '12px'}} />
-                              {newsletter.author.newsletter}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Calendar className="icon-inline" style={{width: '12px', height: '12px'}} />
-                              {newsletter.publishedAt ? 
-                                new Date(newsletter.publishedAt).toLocaleDateString('it-IT') :
-                                'Non pubblicata'
-                              }
-                            </span>
-                            <span className="px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded text-xs">
-                              {newsletter.category}
-                            </span>
-                          </div>
-
-                          {newsletter.status === 'approved' && (
-                            <div className="flex items-center gap-4 text-xs text-slate-600 mb-2">
-                              <span>{newsletter.subscribers.toLocaleString()} iscritti</span>
-                              {newsletter.contact_email && (
-                                <span className="text-blue-600">{newsletter.contact_email}</span>
-                              )}
-                            </div>
-                          )}
-
-                          {newsletter.status === 'in_review' && newsletter.moderation.flaggedReason && (
-                            <div className="text-xs text-yellow-700 bg-yellow-50 px-2 py-1 rounded mb-2">
-                              Motivo: {newsletter.moderation.flaggedReason}
-                            </div>
-                          )}
-
-                          {newsletter.status === 'rejected' && newsletter.moderation.rejectedReason && (
-                            <div className="text-xs text-red-700 bg-red-50 px-2 py-1 rounded mb-2">
-                              Rifiutata: {newsletter.moderation.rejectedReason}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => openDetailsModal(newsletter)}
-                            className="btn-uniform bg-slate-600 text-white hover:bg-slate-700"
-                            title="Visualizza dettagli"
-                          >
-                            Dettagli
-                          </button>
-                          
-                          {newsletter.signup_url && (
-                            <a 
-                              href={newsletter.signup_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
-                              title="Visualizza newsletter"
-                            >
-                              <Eye className="icon-inline" style={{width: '12px', height: '12px'}} />
-                            </a>
-                          )}
-                          
-
-                        </div>
-                      </div>
-                    </div>
-                  )
-                  })
-                )}
-              </div>
+                        return (
+                          <tr key={newsletter.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                            <td className="py-3 px-4">
+                              <div>
+                                <h4 className="font-medium text-slate-900 mb-1">{newsletter.title}</h4>
+                                <p className="text-sm text-slate-600">{newsletter.author.name}</p>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className="text-sm font-medium text-slate-900">{openRate.toFixed(1)}%</span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className="text-sm font-medium text-slate-900">{ctr.toFixed(1)}%</span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className="text-sm font-medium text-slate-900">{newsletter.subscribers.toLocaleString()}</span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                                <StatusIcon className="w-3 h-3" />
+                                {statusInfo.label}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <button 
+                                onClick={() => openDetailsModal(newsletter)}
+                                className="btn-uniform bg-slate-600 text-white hover:bg-slate-700"
+                                title="Visualizza dettagli"
+                              >
+                                Dettagli
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
               
               {/* Pagination */}
               {totalPages > 1 && (
@@ -552,6 +645,30 @@ export default function AdminNewslettersPage() {
               </button>
             </div>
             
+            {/* Success Message */}
+            {saveSuccess && (
+              <div className="mx-6 mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <p className="text-sm font-medium text-green-800">
+                    Newsletter aggiornata con successo!
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {/* Error Message */}
+            {saveError && (
+              <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600" />
+                  <p className="text-sm font-medium text-red-800">
+                    {saveError}
+                  </p>
+                </div>
+              </div>
+            )}
+            
             {/* Content Modal */}
             <div className="p-5 space-y-5">
               {/* Info Newsletter */}
@@ -561,19 +678,65 @@ export default function AdminNewslettersPage() {
                   <div className="space-y-2">
                     <div>
                       <label className="block text-xs font-medium text-slate-700">Titolo</label>
-                      <p className="text-slate-900 text-xs mt-1">{selectedNewsletter.title}</p>
+                      {isEditMode ? (
+                        <input
+                          type="text"
+                          value={editFormData.title || ''}
+                          onChange={(e) => handleEditFieldChange('title', e.target.value)}
+                          className="w-full mt-1 px-2 py-1 text-xs border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      ) : (
+                        <p className="text-slate-900 text-xs mt-1">{selectedNewsletter.title}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-slate-700">Categoria</label>
-                      <p className="text-slate-900 text-xs mt-1">{selectedNewsletter.rawData?.category || 'Non specificata'}</p>
+                      {isEditMode ? (
+                        <input
+                          type="text"
+                          value={editFormData.category || ''}
+                          onChange={(e) => handleEditFieldChange('category', e.target.value)}
+                          className="w-full mt-1 px-2 py-1 text-xs border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      ) : (
+                        <p className="text-slate-900 text-xs mt-1">{selectedNewsletter.rawData?.category || 'Non specificata'}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-slate-700">Lingua</label>
-                      <p className="text-slate-900 text-xs mt-1">{selectedNewsletter.rawData?.language || 'Italiano'}</p>
+                      {isEditMode ? (
+                        <select
+                          value={editFormData.language || 'Italiano'}
+                          onChange={(e) => handleEditFieldChange('language', e.target.value)}
+                          className="w-full mt-1 px-2 py-1 text-xs border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="Italiano">Italiano</option>
+                          <option value="Inglese">Inglese</option>
+                          <option value="Francese">Francese</option>
+                          <option value="Spagnolo">Spagnolo</option>
+                        </select>
+                      ) : (
+                        <p className="text-slate-900 text-xs mt-1">{selectedNewsletter.rawData?.language || 'Italiano'}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-slate-700">Frequenza</label>
-                      <p className="text-slate-900 text-xs mt-1">{selectedNewsletter.rawData?.cadence || 'Non specificata'}</p>
+                      {isEditMode ? (
+                        <select
+                          value={editFormData.cadence || ''}
+                          onChange={(e) => handleEditFieldChange('cadence', e.target.value)}
+                          className="w-full mt-1 px-2 py-1 text-xs border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Seleziona frequenza</option>
+                          <option value="Giornaliera">Giornaliera</option>
+                          <option value="Settimanale">Settimanale</option>
+                          <option value="Bisettimanale">Bisettimanale</option>
+                          <option value="Mensile">Mensile</option>
+                          <option value="Irregolare">Irregolare</option>
+                        </select>
+                      ) : (
+                        <p className="text-slate-900 text-xs mt-1">{selectedNewsletter.rawData?.cadence || 'Non specificata'}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-slate-700">Data Registrazione</label>
@@ -589,19 +752,53 @@ export default function AdminNewslettersPage() {
                   <div className="space-y-2">
                     <div>
                       <label className="block text-xs font-medium text-slate-700">Iscritti</label>
-                      <p className="text-slate-900 text-xs mt-1 font-medium">{selectedNewsletter.subscribers?.toLocaleString() || '0'}</p>
+                      {isEditMode ? (
+                        <input
+                          type="number"
+                          value={editFormData.subscribers || 0}
+                          onChange={(e) => handleEditFieldChange('subscribers', e.target.value)}
+                          className="w-full mt-1 px-2 py-1 text-xs border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          min="0"
+                        />
+                      ) : (
+                        <p className="text-slate-900 text-xs mt-1 font-medium">{selectedNewsletter.subscribers?.toLocaleString() || '0'}</p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-slate-700">Open Rate</label>
-                      <p className="text-slate-900 text-xs mt-1 font-medium">
-                        {selectedNewsletter.rawData?.open_rate ? `${selectedNewsletter.rawData.open_rate}%` : 'Non disponibile'}
-                      </p>
+                      <label className="block text-xs font-medium text-slate-700">Open Rate (%)</label>
+                      {isEditMode ? (
+                        <input
+                          type="number"
+                          value={editFormData.open_rate || 0}
+                          onChange={(e) => handleEditFieldChange('open_rate', e.target.value)}
+                          className="w-full mt-1 px-2 py-1 text-xs border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                        />
+                      ) : (
+                        <p className="text-slate-900 text-xs mt-1 font-medium">
+                          {selectedNewsletter.open_rate ? `${selectedNewsletter.open_rate}%` : 'Non disponibile'}
+                        </p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-slate-700">CTR</label>
-                      <p className="text-slate-900 text-xs mt-1 font-medium">
-                        {selectedNewsletter.rawData?.ctr_rate ? `${selectedNewsletter.rawData.ctr_rate}%` : 'Non disponibile'}
-                      </p>
+                      <label className="block text-xs font-medium text-slate-700">CTR (%)</label>
+                      {isEditMode ? (
+                        <input
+                          type="number"
+                          value={editFormData.ctr || 0}
+                          onChange={(e) => handleEditFieldChange('ctr', e.target.value)}
+                          className="w-full mt-1 px-2 py-1 text-xs border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                        />
+                      ) : (
+                        <p className="text-slate-900 text-xs mt-1 font-medium">
+                          {selectedNewsletter.ctr ? `${selectedNewsletter.ctr}%` : 'Non disponibile'}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-slate-700">Prezzo Sponsorizzazione</label>
@@ -704,6 +901,56 @@ export default function AdminNewslettersPage() {
                 </div>
               </div>
               
+              {/* Azioni di Modifica - Per tutte le newsletter */}
+              <div>
+                <h3 className="text-base font-medium text-slate-900 mb-2">Azioni</h3>
+                <div className="bg-slate-50 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    {isEditMode ? (
+                      <>
+                        <button
+                          onClick={handleSaveEdit}
+                          disabled={isSaving}
+                          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {isSaving ? (
+                            <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <CheckCircle className="w-3 h-3" />
+                          )}
+                          {isSaving ? 'Salvando...' : 'Salva'}
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          disabled={isSaving}
+                          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                          Annulla
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleEditNewsletter(selectedNewsletter)}
+                          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          <Edit className="w-3 h-3" />
+                          Modifica
+                        </button>
+                        <button
+                          onClick={() => handleSendEmail(selectedNewsletter)}
+                          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                          <Send className="w-3 h-3" />
+                          Invia Email
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Azioni Solo per Newsletter in Revisione */}
               {selectedNewsletter.status === 'in_review' && (
                 <div>
@@ -751,6 +998,7 @@ export default function AdminNewslettersPage() {
           </div>
         </div>
       )}
+      
     </div>
   )
 }

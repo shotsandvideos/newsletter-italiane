@@ -32,6 +32,54 @@ export default function AdminCalendarioPage() {
   const [eventsLoading, setEventsLoading] = useState(true)
   const router = useRouter()
 
+  // Calendar helpers
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month + 1, 0)
+    const daysInMonth = lastDay.getDate()
+    const startingDayOfWeek = firstDay.getDay()
+
+    const days = []
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null)
+    }
+    
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(new Date(year, month, day))
+    }
+    
+    return days
+  }
+
+  const getEventsForDate = (date: Date) => {
+    const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+    return events.filter(event => event.event_date === dateStr)
+  }
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setSelectedDate(prev => {
+      const newDate = new Date(prev)
+      if (direction === 'prev') {
+        newDate.setMonth(newDate.getMonth() - 1)
+      } else {
+        newDate.setMonth(newDate.getMonth() + 1)
+      }
+      return newDate
+    })
+  }
+
+  const monthNames = [
+    'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+    'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+  ]
+
+  const dayNames = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
+
   useEffect(() => {
     const adminSession = localStorage.getItem('adminSession')
     if (adminSession) {
@@ -348,82 +396,188 @@ export default function AdminCalendarioPage() {
               </div>
             </div>
 
-            {/* All Events Timeline */}
-            <div className="bg-white rounded-2xl border border-slate-200">
-              <div className="p-6 border-b border-slate-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-slate-900">Timeline Eventi</h3>
-                  <div className="flex items-center gap-2">
-                    <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
-                      <Filter className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
-                      <Search className="w-4 h-4" />
-                    </button>
+            {/* Calendar View */}
+            {viewMode === 'month' && (
+              <div className="bg-white rounded-2xl border border-slate-200">
+                <div className="p-6 border-b border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-slate-900">Vista Calendario</h3>
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => navigateMonth('prev')}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                      >
+                        <ChevronLeft className="w-5 h-5 text-slate-500" />
+                      </button>
+                      
+                      <h4 className="text-lg font-semibold text-slate-900">
+                        {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
+                      </h4>
+                      
+                      <button
+                        onClick={() => navigateMonth('next')}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                      >
+                        <ChevronRight className="w-5 h-5 text-slate-500" />
+                      </button>
+                      
+                      <button
+                        onClick={() => setSelectedDate(new Date())}
+                        className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
+                      >
+                        Oggi
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="p-6">
-                {events.length === 0 ? (
-                  <div className="text-center py-12">
-                    <CalendarDays className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h4 className="font-medium text-slate-900 mb-2">Nessun evento</h4>
-                    <p className="text-slate-500">
-                      Non ci sono eventi programmati al momento
-                    </p>
+                <div className="overflow-hidden">
+                  {/* Days header */}
+                  <div className="grid grid-cols-7 border-b border-slate-200">
+                    {dayNames.map((day) => (
+                      <div key={day} className="px-4 py-3 text-sm font-medium text-slate-700 bg-slate-50 text-center">
+                        {day}
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {events.slice(0, 8).map((event) => {
-                      const typeInfo = getEventTypeInfo(event.sponsorship_type)
-                      const statusInfo = getStatusInfo(event.status)
-                      const TypeIcon = typeInfo.icon
+
+                  {/* Calendar days */}
+                  <div className="grid grid-cols-7">
+                    {getDaysInMonth(selectedDate).map((day, index) => {
+                      const dayEvents = day ? getEventsForDate(day) : []
+                      const isToday = day && day.toDateString() === new Date().toDateString()
+                      const isCurrentMonth = day && day.getMonth() === selectedDate.getMonth()
 
                       return (
-                        <div key={event.id} className="flex items-start gap-4 p-4 hover:bg-slate-50 rounded-lg transition-colors">
-                          <div className={`p-3 ${typeInfo.bgColor} rounded-xl`}>
-                            <TypeIcon className={`w-5 h-5 ${typeInfo.color}`} />
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h4 className="font-semibold text-slate-900">{event.brand_name} - {event.newsletter_title}</h4>
-                              <span className={`px-3 py-1 text-xs rounded-full font-medium ${statusInfo.color}`}>
-                                {statusInfo.label}
-                              </span>
-                            </div>
-                            
-                            <p className="text-sm text-slate-600 mb-3">{event.description || `${event.sponsorship_type} - ${event.product_type}`}</p>
-                            
-                            <div className="flex items-center gap-6 text-sm text-slate-500">
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                <span>{new Date(event.event_date).toLocaleDateString('it-IT')}</span>
+                        <div
+                          key={index}
+                          className={`min-h-[120px] border-r border-b border-slate-200 p-2 ${
+                            !isCurrentMonth ? 'bg-slate-50' : ''
+                          }`}
+                        >
+                          {day && (
+                            <>
+                              <div className="flex items-center justify-between mb-2">
+                                <span
+                                  className={`text-sm font-medium ${
+                                    isToday
+                                      ? 'bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center'
+                                      : isCurrentMonth
+                                      ? 'text-slate-900'
+                                      : 'text-slate-400'
+                                  }`}
+                                >
+                                  {day.getDate()}
+                                </span>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <Users className="w-4 h-4" />
-                                <span>{event.newsletter_author}</span>
+                              
+                              <div className="space-y-1">
+                                {dayEvents.slice(0, 2).map((event) => {
+                                  const statusInfo = getStatusInfo(event.status)
+                                  return (
+                                    <div
+                                      key={event.id}
+                                      className="text-xs p-1 rounded bg-red-100 text-red-700 truncate"
+                                      title={`${event.brand_name} - ${event.newsletter_title}`}
+                                    >
+                                      {event.brand_name}
+                                    </div>
+                                  )
+                                })}
+                                {dayEvents.length > 2 && (
+                                  <div className="text-xs text-slate-500 p-1">
+                                    +{dayEvents.length - 2} altri
+                                  </div>
+                                )}
                               </div>
-                              <div className="flex items-center gap-1">
-                                <Mail className="w-4 h-4" />
-                                <span>{event.newsletter_email}</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center gap-1">
-                            <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
-                              <Eye className="w-4 h-4" />
-                            </button>
-                          </div>
+                            </>
+                          )}
                         </div>
                       )
                     })}
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Timeline Events (when not in month view) */}
+            {viewMode !== 'month' && (
+              <div className="bg-white rounded-2xl border border-slate-200">
+                <div className="p-6 border-b border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-slate-900">Timeline Eventi</h3>
+                    <div className="flex items-center gap-2">
+                      <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
+                        <Filter className="w-4 h-4" />
+                      </button>
+                      <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
+                        <Search className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  {events.length === 0 ? (
+                    <div className="text-center py-12">
+                      <CalendarDays className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                      <h4 className="font-medium text-slate-900 mb-2">Nessun evento</h4>
+                      <p className="text-slate-500">
+                        Non ci sono eventi programmati al momento
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {events.slice(0, 8).map((event) => {
+                        const typeInfo = getEventTypeInfo(event.sponsorship_type)
+                        const statusInfo = getStatusInfo(event.status)
+                        const TypeIcon = typeInfo.icon
+
+                        return (
+                          <div key={event.id} className="flex items-start gap-4 p-4 hover:bg-slate-50 rounded-lg transition-colors">
+                            <div className={`p-3 ${typeInfo.bgColor} rounded-xl`}>
+                              <TypeIcon className={`w-5 h-5 ${typeInfo.color}`} />
+                            </div>
+                            
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h4 className="font-semibold text-slate-900">{event.brand_name} - {event.newsletter_title}</h4>
+                                <span className={`px-3 py-1 text-xs rounded-full font-medium ${statusInfo.color}`}>
+                                  {statusInfo.label}
+                                </span>
+                              </div>
+                              
+                              <p className="text-sm text-slate-600 mb-3">{event.description || `${event.sponsorship_type} - ${event.product_type}`}</p>
+                              
+                              <div className="flex items-center gap-6 text-sm text-slate-500">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-4 h-4" />
+                                  <span>{new Date(event.event_date).toLocaleDateString('it-IT')}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Users className="w-4 h-4" />
+                                  <span>{event.newsletter_author}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Mail className="w-4 h-4" />
+                                  <span>{event.newsletter_email}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-1">
+                              <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>

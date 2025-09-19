@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User, AuthError, Session } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
-import { createSupabaseClient } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 
 interface Profile {
   id: string
@@ -37,7 +37,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createSupabaseClient()
   const router = useRouter()
 
   useEffect(() => {
@@ -273,19 +272,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     // Don't set loading to true during signout to avoid UI blocking
     try {
-      await supabase.auth.signOut()
+      console.log('useAuth: Starting signOut process...')
+      
+      // Clear local state first
       setUser(null)
       setSession(null)
       setProfile(null)
-      // Navigate immediately without waiting
+      
+      // Call Supabase signout
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('Supabase signout error:', error)
+      } else {
+        console.log('Supabase signout successful')
+      }
+      
+      // Force navigation to homepage
+      console.log('Navigating to homepage...')
       router.push('/')
+      
+      // Also try window.location as fallback
+      setTimeout(() => {
+        if (window.location.pathname !== '/') {
+          console.log('Router navigation may have failed, using window.location')
+          window.location.href = '/'
+        }
+      }, 100)
+      
     } catch (error) {
       console.error('Error signing out:', error)
       // Even if signout fails, clear local state and redirect
       setUser(null)
       setSession(null)
       setProfile(null)
-      router.push('/')
+      window.location.href = '/'
     }
   }
 

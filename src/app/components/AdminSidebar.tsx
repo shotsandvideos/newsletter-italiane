@@ -13,7 +13,6 @@ import {
   X,
   LogOut,
   Shield,
-  Inbox,
   HandHeart,
   FileText,
   Crown,
@@ -28,7 +27,6 @@ interface AdminSidebarProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: Home, description: 'Panoramica generale' },
-  { name: 'Inbox', href: '/admin/inbox', icon: Inbox, description: 'Comunicazioni autori' },
   { name: 'Newsletter', href: '/admin/newsletters', icon: Mail, description: 'Gestione contenuti' },
   { name: 'Proposte', href: '/admin/proposte', icon: HandHeart, description: 'Collaborazioni e partnership' },
   { name: 'Pagamenti', href: '/admin/pagamenti', icon: CreditCard, description: 'Escrow e transazioni' },

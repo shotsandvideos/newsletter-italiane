@@ -16,12 +16,12 @@ function AuthCallbackContent() {
       setCurrentUrl(window.location.href)
     }
 
-    // Safety timeout - redirect after 30 seconds if still stuck
+    // Safety timeout - redirect after 10 seconds if still stuck
     const safetyTimeout = setTimeout(() => {
       console.log('OAuth callback timeout - redirecting to sign-in')
       setStatus('Timeout - reindirizzamento...')
       router.push('/auth/sign-in?error=' + encodeURIComponent('Timeout durante l\'autenticazione'))
-    }, 30000)
+    }, 10000)
 
     const handleAuthCallback = async () => {
       try {
@@ -29,10 +29,12 @@ function AuthCallbackContent() {
         setStatus('Verificando credenziali...')
         
         const supabase = createSupabaseClient()
+        console.log('Supabase client created')
         
         // Get the code from URL params
         const code = searchParams.get('code')
         const error = searchParams.get('error')
+        console.log('URL params - code:', code ? 'present' : 'missing', 'error:', error)
         
         if (error) {
           console.error('OAuth error from URL:', error)
@@ -47,24 +49,18 @@ function AuthCallbackContent() {
           console.log('Found OAuth code, exchanging for session...')
           setStatus('Completando l\'accesso...')
           
-          // Use getUser to handle the OAuth callback properly with PKCE
+          // Direct exchange approach for better performance
           let data, exchangeError
           try {
-            // First, let Supabase handle the OAuth callback
-            const result = await supabase.auth.getUser()
-            data = { session: result.data }
-            exchangeError = result.error
-            
-            if (!result.data.user) {
-              // If no user found, try exchangeCodeForSession
-              const sessionResult = await supabase.auth.exchangeCodeForSession(code)
-              data = sessionResult.data
-              exchangeError = sessionResult.error
-            }
+            console.log('Exchanging code for session...')
+            const sessionResult = await supabase.auth.exchangeCodeForSession(code)
+            console.log('exchangeCodeForSession result:', sessionResult)
+            data = sessionResult.data
+            exchangeError = sessionResult.error
           } catch (methodError: any) {
-            console.log('Trying getSession as fallback...')
-            // Final fallback
+            console.log('Exchange failed, trying getSession fallback...', methodError)
             const result = await supabase.auth.getSession()
+            console.log('getSession fallback result:', result)
             data = result.data
             exchangeError = result.error
           }
@@ -83,10 +79,8 @@ function AuthCallbackContent() {
             setStatus('Accesso completato! Reindirizzamento...')
             clearTimeout(safetyTimeout)
             
-            // Wait a moment for the session to propagate
-            setTimeout(() => {
-              router.push('/dashboard')
-            }, 500)
+            // Immediate redirect for better performance
+            router.push('/dashboard')
             return
           }
         }
@@ -110,16 +104,12 @@ function AuthCallbackContent() {
           console.log('Found existing session')
           setStatus('Accesso trovato! Reindirizzamento...')
           clearTimeout(safetyTimeout)
-          setTimeout(() => {
-            router.push('/dashboard')
-          }, 500)
+          router.push('/dashboard')
         } else {
           console.log('No session found')
           setStatus('Nessuna sessione trovata')
           clearTimeout(safetyTimeout)
-          setTimeout(() => {
-            router.push('/auth/sign-in')
-          }, 1000)
+          router.push('/auth/sign-in')
         }
       } catch (error: any) {
         console.error('Unexpected error during OAuth callback:', error)

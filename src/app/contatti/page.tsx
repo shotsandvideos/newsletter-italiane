@@ -2,13 +2,7 @@
 
 import { useState } from 'react'
 import Navigation from '../../components/Navigation'
-import { 
-  Clock,
-  Send,
-  MessageSquare,
-  User,
-  Building
-} from 'lucide-react'
+import { Clock, Send, User, Building } from 'lucide-react'
 
 export default function ContattiPage() {
   const [formData, setFormData] = useState({

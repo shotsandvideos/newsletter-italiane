@@ -6,22 +6,25 @@ import Link from 'next/link'
 export default function TestAdminProposals() {
   const [proposals, setProposals] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchProposals = async () => {
     try {
-      const response = await fetch('/api/admin/proposals', {
-        headers: {
-          'x-admin-auth': 'admin-panel'
-        }
-      })
+      const response = await fetch('/api/admin/proposals')
       
       if (response.ok) {
         const data = await response.json()
         console.log('Admin proposals data:', data)
         setProposals(data.data || [])
+        setError(null)
+      } else if (response.status === 401) {
+        setError('Non autenticato. Accedi come amministratore per testare questa pagina.')
+      } else if (response.status === 403) {
+        setError('Accesso negato. Questa pagina richiede privilegi amministratore.')
       }
     } catch (error) {
       console.error('Error fetching proposals:', error)
+      setError('Errore durante il recupero delle proposte.')
     } finally {
       setLoading(false)
     }
@@ -46,6 +49,10 @@ export default function TestAdminProposals() {
       {loading ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+        </div>
+      ) : error ? (
+        <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700">
+          {error}
         </div>
       ) : (
         <div className="space-y-4">

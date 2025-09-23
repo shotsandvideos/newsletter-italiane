@@ -7,8 +7,6 @@ export default function DebugOAuth() {
   const [debugInfo, setDebugInfo] = useState<any>({})
 
   useEffect(() => {
-    const supabase = createSupabaseClient()
-    
     setDebugInfo({
       origin: window.location.origin,
       supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,

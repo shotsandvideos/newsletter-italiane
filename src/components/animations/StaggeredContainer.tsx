@@ -19,6 +19,10 @@ export default function StaggeredContainer({
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    setVisibleItems(new Array(children.length).fill(false))
+  }, [children])
+
+  useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -41,7 +45,7 @@ export default function StaggeredContainer({
     }
 
     return () => observer.disconnect()
-  }, [children.length, staggerDelay, threshold])
+  }, [children, staggerDelay, threshold])
 
   return (
     <div ref={containerRef} className={className}>

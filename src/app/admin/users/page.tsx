@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { 
   Users,
   Search,
@@ -12,11 +11,12 @@ import {
   ExternalLink
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
+import { useRequireAdmin } from '../../../hooks/useRequireAdmin'
 
 interface Author {
   id: string
-  author_first_name: string
-  author_last_name: string
+  author_first_name: string | null
+  author_last_name: string | null
   author_email: string
   newsletter_name: string
   newsletter_id: string
@@ -30,42 +30,24 @@ interface AuthorDetails {
 }
 
 export default function AdminAuthorsPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const { isAdmin, loading: authLoading } = useRequireAdmin()
+  const [pageLoading, setPageLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [authors, setAuthors] = useState<Author[]>([])
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
-  const router = useRouter()
-
   useEffect(() => {
-    const adminSession = localStorage.getItem('adminSession')
-    if (adminSession) {
-      try {
-        const session = JSON.parse(adminSession)
-        if (session.username === 'admin' && session.role === 'admin') {
-          setIsAuthenticated(true)
-          fetchAuthors()
-        } else {
-          router.push('/admin/login')
-        }
-      } catch {
-        router.push('/admin/login')
-      }
-    } else {
-      router.push('/admin/login')
-    }
-    setLoading(false)
-  }, [router])
+    if (authLoading || !isAdmin) return
+
+    setPageLoading(true)
+    fetchAuthors()
+      .finally(() => setPageLoading(false))
+  }, [authLoading, isAdmin])
 
   const fetchAuthors = async () => {
     try {
-      const response = await fetch('/api/newsletters-all', {
-        headers: {
-          'x-admin-auth': 'admin-panel'
-        }
-      })
+      const response = await fetch('/api/newsletters-all')
       const data = await response.json()
       
       if (data.success) {
@@ -76,8 +58,8 @@ export default function AdminAuthorsPage() {
           if (!uniqueAuthors.has(email)) {
             uniqueAuthors.set(email, {
               id: newsletter.user_id || email,
-              author_first_name: newsletter.author?.first_name || 'Nome',
-              author_last_name: newsletter.author?.last_name || 'Cognome',
+              author_first_name: newsletter.author?.first_name || null,
+              author_last_name: newsletter.author?.last_name || null,
               author_email: email,
               newsletter_name: newsletter.title,
               newsletter_id: newsletter.id
@@ -135,7 +117,7 @@ export default function AdminAuthorsPage() {
     return fullName.includes(query) || email.includes(query) || newsletter.includes(query)
   })
 
-  if (loading) {
+  if (authLoading || pageLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
@@ -143,7 +125,7 @@ export default function AdminAuthorsPage() {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return null
   }
 
@@ -215,12 +197,17 @@ export default function AdminAuthorsPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3 mb-2">
                             <h4 className="text-sm font-medium text-slate-900">
-                              {author.author_first_name} {author.author_last_name}
+                              {(author.author_first_name && author.author_last_name) 
+                                ? `${author.author_first_name} ${author.author_last_name}`
+                                : author.author_email
+                              }
                             </h4>
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              <Mail className="w-3 h-3" />
-                              {author.author_email}
-                            </span>
+                            {(author.author_first_name && author.author_last_name) && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <Mail className="w-3 h-3" />
+                                {author.author_email}
+                              </span>
+                            )}
                           </div>
                           <div className="text-xs text-slate-600">
                             Newsletter: <span className="font-medium">{author.newsletter_name}</span>
@@ -259,9 +246,14 @@ export default function AdminAuthorsPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900">
-                    {selectedAuthor.author_first_name} {selectedAuthor.author_last_name}
+                    {(selectedAuthor.author_first_name && selectedAuthor.author_last_name)
+                      ? `${selectedAuthor.author_first_name} ${selectedAuthor.author_last_name}`
+                      : selectedAuthor.author_email
+                    }
                   </h3>
-                  <p className="text-sm text-slate-600">{selectedAuthor.author_email}</p>
+                  {(selectedAuthor.author_first_name && selectedAuthor.author_last_name) && (
+                    <p className="text-sm text-slate-600">{selectedAuthor.author_email}</p>
+                  )}
                 </div>
               </div>
               <button

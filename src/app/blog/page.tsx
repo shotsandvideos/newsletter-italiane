@@ -94,7 +94,7 @@ export default function BlogPage() {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-12">
-            {articles.map((article, index) => (
+            {articles.map((article) => (
               <article key={article.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
                 {/* Article Header */}
                 <div className="p-8">

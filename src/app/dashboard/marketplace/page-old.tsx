@@ -1,13 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { 
+import {
   ShoppingBag,
-  TrendingUp,
   Clock,
-  DollarSign,
   Users,
-  Eye,
   Star,
   Filter,
   Search,
@@ -18,8 +15,7 @@ import {
   Send,
   CheckCircle,
   AlertCircle,
-  Menu,
-  X
+  Menu
 } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
@@ -40,8 +36,6 @@ export default function MarketplacePage() {
   const [activeTab, setActiveTab] = useState('campaigns')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 15
 
   const categories = [
     { value: 'all', label: 'Tutte le categorie' },
@@ -445,15 +439,6 @@ export default function MarketplacePage() {
                          campaign.brand.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
   })
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredCampaigns.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedCampaigns = filteredCampaigns.slice(startIndex, startIndex + itemsPerPage)
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
 
   if (authLoading) {
     return (

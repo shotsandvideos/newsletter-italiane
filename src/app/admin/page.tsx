@@ -1,29 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { 
-  Shield,
-  Users,
-  Mail,
-  Calendar,
-  CreditCard,
-  TrendingUp,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Euro,
-  Menu,
-  X,
-  BarChart3,
-  FileText,
-  Crown
-} from 'lucide-react'
+import { Shield, Users, Mail, AlertCircle, Euro, Menu } from 'lucide-react'
 import AdminSidebar from '../components/AdminSidebar'
+import { useRequireAdmin } from '../../hooks/useRequireAdmin'
 
 export default function AdminDashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [pageLoading, setPageLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [pendingNewsletters, setPendingNewsletters] = useState<any[]>([])
   const [upcomingActivities, setUpcomingActivities] = useState<any[]>([])
@@ -33,17 +16,13 @@ export default function AdminDashboard() {
     totalTransactions: 0,
     pendingProposals: 0
   })
-  const router = useRouter()
+  const { isAdmin, loading: authLoading } = useRequireAdmin()
 
   const fetchPendingNewsletters = async () => {
     try {
       console.log('Fetching all newsletters for admin...')
       
-      const response = await fetch('/api/newsletters-all', {
-        headers: {
-          'x-admin-auth': 'admin-panel'
-        }
-      })
+      const response = await fetch('/api/newsletters-all')
       
       if (response.ok) {
         const data = await response.json()
@@ -79,11 +58,7 @@ export default function AdminDashboard() {
 
   const fetchUpcomingActivities = async () => {
     try {
-      const response = await fetch('/api/admin/upcoming-activities', {
-        headers: {
-          'x-admin-auth': 'admin-panel'
-        }
-      })
+      const response = await fetch('/api/admin/upcoming-activities')
       
       if (response.ok) {
         const data = await response.json()
@@ -105,7 +80,7 @@ export default function AdminDashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id, status: 'approved' })
+        body: JSON.stringify({ id, review_status: 'approved' })
       })
       
       const result = await response.json()
@@ -133,7 +108,7 @@ export default function AdminDashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id, status: 'rejected' })
+        body: JSON.stringify({ id, review_status: 'rejected' })
       })
       
       const result = await response.json()
@@ -153,40 +128,38 @@ export default function AdminDashboard() {
   }
 
   useEffect(() => {
-    // Check admin authentication
-    try {
-      const adminSession = localStorage.getItem('adminSession')
-      if (adminSession) {
-        const session = JSON.parse(adminSession)
-        if (session.username === 'admin' && session.role === 'admin') {
-          setIsAuthenticated(true)
-          fetchPendingNewsletters()
-          fetchUpcomingActivities()
-        } else {
-          console.log('Invalid admin session, redirecting to login')
-          router.push('/admin/login')
-        }
-      } else {
-        console.log('No admin session found, redirecting to login')
-        router.push('/admin/login')
-      }
-    } catch (error) {
-      console.error('Error parsing admin session:', error)
-      router.push('/admin/login')
-    } finally {
-      setLoading(false)
-    }
-  }, [router])
+    if (authLoading || !isAdmin) return
 
-  if (loading) {
+    const loadData = async () => {
+      setPageLoading(true)
+      try {
+        await Promise.all([
+          fetchPendingNewsletters(),
+          fetchUpcomingActivities()
+        ])
+      } finally {
+        setPageLoading(false)
+      }
+    }
+
+    loadData()
+  }, [authLoading, isAdmin])
+
+  console.log('AdminDashboard render - authLoading:', authLoading, 'pageLoading:', pageLoading, 'isAdmin:', isAdmin)
+
+  if (authLoading || pageLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="ml-4 text-sm text-muted-foreground">
+          Loading... (authLoading: {authLoading.toString()}, pageLoading: {pageLoading.toString()})
+        </div>
       </div>
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
+    console.log('User is not admin, returning null')
     return null
   }
 
@@ -224,9 +197,6 @@ export default function AdminDashboard() {
       color: 'orange'
     }
   ]
-
-  const recentActivities: any[] = []
-
 
   return (
     <div className="flex h-screen admin-panel">

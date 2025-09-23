@@ -3,7 +3,7 @@
 import { useAuth } from '../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Settings, User, Bell, Shield, CreditCard, Trash2, Save, Mail, Globe, Eye, EyeOff, Menu, Building, MapPin, Edit3, MoreHorizontal, Key, X } from 'lucide-react'
+import { Settings, User, Bell, Shield, CreditCard, Trash2, Save, Mail, Globe, Menu, Building, MapPin, Edit3, MoreHorizontal, Key, X } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 
 interface UserSettings {
@@ -18,7 +18,7 @@ interface UserSettings {
 }
 
 export default function SettingsPage() {
-  const { user, profile, loading: authLoading, updatePassword } = useAuth()
+  const { user, loading: authLoading, updatePassword } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'privacy' | 'payments' | 'account'>('profile')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)

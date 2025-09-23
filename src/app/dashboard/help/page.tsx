@@ -4,13 +4,11 @@ import { useState } from 'react'
 import { useAuth } from '../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { 
-  Search, 
-  Book, 
-  MessageCircle, 
-  Mail, 
-  Phone,
-  ExternalLink,
+import {
+  Search,
+  Book,
+  MessageCircle,
+  Mail,
   ChevronRight,
   Star,
   Clock,
@@ -19,13 +17,9 @@ import {
   Settings,
   Menu,
   ArrowRight,
-  CheckCircle,
-  AlertCircle,
-  Info,
   HelpCircle,
   FileText,
-  Video,
-  Download
+  Video
 } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 import Link from 'next/link'

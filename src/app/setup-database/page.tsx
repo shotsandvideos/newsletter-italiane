@@ -20,7 +20,7 @@ export default function SetupDatabase() {
     try {
       // Test 1: Check if profiles table exists
       addStatus('🔍 Checking if profiles table exists...')
-      const { data: tables, error: tablesError } = await supabase
+      const { error: tablesError } = await supabase
         .from('profiles')
         .select('id')
         .limit(1)

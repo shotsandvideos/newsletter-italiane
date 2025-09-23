@@ -40,7 +40,6 @@ export async function GET() {
         )
       `)
       .eq('user_id', currentUserData.user.id)
-      .eq('status', 'pending')
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -53,7 +52,10 @@ export async function GET() {
       id: pn.proposals.id,
       proposal_newsletter_id: pn.id,
       newsletter_id: pn.newsletter_id,
-      newsletter_title: pn.newsletters.title,
+      newsletter_title: pn.newsletters?.title ?? '',
+      link_status: pn.status,
+      link_selected_run_date: pn.selected_run_date,
+      link_decline_reason: pn.decline_reason,
       ...pn.proposals
     })) || []
 

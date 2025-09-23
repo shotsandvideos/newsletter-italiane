@@ -64,46 +64,47 @@ export default function EditNewsletterPage() {
 
   // Fetch newsletter data
   useEffect(() => {
-    if (user && newsletterId) {
-      fetchNewsletter()
+    if (!user || !newsletterId) {
+      return
     }
-  }, [user, newsletterId])
 
-  const fetchNewsletter = async () => {
-    try {
-      const response = await fetch('/api/newsletters')
-      const result = await response.json()
-      
-      if (result.success) {
-        const userNewsletter = result.data.find((n: any) => n.id === newsletterId)
-        
-        if (!userNewsletter) {
-          router.push('/dashboard/newsletters')
-          return
+    const fetchNewsletter = async () => {
+      try {
+        const response = await fetch('/api/newsletters')
+        const result = await response.json()
+
+        if (result.success) {
+          const userNewsletter = result.data.find((n: any) => n.id === newsletterId)
+
+          if (!userNewsletter) {
+            router.push('/dashboard/newsletters')
+            return
+          }
+
+          if (!['approved', 'in_review', 'rejected'].includes(userNewsletter.review_status)) {
+            router.push('/dashboard/newsletters')
+            return
+          }
+
+          setNewsletter(userNewsletter)
+          setFormData({
+            open_rate: userNewsletter.open_rate?.toString() || '',
+            ctr_rate: userNewsletter.ctr_rate?.toString() || '',
+            cadence: userNewsletter.cadence || '',
+            signup_url: userNewsletter.signup_url || '',
+            sponsorship_price: userNewsletter.sponsorship_price?.toString() || ''
+          })
         }
-
-        // Consenti modifica per newsletter in stato Pending, rifiutate e approvate
-        if (!['approved', 'in_review', 'rejected'].includes(userNewsletter.review_status)) {
-          router.push('/dashboard/newsletters')
-          return
-        }
-
-        setNewsletter(userNewsletter)
-        setFormData({
-          open_rate: userNewsletter.open_rate?.toString() || '',
-          ctr_rate: userNewsletter.ctr_rate?.toString() || '',
-          cadence: userNewsletter.cadence || '',
-          signup_url: userNewsletter.signup_url || '',
-          sponsorship_price: userNewsletter.sponsorship_price?.toString() || ''
-        })
+      } catch (error) {
+        console.error('Error fetching newsletter:', error)
+        router.push('/dashboard/newsletters')
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      console.error('Error fetching newsletter:', error)
-      router.push('/dashboard/newsletters')
-    } finally {
-      setLoading(false)
     }
-  }
+
+    fetchNewsletter()
+  }, [newsletterId, router, user])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -149,7 +150,7 @@ export default function EditNewsletterPage() {
       } else {
         setErrors({ submit: result.error || 'Errore durante l\'aggiornamento della newsletter' })
       }
-    } catch (error: any) {
+    } catch {
       setErrors({ submit: 'Errore durante l\'aggiornamento della newsletter' })
     } finally {
       setIsSubmitting(false)

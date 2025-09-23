@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('analyze arvio website animations', async ({ page }) => {
   // Navigate to the website
@@ -93,7 +93,7 @@ test('analyze arvio website animations', async ({ page }) => {
         console.log(`    Hover: ${JSON.stringify(hoverStyles, null, 2)}`);
       }
       
-    } catch (error) {
+    } catch {
       console.log(`  - "${buttonText}": Could not analyze hover effect`);
     }
   }

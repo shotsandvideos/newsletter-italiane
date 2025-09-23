@@ -4,7 +4,7 @@ import { useAuth } from '../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Calendar, ChevronLeft, ChevronRight, Plus, Clock, Euro, Users, Mail, Menu, X, CheckCircle, XCircle, ExternalLink } from 'lucide-react'
+import { Calendar, ChevronLeft, ChevronRight, Clock, Users, Menu, X, CheckCircle, XCircle } from 'lucide-react'
 import Sidebar from '../../components/Sidebar'
 
 interface CalendarEvent {
@@ -28,7 +28,6 @@ export default function CalendarPage() {
   const router = useRouter()
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const [events, setEvents] = useState<CalendarEvent[]>([])
-  const [view, setView] = useState<'month' | 'week' | 'day'>('month')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [showEventModal, setShowEventModal] = useState(false)
@@ -42,28 +41,30 @@ export default function CalendarPage() {
 
   // Fetch calendar events
   useEffect(() => {
-    if (user) {
-      fetchEvents()
+    if (!user) {
+      return
     }
-  }, [user, currentDate])
 
-  const fetchEvents = async () => {
-    try {
-      const month = currentDate.getMonth() + 1
-      const year = currentDate.getFullYear()
-      
-      const response = await fetch(`/api/calendar?month=${month}&year=${year}`)
-      const result = await response.json()
-      
-      if (result.success) {
-        setEvents(result.data)
-      } else {
-        console.error('Error fetching events:', result.error)
+    const fetchEvents = async () => {
+      try {
+        const month = currentDate.getMonth() + 1
+        const year = currentDate.getFullYear()
+
+        const response = await fetch(`/api/calendar?month=${month}&year=${year}`)
+        const result = await response.json()
+
+        if (result.success) {
+          setEvents(result.data)
+        } else {
+          console.error('Error fetching events:', result.error)
+        }
+      } catch (error) {
+        console.error('Error fetching events:', error)
       }
-    } catch (error) {
-      console.error('Error fetching events:', error)
     }
-  }
+
+    fetchEvents()
+  }, [currentDate, user])
 
   // Calendar helpers
   const getDaysInMonth = (date: Date) => {

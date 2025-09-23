@@ -9,7 +9,6 @@ import {
   CreditCard, 
   Users, 
   Settings,
-  HelpCircle,
   X,
   LogOut,
   Shield,
@@ -17,7 +16,7 @@ import {
   FileText,
   Crown,
 } from 'lucide-react'
-// import { useAuth } from '../../hooks/useAuth' // Removed for localStorage admin
+import { useAuth } from '../../hooks/useAuth'
 import { cn } from '../../lib/utils'
 
 interface AdminSidebarProps {
@@ -44,12 +43,17 @@ const bottomNavigation = [
 
 export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: AdminSidebarProps) {
   const pathname = usePathname()
+  const { profile, signOut } = useAuth()
   
   const handleSignOut = async () => {
-    // Remove localStorage admin session
-    localStorage.removeItem('adminSession')
-    window.location.href = '/admin/login'
+    await signOut()
   }
+
+  const displayName = profile
+    ? `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim() || profile.email || 'Admin'
+    : 'Admin'
+
+  const roleLabel = profile?.role === 'admin' ? 'Super Administrator' : 'Administrator'
 
   return (
     <>
@@ -90,12 +94,12 @@ export default function AdminSidebar({ isMobileOpen = false, onMobileClose }: Ad
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="sidebar-text font-semibold text-slate-900 truncate">
-                Admin
+                {displayName}
               </h2>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              <p className="text-micro text-red-600 font-medium">Super Administrator</p>
+              <p className="text-micro text-red-600 font-medium">{roleLabel}</p>
             </div>
           </div>
           <button

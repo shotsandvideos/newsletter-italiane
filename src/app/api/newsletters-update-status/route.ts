@@ -4,30 +4,14 @@ import { createSupabaseServerClient } from '../../../lib/supabase-server'
 
 export async function PATCH(request: Request) {
   try {
-    // Check for admin panel authentication
-    const adminAuth = request.headers.get('x-admin-auth')
-    if (adminAuth === 'admin-panel') {
-      // Admin panel access - skip Supabase user check
-      console.log('Admin panel access granted for status update')
-    } else {
-      // Regular Supabase user access
-      const currentUserData = await getCurrentUser()
-      
-      if (!currentUserData?.user) {
-        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
-      }
+    const currentUserData = await getCurrentUser()
 
-      // Check if user is admin
-      const supabase = await createSupabaseServerClient()
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', currentUserData.user.id)
-        .single()
+    if (!currentUserData?.user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
 
-      if (profile?.role !== 'admin') {
-        return NextResponse.json({ success: false, error: 'Forbidden - Admin access required' }, { status: 403 })
-      }
+    if (currentUserData.profile?.role !== 'admin') {
+      return NextResponse.json({ success: false, error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
     const { id, review_status, rejection_reason } = await request.json()

@@ -23,7 +23,7 @@ export default function SignOutPage() {
     }, 2000)
     
     return () => clearTimeout(timeout)
-  }, []) // Remove signOut from dependencies to avoid re-runs
+  }, [router, signOut])
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">

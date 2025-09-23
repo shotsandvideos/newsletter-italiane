@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { 
   HandHeart,
   Building2,
@@ -9,31 +8,27 @@ import {
   Euro,
   Users,
   Search,
-  Filter,
   Menu,
   CheckCircle,
   XCircle,
   Clock,
   AlertCircle,
   Eye,
-  MessageSquare,
-  TrendingUp,
   Target,
-  MapPin,
   Plus,
   X,
   Send,
-  Image,
+  Image as ImageIcon,
   FileText,
   Link2,
-  Trash2,
-  Edit
+  Trash2
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
+import { useRequireAdmin } from '../../../hooks/useRequireAdmin'
 
 export default function AdminPropostePage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const { isAdmin, loading: authLoading } = useRequireAdmin()
+  const [pageLoading, setPageLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -41,14 +36,33 @@ export default function AdminPropostePage() {
   const [showEditProposalModal, setShowEditProposalModal] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [proposals, setProposals] = useState([])
-  const [approvedNewsletters, setApprovedNewsletters] = useState([])
+  const [approvedNewsletters, setApprovedNewsletters] = useState<any[]>([])
   const [editingProposal, setEditingProposal] = useState(null)
   const [detailsProposal, setDetailsProposal] = useState(null)
-  const [isEditMode, setIsEditMode] = useState(false)
   const [communicationMessage, setCommunicationMessage] = useState('')
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [emailSuccessMessage, setEmailSuccessMessage] = useState('')
-  const [editedProposal, setEditedProposal] = useState({})
+  const [editedProposal, setEditedProposal] = useState<{
+    brand_name: string
+    sponsorship_type: string
+    campaign_start_date: string
+    campaign_end_date: string
+    product_type: string
+    ideal_target_audience: string
+    admin_copy_text: string
+    admin_brief_text: string
+    target_newsletter_ids: string[]
+  }>({
+    brand_name: '',
+    sponsorship_type: '',
+    campaign_start_date: '',
+    campaign_end_date: '',
+    product_type: '',
+    ideal_target_audience: '',
+    admin_copy_text: '',
+    admin_brief_text: '',
+    target_newsletter_ids: []
+  })
   const [newProposal, setNewProposal] = useState({
     brand_name: '',
     sponsorship_type: '',
@@ -65,26 +79,6 @@ export default function AdminPropostePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newImageUrl, setNewImageUrl] = useState('')
   const [newTrackingUrl, setNewTrackingUrl] = useState('')
-  const router = useRouter()
-
-  useEffect(() => {
-    const adminSession = localStorage.getItem('adminSession')
-    if (adminSession) {
-      try {
-        const session = JSON.parse(adminSession)
-        if (session.username === 'admin' && session.role === 'admin') {
-          setIsAuthenticated(true)
-        } else {
-          router.push('/admin/login')
-        }
-      } catch {
-        router.push('/admin/login')
-      }
-    } else {
-      router.push('/admin/login')
-    }
-    setLoading(false)
-  }, [router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -93,6 +87,15 @@ export default function AdminPropostePage() {
 
   const handleNewsletterSelection = (newsletterId: string) => {
     setNewProposal(prev => ({
+      ...prev,
+      target_newsletter_ids: prev.target_newsletter_ids.includes(newsletterId)
+        ? prev.target_newsletter_ids.filter(id => id !== newsletterId)
+        : [...prev.target_newsletter_ids, newsletterId]
+    }))
+  }
+
+  const handleDetailsNewsletterSelection = (newsletterId: string) => {
+    setEditedProposal(prev => ({
       ...prev,
       target_newsletter_ids: prev.target_newsletter_ids.includes(newsletterId)
         ? prev.target_newsletter_ids.filter(id => id !== newsletterId)
@@ -154,7 +157,6 @@ export default function AdminPropostePage() {
 
   const handleOpenDetails = (proposal) => {
     setDetailsProposal(proposal)
-    setIsEditMode(true)
     setCommunicationMessage('')
     setEditedProposal({
       brand_name: proposal.brand_name,
@@ -164,7 +166,8 @@ export default function AdminPropostePage() {
       product_type: proposal.product_type,
       ideal_target_audience: proposal.ideal_target_audience,
       admin_copy_text: proposal.admin_copy_text || '',
-      admin_brief_text: proposal.admin_brief_text || ''
+      admin_brief_text: proposal.admin_brief_text || '',
+      target_newsletter_ids: proposal.proposal_newsletters?.map(pn => pn.newsletter_id) || []
     })
     setShowDetailsModal(true)
   }
@@ -177,11 +180,7 @@ export default function AdminPropostePage() {
     
     try {
       // Fetch author emails using the new API endpoint
-      const response = await fetch(`/api/admin/proposals/${detailsProposal.id}/emails`, {
-        headers: {
-          'x-admin-auth': 'admin-panel'
-        }
-      })
+      const response = await fetch(`/api/admin/proposals/${detailsProposal.id}/emails`)
       
       const result = await response.json()
       
@@ -234,13 +233,12 @@ export default function AdminPropostePage() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-auth': 'admin-panel'
         },
         body: JSON.stringify(editedProposal)
       })
 
       if (response.ok) {
-        const result = await response.json()
+        await response.json()
         // Update the local proposal data
         setDetailsProposal(prev => ({ ...prev, ...editedProposal }))
         // Refresh the proposals list
@@ -275,7 +273,6 @@ export default function AdminPropostePage() {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-auth': 'admin-panel'
         },
         body: JSON.stringify(newProposal)
       })
@@ -311,11 +308,7 @@ export default function AdminPropostePage() {
 
   const fetchProposals = async () => {
     try {
-      const response = await fetch('/api/admin/proposals', {
-        headers: {
-          'x-admin-auth': 'admin-panel'
-        }
-      })
+      const response = await fetch('/api/admin/proposals')
       if (response.ok) {
         const data = await response.json()
         setProposals(data.data || [])
@@ -327,11 +320,7 @@ export default function AdminPropostePage() {
 
   const fetchApprovedNewsletters = async () => {
     try {
-      const response = await fetch('/api/newsletters-all', {
-        headers: {
-          'x-admin-auth': 'admin-panel'
-        }
-      })
+      const response = await fetch('/api/newsletters-all')
       if (response.ok) {
         const data = await response.json()
         // Filter only approved newsletters
@@ -344,11 +333,12 @@ export default function AdminPropostePage() {
   }
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchProposals()
-      fetchApprovedNewsletters()
-    }
-  }, [isAuthenticated])
+    if (authLoading || !isAdmin) return
+
+    setPageLoading(true)
+    Promise.all([fetchProposals(), fetchApprovedNewsletters()])
+      .finally(() => setPageLoading(false))
+  }, [authLoading, isAdmin])
 
   const filters = [
     { value: 'all', label: 'Tutte', count: proposals.length },
@@ -356,27 +346,6 @@ export default function AdminPropostePage() {
     { value: 'accepted', label: 'Accettate', count: proposals.filter(p => p.status === 'accepted').length },
     { value: 'rejected', label: 'Rifiutate', count: proposals.filter(p => p.status === 'rejected').length }
   ]
-
-  const getStatusInfo = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return { label: 'In attesa', color: 'bg-yellow-100 text-yellow-700', icon: Clock }
-      case 'accepted':
-        return { label: 'Accettata', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle }
-      case 'rejected':
-        return { label: 'Rifiutata', color: 'bg-red-100 text-red-700', icon: XCircle }
-      default:
-        return { label: status, color: 'bg-slate-100 text-slate-700', icon: Clock }
-    }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'border-l-red-500'
-      case 'medium': return 'border-l-orange-500'
-      default: return 'border-l-slate-300'
-    }
-  }
 
   const filteredProposals = proposals.filter(proposal => {
     const matchesFilter = selectedFilter === 'all' || proposal.status === selectedFilter
@@ -386,7 +355,7 @@ export default function AdminPropostePage() {
     return matchesFilter && matchesSearch
   })
 
-  if (loading) {
+  if (authLoading || pageLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
@@ -394,7 +363,7 @@ export default function AdminPropostePage() {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return null
   }
 
@@ -539,9 +508,6 @@ export default function AdminPropostePage() {
                   </div>
                 ) : (
                   filteredProposals.map((proposal) => {
-                    const statusInfo = getStatusInfo(proposal.status)
-                    const StatusIcon = statusInfo.icon
-
                     return (
                       <div key={proposal.id} className="p-3 hover:bg-slate-50 transition-colors border-l-4 border-l-slate-300">
                         <div className="flex items-center justify-between">
@@ -560,7 +526,6 @@ export default function AdminPropostePage() {
                                   const newsletters = proposal.proposal_newsletters || []
                                   const acceptedCount = newsletters.filter(pn => pn.status === 'accepted').length
                                   const rejectedCount = newsletters.filter(pn => pn.status === 'rejected').length
-                                  const pendingCount = newsletters.filter(pn => pn.status === 'pending').length
                                   const totalCount = newsletters.length
                                   
                                   if (acceptedCount === totalCount && totalCount > 0) {
@@ -613,6 +578,14 @@ export default function AdminPropostePage() {
                           </div>
 
                           <div className="flex items-center gap-2 ml-3">
+                            <button 
+                              onClick={() => handleEditProposal(proposal)}
+                              className="px-3 py-1.5 bg-slate-100 text-slate-700 text-xs rounded hover:bg-slate-200 transition-colors"
+                              title="Modifica proposta"
+                              type="button"
+                            >
+                              Modifica
+                            </button>
                             <button 
                               onClick={() => handleOpenDetails(proposal)}
                               className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex items-center gap-1"
@@ -844,7 +817,7 @@ export default function AdminPropostePage() {
                     <div className="space-y-2">
                       {newProposal.admin_assets_images.map((url, index) => (
                         <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
-                          <Image className="w-4 h-4 text-slate-600" />
+                          <ImageIcon className="w-4 h-4 text-slate-600" />
                           <span className="flex-1 text-sm text-slate-900 truncate">{url}</span>
                           <button
                             type="button"
@@ -962,6 +935,17 @@ export default function AdminPropostePage() {
                 onClick={() => {
                   setShowDetailsModal(false)
                   setDetailsProposal(null)
+                  setEditedProposal({
+                    brand_name: '',
+                    sponsorship_type: '',
+                    campaign_start_date: '',
+                    campaign_end_date: '',
+                    product_type: '',
+                    ideal_target_audience: '',
+                    admin_copy_text: '',
+                    admin_brief_text: '',
+                    target_newsletter_ids: []
+                  })
                   setEmailSuccessMessage('')
                 }}
                 className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
@@ -1045,6 +1029,11 @@ export default function AdminPropostePage() {
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">
                   Newsletter Coinvolte ({detailsProposal.proposal_newsletters?.length || 0})
                 </h3>
+                
+                {/* TEST - Questa sezione dovrebbe essere sempre visibile */}
+                <div className="mb-4 p-4 bg-red-100 border-2 border-red-500 rounded-lg">
+                  <p className="text-red-800 font-bold">🔴 TEST: Se vedi questo box rosso, il codice funziona!</p>
+                </div>
                 
                 {detailsProposal.proposal_newsletters && detailsProposal.proposal_newsletters.length > 0 ? (
                   <div className="space-y-4">
@@ -1163,6 +1152,55 @@ export default function AdminPropostePage() {
                     Nessuna newsletter associata a questa proposta
                   </div>
                 )}
+
+                {/* Newsletter Modification Section - ALWAYS VISIBLE FOR TESTING */}
+                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="text-sm font-medium text-slate-900 mb-3 flex items-center gap-2">
+                    <Target className="w-4 h-4" />
+                    Modifica Newsletter Incluse ({editedProposal.target_newsletter_ids?.length || 0} selezionate)
+                  </h4>
+                  
+                  {/* Debug Info */}
+                  <div className="mb-3 p-2 bg-gray-100 rounded text-xs">
+                    <strong>Debug:</strong> Newsletter approvate trovate: {approvedNewsletters.length}
+                    {approvedNewsletters.length > 0 && (
+                      <span> - Selezionate: {editedProposal.target_newsletter_ids?.length || 0}</span>
+                    )}
+                  </div>
+                  
+                  {approvedNewsletters.length === 0 ? (
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-sm text-yellow-800">Nessuna newsletter approvata disponibile. Controlla che ci siano newsletter con status 'approved'.</p>
+                    </div>
+                  ) : (
+                    <div className="max-h-48 overflow-y-auto border border-slate-300 rounded-lg bg-white">
+                      {approvedNewsletters.map((newsletter) => (
+                        <label
+                          key={newsletter.id}
+                          className="flex items-center p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={editedProposal.target_newsletter_ids?.includes(newsletter.id) || false}
+                            onChange={() => handleDetailsNewsletterSelection(newsletter.id)}
+                            className="mr-3 h-4 w-4 text-red-600 focus:ring-red-500 border-slate-300 rounded"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-slate-900 truncate">
+                              {newsletter.title}
+                            </div>
+                            <div className="text-xs text-slate-600">
+                              {newsletter.author_first_name} {newsletter.author_last_name} • {newsletter.audience_size} iscritti
+                            </div>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-slate-600 mt-2">
+                    Modifica la selezione delle newsletter per questa proposta. Le modifiche saranno salvate quando clicchi "Salva Modifiche".
+                  </p>
+                </div>
               </div>
 
               {/* Admin Materials */}
@@ -1297,8 +1335,17 @@ export default function AdminPropostePage() {
                   onClick={() => {
                     setShowDetailsModal(false)
                     setDetailsProposal(null)
-                    setIsEditMode(false)
-                    setEditedProposal({})
+                    setEditedProposal({
+                      brand_name: '',
+                      sponsorship_type: '',
+                      campaign_start_date: '',
+                      campaign_end_date: '',
+                      product_type: '',
+                      ideal_target_audience: '',
+                      admin_copy_text: '',
+                      admin_brief_text: '',
+                      target_newsletter_ids: []
+                    })
                     setCommunicationMessage('')
                     setEmailSuccessMessage('')
                   }}

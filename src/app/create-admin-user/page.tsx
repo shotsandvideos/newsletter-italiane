@@ -10,88 +10,57 @@ export default function CreateAdminUser() {
   
   const createAdmin = async () => {
     setLoading(true)
-    setStatus('Creating admin user...')
+    setStatus('Creating admin session...')
     
     try {
-      // Check if admin already exists
-      const { data: existingSession } = await supabase.auth.getSession()
-      if (existingSession.session) {
-        await supabase.auth.signOut()
-      }
-      
-      // Try to sign in first
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: 'admin@frames.it',
-        password: 'Admin123456!'
+      // Create admin user and session directly via API
+      const response = await fetch('/api/create-admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: 'shotsandvideos@gmail.com',
+          password: 'Admin123456!',
+          first_name: 'Admin',
+          last_name: 'User'
+        })
       })
       
-      if (!signInError) {
-        setStatus('Admin user already exists and logged in!')
+      const result = await response.json()
+      
+      if (!response.ok) {
+        setStatus(`Error: ${result.error}`)
+        return
+      }
+      
+      if (result.success) {
+        setStatus('✅ Admin user created! Now logging in...')
         
-        // Update profile to admin role
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-          await supabase
-            .from('profiles')
-            .upsert({
-              id: user.id,
-              email: user.email,
-              first_name: 'Admin',
-              last_name: 'User',
-              role: 'admin',
-              is_active: true
-            })
-          
-          setStatus('✅ Admin user ready! Redirecting to admin panel...')
-          setTimeout(() => {
-            window.location.href = '/admin/newsletters'
-          }, 2000)
-        }
-        return
-      }
-      
-      // Create new admin user
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: 'admin@frames.it',
-        password: 'Admin123456!',
-        options: {
-          data: {
-            first_name: 'Admin',
-            last_name: 'User',
-            role: 'admin'
-          }
-        }
-      })
-      
-      if (signUpError) {
-        setStatus(`Error: ${signUpError.message}`)
-        return
-      }
-      
-      if (signUpData.user) {
-        // Create admin profile
-        await supabase
-          .from('profiles')
-          .upsert({
-            id: signUpData.user.id,
-            email: signUpData.user.email,
-            first_name: 'Admin',
-            last_name: 'User',
-            role: 'admin',
-            is_active: true
+        // Get admin login magic link
+        const loginResponse = await fetch('/api/admin-login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: 'shotsandvideos@gmail.com'
           })
-        
-        // Sign in
-        await supabase.auth.signInWithPassword({
-          email: 'admin@frames.it',
-          password: 'Admin123456!'
         })
         
-        setStatus('✅ Admin user created! Redirecting to admin panel...')
-        setTimeout(() => {
-          window.location.href = '/admin/newsletters'
-        }, 2000)
+        const loginResult = await loginResponse.json()
+        
+        if (loginResult.success && loginResult.magic_link) {
+          setStatus('✅ Login magic link generated! Redirecting...')
+          setTimeout(() => {
+            window.location.href = loginResult.magic_link
+          }, 1000)
+        } else {
+          setStatus('⚠️ Admin created but auto-login failed. Please try manual login.')
+          console.error('Login error:', loginResult.error)
+        }
       }
+      
     } catch (error: any) {
       setStatus(`Error: ${error.message}`)
     } finally {
@@ -108,7 +77,7 @@ export default function CreateAdminUser() {
           <div className="mb-6">
             <p className="text-sm text-gray-400 mb-4">Admin Credentials:</p>
             <code className="block bg-slate-900 p-3 rounded">
-              Email: admin@frames.it<br/>
+              Email: shotsandvideos@gmail.com<br/>
               Password: Admin123456!
             </code>
           </div>

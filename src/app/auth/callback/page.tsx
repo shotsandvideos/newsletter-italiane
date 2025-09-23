@@ -9,13 +9,23 @@ function AuthCallbackContent() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState('Accesso in corso...')
 
+  const redirectParam = searchParams.get('redirectTo')
+  let redirectTarget = '/dashboard'
+  if (redirectParam) {
+    try {
+      redirectTarget = decodeURIComponent(redirectParam)
+    } catch {
+      redirectTarget = redirectParam
+    }
+  }
+
   useEffect(() => {
 
     // Safety timeout - redirect after 5 seconds if still stuck (emergency fallback only)
     const safetyTimeout = setTimeout(() => {
       console.log('OAuth callback timeout - redirecting to sign-in')
       setStatus('Timeout - reindirizzamento...')
-      router.push('/auth/sign-in?error=' + encodeURIComponent('Timeout durante l\'autenticazione'))
+      router.push('/auth/sign-in?error=' + encodeURIComponent('Timeout durante l\'autenticazione') + (redirectParam ? `&redirectTo=${redirectParam}` : ''))
     }, 5000)
 
     const handleAuthCallback = async () => {
@@ -35,7 +45,7 @@ function AuthCallbackContent() {
           console.error('OAuth error from URL:', error)
           setStatus('Errore di autenticazione')
           setTimeout(() => {
-            router.push('/auth/sign-in?error=' + encodeURIComponent(error))
+            router.push('/auth/sign-in?error=' + encodeURIComponent(error) + (redirectParam ? `&redirectTo=${redirectParam}` : ''))
           }, 1000)
           return
         }
@@ -64,7 +74,7 @@ function AuthCallbackContent() {
             console.error('Error exchanging code for session:', exchangeError)
             setStatus('Errore durante l\'accesso')
             setTimeout(() => {
-              router.push('/auth/sign-in?error=' + encodeURIComponent(exchangeError.message))
+            router.push('/auth/sign-in?error=' + encodeURIComponent(exchangeError.message) + (redirectParam ? `&redirectTo=${redirectParam}` : ''))
             }, 1000)
             return
           }
@@ -75,7 +85,7 @@ function AuthCallbackContent() {
             clearTimeout(safetyTimeout)
             
             // Immediate redirect for better performance
-            router.push('/dashboard')
+            router.push(redirectTarget)
             return
           }
         }
@@ -90,7 +100,7 @@ function AuthCallbackContent() {
           console.error('Error getting session:', sessionError)
           setStatus('Errore di sessione')
           setTimeout(() => {
-            router.push('/auth/sign-in?error=' + encodeURIComponent(sessionError.message))
+          router.push('/auth/sign-in?error=' + encodeURIComponent(sessionError.message) + (redirectParam ? `&redirectTo=${redirectParam}` : ''))
           }, 1000)
           return
         }
@@ -99,19 +109,19 @@ function AuthCallbackContent() {
           console.log('Found existing session')
           setStatus('Accesso trovato! Reindirizzamento...')
           clearTimeout(safetyTimeout)
-          router.push('/dashboard')
+          router.push(redirectTarget)
         } else {
           console.log('No session found')
           setStatus('Nessuna sessione trovata')
           clearTimeout(safetyTimeout)
-          router.push('/auth/sign-in')
+          router.push('/auth/sign-in' + (redirectParam ? `?redirectTo=${redirectParam}` : ''))
         }
       } catch (error: any) {
         console.error('Unexpected error during OAuth callback:', error)
         setStatus('Errore imprevisto')
         clearTimeout(safetyTimeout)
         setTimeout(() => {
-          router.push('/auth/sign-in?error=' + encodeURIComponent('Si è verificato un errore durante l\'autenticazione'))
+          router.push('/auth/sign-in?error=' + encodeURIComponent('Si è verificato un errore durante l\'autenticazione') + (redirectParam ? `&redirectTo=${redirectParam}` : ''))
         }, 1000)
       }
     }
@@ -122,7 +132,7 @@ function AuthCallbackContent() {
     return () => {
       clearTimeout(safetyTimeout)
     }
-  }, [router, searchParams])
+  }, [redirectParam, redirectTarget, router, searchParams])
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { 
   Calendar,
   CalendarDays,
@@ -10,27 +9,22 @@ import {
   CheckCircle,
   Users,
   Mail,
-  Euro,
   Search,
   Filter,
   Menu,
   ChevronLeft,
   ChevronRight,
-  Plus,
-  Eye,
-  Edit
+  Eye
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
+import { useRequireAdmin } from '../../../hooks/useRequireAdmin'
 
 export default function AdminCalendarioPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const { isAdmin, loading: authLoading } = useRequireAdmin()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month')
   const [events, setEvents] = useState([])
-  const [eventsLoading, setEventsLoading] = useState(true)
-  const router = useRouter()
 
   // Calendar helpers
   const getDaysInMonth = (date: Date) => {
@@ -81,58 +75,35 @@ export default function AdminCalendarioPage() {
   const dayNames = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
 
   useEffect(() => {
-    const adminSession = localStorage.getItem('adminSession')
-    if (adminSession) {
+    if (authLoading || !isAdmin) {
+      return
+    }
+
+    const fetchEvents = async () => {
       try {
-        const session = JSON.parse(adminSession)
-        if (session.username === 'admin' && session.role === 'admin') {
-          setIsAuthenticated(true)
+        const month = selectedDate.getMonth() + 1
+        const year = selectedDate.getFullYear()
+        
+        const response = await fetch(`/api/admin/calendar?month=${month}&year=${year}`)
+        const result = await response.json()
+        
+        if (result.success) {
+          setEvents(result.data)
         } else {
-          router.push('/admin/login')
+          console.error('Error fetching events:', result.error)
         }
-      } catch {
-        router.push('/admin/login')
+      } catch (error) {
+        console.error('Error fetching events:', error)
       }
-    } else {
-      router.push('/admin/login')
     }
-    setLoading(false)
-  }, [router])
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchEvents()
-    }
-  }, [isAuthenticated, selectedDate])
-
-  const fetchEvents = async () => {
-    try {
-      setEventsLoading(true)
-      const month = selectedDate.getMonth() + 1
-      const year = selectedDate.getFullYear()
-      
-      const response = await fetch(`/api/admin/calendar?month=${month}&year=${year}`, {
-        headers: {
-          'x-admin-auth': 'admin-panel'
-        }
-      })
-      const result = await response.json()
-      
-      if (result.success) {
-        setEvents(result.data)
-      } else {
-        console.error('Error fetching events:', result.error)
-      }
-    } catch (error) {
-      console.error('Error fetching events:', error)
-    } finally {
-      setEventsLoading(false)
-    }
-  }
+    fetchEvents()
+  }, [authLoading, isAdmin, selectedDate])
 
   const getEventTypeInfo = (sponsorshipType: string) => {
-    // Map sponsorship types to appropriate display info
-    return { label: 'Campagna Sponsorizzata', icon: Users, color: 'text-red-600', bgColor: 'bg-red-100' }
+    const normalized = sponsorshipType?.trim()
+    const label = normalized ? `Campagna: ${normalized}` : 'Campagna Sponsorizzata'
+    return { label, icon: Users, color: 'text-red-600', bgColor: 'bg-red-100' }
   }
 
   const getStatusInfo = (status: string) => {
@@ -145,14 +116,6 @@ export default function AdminCalendarioPage() {
         return { label: 'Cancellato', color: 'bg-red-100 text-red-700' }
       default:
         return { label: status, color: 'bg-slate-100 text-slate-700' }
-    }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'border-l-red-500'
-      case 'medium': return 'border-l-orange-500'
-      default: return 'border-l-slate-300'
     }
   }
 
@@ -177,7 +140,7 @@ export default function AdminCalendarioPage() {
     cancelled: events.filter(e => e.status === 'cancelled').length
   }
 
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
@@ -185,7 +148,7 @@ export default function AdminCalendarioPage() {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return null
   }
 
@@ -477,7 +440,7 @@ export default function AdminCalendarioPage() {
                                   return (
                                     <div
                                       key={event.id}
-                                      className="text-xs p-1 rounded bg-red-100 text-red-700 truncate"
+                                      className={`text-xs p-1 rounded truncate ${statusInfo.color}`}
                                       title={`${event.brand_name} - ${event.newsletter_title}`}
                                     >
                                       {event.brand_name}

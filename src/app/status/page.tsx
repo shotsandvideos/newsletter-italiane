@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
-import { ArrowLeft, Check, Clock, Activity, Server, Database, Shield } from 'lucide-react'
+import { ArrowLeft, Check, Activity, Server, Database, Shield } from 'lucide-react'
 
 const systemServices = [
   { name: 'API Services', status: 'operational', uptime: '99.9%', icon: <Server className="w-5 h-5" /> },

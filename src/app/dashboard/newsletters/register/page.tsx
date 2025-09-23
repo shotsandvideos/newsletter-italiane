@@ -34,7 +34,6 @@ export default function RegisterNewsletterPage() {
     author_email: user?.email || ''
   })
 
-  const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -76,7 +75,6 @@ export default function RegisterNewsletterPage() {
         return
       }
       
-      setLogoFile(file)
       setErrors(prev => ({ ...prev, logo: '' }))
       
       // Create preview
@@ -217,7 +215,7 @@ export default function RegisterNewsletterPage() {
 
         {/* Content */}
         <main className="flex-1 overflow-auto">
-          <div className="max-w-6xl mx-auto px-6 py-6">
+          <div className="w-full px-6 py-6">
             {/* Header */}
             <div className="mb-6">
               <Link 
@@ -250,7 +248,7 @@ export default function RegisterNewsletterPage() {
                   Informazioni Base
                 </h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Title */}
                   <div>
                     <label htmlFor="title" className="block text-xs font-medium text-foreground mb-1">
@@ -387,6 +385,7 @@ export default function RegisterNewsletterPage() {
                       </div>
                       {logoPreview && (
                         <div className="w-12 h-12 rounded-lg overflow-hidden border border-border">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={logoPreview}
                             alt="Preview logo"
@@ -407,7 +406,7 @@ export default function RegisterNewsletterPage() {
                   URL e Collegamenti
                 </h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Signup URL */}
                   <div>
                     <label htmlFor="signup_url" className="block text-xs font-medium text-foreground mb-1">

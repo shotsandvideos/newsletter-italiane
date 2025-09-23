@@ -1,19 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Users, 
-  Mail, 
-  Eye, 
+import {
+  BarChart3,
+  TrendingUp,
+  Users,
+  Mail,
+  Eye,
   MousePointer,
-  Calendar,
   Download,
-  Filter,
   ChevronDown,
   Menu,
-  X,
   DollarSign
 } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
@@ -91,11 +88,6 @@ export default function AnalyticsPage() {
       description: 'costo per click'
     }
   ]
-
-  const chartData = {
-    subscribers: [],
-    engagement: []
-  }
 
   if (authLoading) {
     return (

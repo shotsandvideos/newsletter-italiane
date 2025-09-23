@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '../../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { 
+import {
   Play,
   Clock,
   Users,
@@ -13,8 +13,6 @@ import {
   ArrowLeft,
   ChevronRight,
   Search,
-  Filter,
-  BookOpen,
   PlayCircle,
   Video
 } from 'lucide-react'

@@ -1,18 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { 
   CreditCard,
-  Euro,
   TrendingUp,
-  TrendingDown,
   Clock,
   CheckCircle,
   XCircle,
   AlertCircle,
   Search,
-  Filter,
   Menu,
   Download,
   Eye,
@@ -25,33 +21,13 @@ import {
   Users
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
+import { useRequireAdmin } from '../../../hooks/useRequireAdmin'
 
 export default function AdminPagamentiPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const { isAdmin, loading: authLoading } = useRequireAdmin()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const router = useRouter()
-
-  useEffect(() => {
-    const adminSession = localStorage.getItem('adminSession')
-    if (adminSession) {
-      try {
-        const session = JSON.parse(adminSession)
-        if (session.username === 'admin' && session.role === 'admin') {
-          setIsAuthenticated(true)
-        } else {
-          router.push('/admin/login')
-        }
-      } catch {
-        router.push('/admin/login')
-      }
-    } else {
-      router.push('/admin/login')
-    }
-    setLoading(false)
-  }, [router])
 
   const payments = []
 
@@ -108,7 +84,7 @@ export default function AdminPagamentiPage() {
     failedAmount: payments.filter(p => p.status === 'failed').reduce((sum, p) => sum + Math.abs(p.amount), 0)
   }
 
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
@@ -116,7 +92,7 @@ export default function AdminPagamentiPage() {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return null
   }
 

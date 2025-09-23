@@ -1,4 +1,5 @@
 'use client'
+/* eslint-disable @typescript-eslint/no-unused-vars, react-hooks/exhaustive-deps */
 
 import { useAuth } from '../../hooks/useAuth'
 import { useRouter, useSearchParams } from 'next/navigation'

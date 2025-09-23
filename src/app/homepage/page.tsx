@@ -1,4 +1,5 @@
 'use client'
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
@@ -237,38 +238,38 @@ export default function HomePage() {
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight">
-              <TextReveal 
-                text="Dove i" 
-                delay={200}
-                className="inline-block mr-4"
-              />
-              <TextReveal 
-                text="brand" 
-                delay={400}
-                className="inline-block mr-4"
-                style={{
-                  background: 'linear-gradient(135deg, #32c2db 0%, #67e294 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}
-              />
-              <TextReveal 
-                text="incontrano le" 
-                delay={600}
-                className="inline-block mr-4"
-              />
-              <TextReveal 
-                text="newsletter" 
-                delay={800}
-                className="inline-block"
-                style={{
-                  background: 'linear-gradient(135deg, #32c2db 0%, #67e294 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}
-              />
+              <span className="flex flex-wrap items-baseline justify-center gap-x-1 md:gap-x-2 gap-y-1">
+                <TextReveal 
+                  text="Dove"
+                  delay={200}
+                  className="inline align-baseline"
+                />
+                <TextReveal 
+                  text="i"
+                  delay={300}
+                  className="inline align-baseline"
+                />
+                <TextReveal 
+                  text="brand"
+                  delay={400}
+                  className="inline align-baseline bg-gradient-to-r from-emerald-500 to-sky-500 bg-clip-text text-transparent px-1"
+                />
+                <TextReveal 
+                  text="incontrano"
+                  delay={500}
+                  className="inline align-baseline"
+                />
+                <TextReveal 
+                  text="le"
+                  delay={600}
+                  className="inline align-baseline"
+                />
+                <TextReveal 
+                  text="newsletter"
+                  delay={700}
+                  className="inline align-baseline bg-gradient-to-r from-emerald-500 to-sky-500 bg-clip-text text-transparent px-1"
+                />
+              </span>
             </h1>
             
             <FadeInOnScroll delay={1000} direction="up">
@@ -369,7 +370,7 @@ export default function HomePage() {
               >
                 {[...featuredNewsletters.slice(0, 3), ...featuredNewsletters.slice(0, 3)].map((newsletter, index) => (
                   <div key={index} className="flex-shrink-0 w-80">
-                    <div className="p-6 bg-white/90 backdrop-blur-sm border border-border rounded-lg shadow-sm hover:shadow-lg active:shadow-lg transition-all duration-300 hover:-translate-y-1 active:-translate-y-1">
+                    <div className="p-6 bg-white/90 backdrop-blur-sm border border-border rounded-lg shadow-sm md:hover:shadow-lg transition-all duration-300 md:hover:-translate-y-1">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-semibold text-slate-900">{newsletter.name}</h3>
                         <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">
@@ -403,7 +404,7 @@ export default function HomePage() {
               >
                 {[...featuredNewsletters.slice(3), ...featuredNewsletters.slice(3)].map((newsletter, index) => (
                   <div key={index} className="flex-shrink-0 w-80">
-                    <div className="p-6 bg-white/90 backdrop-blur-sm border border-border rounded-lg shadow-sm hover:shadow-lg active:shadow-lg transition-all duration-300 hover:-translate-y-1 active:-translate-y-1">
+                    <div className="p-6 bg-white/90 backdrop-blur-sm border border-border rounded-lg shadow-sm md:hover:shadow-lg transition-all duration-300 md:hover:-translate-y-1">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-semibold text-slate-900">{newsletter.name}</h3>
                         <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">

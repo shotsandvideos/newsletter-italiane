@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { User, AuthError, Session } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
@@ -37,14 +37,125 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [profileLoaded, setProfileLoaded] = useState(false)
   const router = useRouter()
+
+  const fetchProfile = useCallback(async (userId: string) => {
+    if (profileLoaded) {
+      console.log('Profile already loaded, skipping fetch')
+      return
+    }
+
+    console.log('Fetching profile for user:', userId)
+    
+    // Try to fetch real profile from database first
+    try {
+      console.log('Attempting to fetch profile from database...')
+      
+      // Add timeout for database query
+      const profilePromise = supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle()
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database query timeout')), 2000)
+      )
+      
+      const { data, error } = await Promise.race([profilePromise, timeoutPromise]) as any
+
+      if (error) {
+        console.log('Database fetch error:', error.message)
+        // Create a basic profile as fallback
+        const basicProfile = {
+          id: userId,
+          email: user?.email || '',
+          first_name: null,
+          last_name: null,
+          username: null,
+          avatar_url: null,
+          role: 'creator' as const,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        setProfile(basicProfile)
+        setProfileLoaded(true)
+        return
+      }
+
+      if (data) {
+        console.log('Profile loaded from database:', data, 'Role:', data.role)
+        setProfile(data)
+        setProfileLoaded(true)
+      } else {
+        console.log('No profile in database, attempting to create...')
+        // Try to create profile
+        const { data: createdProfile } = await supabase
+          .from('profiles')
+          .insert([{
+            id: userId,
+            email: user?.email || '',
+            first_name: null,
+            last_name: null,
+            username: null,
+            avatar_url: null,
+            role: 'creator' as const,
+            is_active: true
+          }])
+          .select()
+          .single()
+        
+        if (createdProfile) {
+          console.log('Profile created successfully:', createdProfile)
+          setProfile(createdProfile)
+        } else {
+          // Fallback to basic profile
+          const basicProfile = {
+            id: userId,
+            email: user?.email || '',
+            first_name: null,
+            last_name: null,
+            username: null,
+            avatar_url: null,
+            role: 'creator' as const,
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          setProfile(basicProfile)
+        }
+        setProfileLoaded(true)
+      }
+    } catch (error: any) {
+      console.log('Error fetching profile:', error?.message || error)
+      // Create a basic profile as fallback
+      const basicProfile = {
+        id: userId,
+        email: user?.email || '',
+        first_name: null,
+        last_name: null,
+        username: null,
+        avatar_url: null,
+        role: 'creator' as const,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      setProfile(basicProfile)
+      setProfileLoaded(true)
+    }
+    
+    console.log('fetchProfile completed')
+  }, [user?.email, profileLoaded])
 
   useEffect(() => {
     // Timeout fallback to prevent infinite loading
     const timeout = setTimeout(() => {
       console.log('Auth loading timeout - forcing completion')
       setLoading(false)
-    }, 5000) // 5 second timeout
+    }, 3000) // 3 second timeout
 
     // Get initial session
     const getSession = async () => {
@@ -66,13 +177,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('Fetching profile for user:', session.user.id)
           try {
             await fetchProfile(session.user.id)
+            console.log('Profile fetch completed successfully')
           } catch (err) {
             console.error('fetchProfile error in init:', err)
           }
         } else {
           console.log('No session found - user needs to login')
         }
-        console.log('Session initialization complete')
+        console.log('Session initialization complete, setting loading to false')
         setLoading(false)
       } catch (error) {
         console.error('Error getting session:', error)
@@ -102,6 +214,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           } else {
             setProfile(null)
+            setProfileLoaded(false)
             setLoading(false)
           }
           
@@ -120,76 +233,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe()
       clearTimeout(timeout)
     }
-  }, [supabase.auth, router])
-
-  const fetchProfile = async (userId: string) => {
-    console.log('Fetching profile for user:', userId)
-    
-    // Create a basic profile immediately as fallback to prevent UI blocking
-    const basicProfile = {
-      id: userId,
-      email: user?.email || '',
-      first_name: null,
-      last_name: null,
-      username: null,
-      avatar_url: null,
-      role: 'creator' as const,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-    
-    // Set basic profile first so UI is not blocked
-    setProfile(basicProfile)
-    console.log('Basic profile set, UI ready')
-    
-    // Try to fetch real profile from database in background (non-critical)
-    try {
-      console.log('Attempting background fetch from database...')
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle()
-
-      if (error) {
-        console.log('Database fetch error (non-critical):', error.message)
-        return // Keep using basic profile
-      }
-
-      if (data) {
-        console.log('Profile loaded from database, updating UI:', data)
-        setProfile(data) // Upgrade to real profile
-      } else {
-        console.log('No profile in database, attempting to create...')
-        // Try to create profile (non-critical)
-        const { data: createdProfile } = await supabase
-          .from('profiles')
-          .insert([{
-            id: userId,
-            email: user?.email || '',
-            first_name: null,
-            last_name: null,
-            username: null,
-            avatar_url: null,
-            role: 'creator' as const,
-            is_active: true
-          }])
-          .select()
-          .single()
-        
-        if (createdProfile) {
-          console.log('Profile created successfully:', createdProfile)
-          setProfile(createdProfile)
-        }
-      }
-    } catch (error: any) {
-      console.log('Non-critical background error:', error?.message || error)
-      // Keep using basic profile - no action needed
-    }
-    
-    console.log('fetchProfile completed')
-  }
+  }, [fetchProfile, router])
 
   const signUp = async (email: string, password: string, userData?: { firstName?: string, lastName?: string }) => {
     setLoading(true)
@@ -278,6 +322,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setSession(null)
       setProfile(null)
+      setProfileLoaded(false)
       
       // Call Supabase signout
       const { error } = await supabase.auth.signOut()
@@ -305,6 +350,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setSession(null)
       setProfile(null)
+      setProfileLoaded(false)
       window.location.href = '/'
     }
   }

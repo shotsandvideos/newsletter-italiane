@@ -1,4 +1,5 @@
 'use client'
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { useAuth } from '../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
@@ -83,13 +84,7 @@ export default function NewslettersPage() {
     }
   }, [])
 
-  // Fetch newsletters
-  useEffect(() => {
-    if (user) {
-      fetchNewsletters()
-    }
-  }, [user])
-
+  // Fetch newsletters helper (declared before effect to avoid TDZ)
   const fetchNewsletters = useCallback(async () => {
     try {
       const result: ApiResponse<Newsletter[]> = await cachedFetch('/api/newsletters', undefined, 60000)
@@ -103,6 +98,13 @@ export default function NewslettersPage() {
       setLoading(false)
     }
   }, [])
+  
+  // Fetch newsletters
+  useEffect(() => {
+    if (user) {
+      fetchNewsletters()
+    }
+  }, [fetchNewsletters, user])
   
   // Redirect to register page if coming from sidebar
   useEffect(() => {
@@ -649,15 +651,7 @@ export default function NewslettersPage() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-end gap-1">
-                              <a
-                                href={newsletter.signup_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                                title="Visualizza"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </a>
+                              {/* Removed external open action per request */}
                               {['approved', 'in_review', 'rejected'].includes(newsletter.review_status) && (
                                 <Link
                                   href={`/dashboard/newsletters/edit/${newsletter.id}`}

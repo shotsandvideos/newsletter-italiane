@@ -10,13 +10,11 @@ import {
   Phone,
   Clock,
   CheckCircle,
-  AlertCircle,
   Info,
   Menu,
   ArrowLeft,
   Send,
   FileText,
-  Image as ImageIcon,
   Paperclip
 } from 'lucide-react'
 import Sidebar from '../../../components/Sidebar'

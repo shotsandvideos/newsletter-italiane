@@ -3,7 +3,6 @@
 import { useAuth } from '../../../hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { 
   Users, 
   Clock, 
@@ -13,19 +12,15 @@ import {
   Euro,
   MessageSquare,
   Calendar,
-  Building,
-  Mail,
   Filter,
   Search,
-  MoreHorizontal,
   ExternalLink,
   FileText,
-  Star,
   AlertCircle,
   Menu,
   X,
   Link as LinkIcon,
-  Image,
+  Image as ImageIcon,
   Download,
   Trash2
 } from 'lucide-react'
@@ -115,7 +110,7 @@ export default function CollaborationsPage() {
   const [collaborations] = useState(mockCollaborations)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | CollaborationStatus>('all')
+  const statusFilter: 'all' | CollaborationStatus = 'all'
   const [selectedTab, setSelectedTab] = useState<'active' | 'completed'>('active')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedCollaboration, setSelectedCollaboration] = useState<typeof mockCollaborations[0] | null>(null)
@@ -590,7 +585,7 @@ export default function CollaborationsPage() {
                       <div key={idx} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
                         <div className="p-2 bg-gray-100 rounded-lg">
                           {material.type === 'image' ? (
-                            <Image className="w-4 h-4 text-gray-600" />
+                            <ImageIcon className="w-4 h-4 text-gray-600" />
                           ) : (
                             <FileText className="w-4 h-4 text-gray-600" />
                           )}

@@ -1,22 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { 
+import {
   ShoppingBag,
-  Clock,
-  Users,
-  Filter,
   Search,
   ChevronRight,
   ChevronLeft,
   Menu,
   X,
   Building,
-  CreditCard,
   Calendar,
   CheckCircle,
   XCircle,
-  Target,
   MessageSquare,
   Send
 } from 'lucide-react'
@@ -28,20 +23,10 @@ import Sidebar from '../../components/Sidebar'
 // State for proposals data
 const initialProposals: any[] = []
 
-const categories = [
-  { value: 'all', label: 'Tutte le categorie' },
-  { value: 'tech', label: 'Tecnologia' },
-  { value: 'fintech', label: 'Fintech' },
-  { value: 'startup', label: 'Startup' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'lifestyle', label: 'Lifestyle' }
-]
-
 export default function MarketplacePage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedProposal, setSelectedProposal] = useState(null)
@@ -51,7 +36,6 @@ export default function MarketplacePage() {
   const [declineReason, setDeclineReason] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [chatMessage, setChatMessage] = useState('')
-  const [sendingMessage, setSendingMessage] = useState(false)
   const itemsPerPage = 12
 
   useEffect(() => {
@@ -146,38 +130,13 @@ export default function MarketplacePage() {
     }
   }
 
-  const handleSendMessage = async () => {
-    if (!selectedProposal || !chatMessage.trim()) return
-
-    setSendingMessage(true)
-    try {
-      const response = await fetch(`/api/proposals/${selectedProposal.id}/messages`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: chatMessage.trim()
-        })
-      })
-
-      if (response.ok) {
-        setChatMessage('')
-        // Show success feedback or close modal
-      }
-    } catch (error) {
-      console.error('Error sending message:', error)
-    } finally {
-      setSendingMessage(false)
-    }
-  }
-
   // Filter and pagination
   const filteredProposals = proposals.filter(proposal => {
+    const matchesStatus = proposal.link_status === 'pending'
     const matchesSearch = proposal.brand_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          proposal.product_type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          proposal.sponsorship_type?.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesSearch
+    return matchesStatus && matchesSearch
   })
 
   const totalPages = Math.ceil(filteredProposals.length / itemsPerPage)
@@ -482,28 +441,6 @@ export default function MarketplacePage() {
                   />
                 </div>
 
-                {/* Chat Section */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h5 className="text-sm font-medium text-slate-900 mb-3 flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4" />
-                    Invia Messaggio
-                  </h5>
-                  <textarea
-                    value={chatMessage}
-                    onChange={(e) => setChatMessage(e.target.value)}
-                    placeholder="Scrivi un messaggio per l'admin riguardo questa proposta..."
-                    rows={3}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!chatMessage.trim() || sendingMessage}
-                    className="btn-enhanced touch-target mt-2 flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white body-sm rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed smooth-interaction"
-                  >
-                    <Send className="w-3 h-3" />
-                    {sendingMessage ? 'Invio...' : 'Invia Messaggio'}
-                  </button>
-                </div>
               </div>
             </div>
 

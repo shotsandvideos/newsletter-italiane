@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseServerClient } from '../../../../../lib/supabase-server'
+import { createSupabaseServerClient, getCurrentUser } from '../../../../../lib/supabase-server'
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
-    // Check for admin panel authentication
-    const adminAuth = request.headers.get('x-admin-auth')
-    if (adminAuth !== 'admin-panel') {
-      return NextResponse.json({ success: false, error: 'Unauthorized - Admin access required' }, { status: 401 })
+    const currentUserData = await getCurrentUser()
+
+    if (!currentUserData?.user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (currentUserData.profile?.role !== 'admin') {
+      return NextResponse.json({ success: false, error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
     const body = await request.json()

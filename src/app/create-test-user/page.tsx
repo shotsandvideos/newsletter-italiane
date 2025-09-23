@@ -163,7 +163,7 @@ export default function CreateTestUserPage() {
     setStatus({ step: 'logging_in', message: 'Attempting to sign in...' })
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       })

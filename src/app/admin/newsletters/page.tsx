@@ -1,36 +1,27 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
 import { 
   Mail,
-  Eye,
   Edit,
-  Trash2,
   Search,
-  Filter,
   Menu,
-  Calendar,
   User,
   TrendingUp,
   AlertTriangle,
   CheckCircle,
   XCircle,
   Clock,
-  MoreHorizontal,
-  ExternalLink,
   ChevronLeft,
   ChevronRight,
-  Info,
   X,
-  Send,
-  Save
+  Send
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
+import { useRequireAdmin } from '../../../hooks/useRequireAdmin'
 
 export default function AdminNewslettersPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [pageLoading, setPageLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -46,37 +37,13 @@ export default function AdminNewslettersPage() {
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [saveError, setSaveError] = useState('')
   const itemsPerPage = 12
-  const router = useRouter()
+  const { isAdmin, loading: authLoading } = useRequireAdmin()
 
-  useEffect(() => {
-    const adminSession = localStorage.getItem('adminSession')
-    if (adminSession) {
-      try {
-        const session = JSON.parse(adminSession)
-        if (session.username === 'admin' && session.role === 'admin') {
-          setIsAuthenticated(true)
-          fetchNewsletters()
-        } else {
-          router.push('/admin/login')
-        }
-      } catch {
-        router.push('/admin/login')
-      }
-    } else {
-      router.push('/admin/login')
-    }
-    setLoading(false)
-  }, [router, selectedFilter])
-
-  const fetchNewsletters = async () => {
+  const fetchNewsletters = useCallback(async () => {
     try {
       console.log('Fetching newsletters with filter:', selectedFilter)
       
-      const response = await fetch('/api/newsletters-all', {
-        headers: {
-          'x-admin-auth': 'admin-panel'
-        }
-      })
+      const response = await fetch('/api/newsletters-all')
       const data = await response.json()
       
       if (response.status === 403) {
@@ -130,7 +97,18 @@ export default function AdminNewslettersPage() {
     } catch (error) {
       console.error('Error fetching newsletters:', error)
     }
-  }
+  }, [selectedFilter])
+
+  useEffect(() => {
+    if (authLoading || !isAdmin) return
+
+    setPageLoading(true)
+    fetchNewsletters()
+      .catch(error => {
+        console.error('Error loading newsletters:', error)
+      })
+      .finally(() => setPageLoading(false))
+  }, [authLoading, fetchNewsletters, isAdmin])
 
   const handleStatusUpdate = async (newsletterId: string, newStatus: 'approved' | 'rejected', rejectionReason?: string) => {
     try {
@@ -138,7 +116,6 @@ export default function AdminNewslettersPage() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-auth': 'admin-panel'
         },
         body: JSON.stringify({ 
           id: newsletterId, 
@@ -234,7 +211,6 @@ export default function AdminNewslettersPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-auth': 'admin-panel'
         },
         body: JSON.stringify(updateData)
       })
@@ -341,7 +317,7 @@ export default function AdminNewslettersPage() {
     setCurrentPage(page)
   }
 
-  if (loading) {
+  if (authLoading || pageLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
@@ -349,7 +325,7 @@ export default function AdminNewslettersPage() {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return null
   }
 

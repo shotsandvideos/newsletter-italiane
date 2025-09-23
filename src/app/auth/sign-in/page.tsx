@@ -14,14 +14,19 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   
-  const { signIn, user } = useAuth()
+  const { signIn, user, profile } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (user) {
-      router.push('/dashboard')
+    if (user && profile) {
+      // Redirect based on user role
+      if (profile.role === 'admin') {
+        router.push('/admin')
+      } else {
+        router.push('/dashboard')
+      }
     }
-  }, [user, router])
+  }, [user, profile, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,9 +41,8 @@ export default function SignInPage() {
       setError(error.message)
       setLoading(false)
     } else {
-      console.log('Login successful, redirecting to dashboard...')
-      // Direct redirect without waiting
-      router.push('/dashboard')
+      console.log('Login successful, redirect will be handled by useEffect based on user role')
+      // Redirect will be handled by useEffect when user and profile are loaded
     }
   }
 

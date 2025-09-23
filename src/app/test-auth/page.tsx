@@ -81,7 +81,7 @@ export default function TestAuthPage() {
     checkAuth()
     
     return () => clearTimeout(timeout)
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const testLogin = async () => {
     setLoading(true)
@@ -111,7 +111,7 @@ export default function TestAuthPage() {
     const supabase = createSupabaseClient()
     
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: 'test@example.com',
         password: 'test123456'
       })

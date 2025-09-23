@@ -1,9 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { 
+import {
   Users,
-  Clock,
   CheckCircle,
   XCircle,
   Calendar,
@@ -14,7 +13,7 @@ import {
   AlertCircle,
   ExternalLink,
   FileText,
-  Image,
+  Image as ImageIcon,
   Link,
 } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
@@ -410,7 +409,7 @@ export default function CollaborationsPage() {
                   {selectedCollaboration.admin_assets_images && selectedCollaboration.admin_assets_images.length > 0 && (
                     <div>
                       <label className="text-sm font-medium text-slate-600 flex items-center gap-1">
-                        <Image className="w-4 h-4" />
+                        <ImageIcon className="w-4 h-4" />
                         Immagini ({selectedCollaboration.admin_assets_images.length})
                       </label>
                       <div className="mt-1 grid grid-cols-2 gap-2">

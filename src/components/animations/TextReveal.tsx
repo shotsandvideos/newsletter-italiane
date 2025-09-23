@@ -40,7 +40,7 @@ export default function TextReveal({
       <div 
         className={`transition-transform duration-1000 ease-out ${
           isVisible ? 'translate-y-0' : 'translate-y-full'
-        }`}
+        } ${className}`}
       >
         {text}
       </div>

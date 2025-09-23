@@ -14,7 +14,6 @@ import {
   Star,
   FileText,
   PlayCircle,
-  Video,
   Mail,
   Users,
   CreditCard,

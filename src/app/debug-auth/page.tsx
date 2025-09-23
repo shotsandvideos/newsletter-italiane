@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createSupabaseClient } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 
@@ -13,7 +14,7 @@ export default function DebugAuthPage() {
 
   useEffect(() => {
     checkEverything()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const checkEverything = async () => {
     console.log('🔍 Starting checkEverything...')
@@ -69,10 +70,6 @@ export default function DebugAuthPage() {
     checks['useAuth_session'] = session ? 'Found' : 'None'
     checks['useAuth_loading'] = authLoading
 
-    // Check localStorage
-    console.log('💾 Checking localStorage...')
-    checks['localStorage_adminSession'] = localStorage.getItem('adminSession') ? 'Found' : 'None'
-    
     // Check Supabase URL
     console.log('🔗 Checking environment variables...')
     checks['supabase_url'] = process.env.NEXT_PUBLIC_SUPABASE_URL || 'NOT SET'
@@ -244,10 +241,10 @@ export default function DebugAuthPage() {
 
         {/* Quick Links */}
         <div className="mt-6 flex gap-4">
-          <a href="/dashboard" className="text-cyan-400 hover:underline">→ Dashboard</a>
-          <a href="/auth/sign-in" className="text-cyan-400 hover:underline">→ Sign In</a>
-          <a href="/test-login" className="text-cyan-400 hover:underline">→ Test Login</a>
-          <a href="/" className="text-cyan-400 hover:underline">→ Home</a>
+          <Link href="/dashboard" className="text-cyan-400 hover:underline">→ Dashboard</Link>
+          <Link href="/auth/sign-in" className="text-cyan-400 hover:underline">→ Sign In</Link>
+          <Link href="/test-login" className="text-cyan-400 hover:underline">→ Test Login</Link>
+          <Link href="/" className="text-cyan-400 hover:underline">→ Home</Link>
         </div>
       </div>
     </div>

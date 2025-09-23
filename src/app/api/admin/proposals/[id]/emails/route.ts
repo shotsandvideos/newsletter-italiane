@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createSupabaseServerClient } from '../../../../../../lib/supabase-server'
+import { getCurrentUser } from '../../../../../../lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 
 // Create a service role client for admin operations
@@ -21,10 +21,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check for admin panel authentication
-    const adminAuth = request.headers.get('x-admin-auth')
-    if (adminAuth !== 'admin-panel') {
+    const currentUserData = await getCurrentUser()
+
+    if (!currentUserData?.user) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (currentUserData.profile?.role !== 'admin') {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
     const proposalId = params.id

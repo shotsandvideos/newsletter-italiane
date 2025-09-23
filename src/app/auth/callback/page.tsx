@@ -19,6 +19,47 @@ function AuthCallbackContent() {
     }
   }
 
+  const handleSuccessfulAuth = async (session: any) => {
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single()
+      
+      if (profileError && profileError.code === 'PGRST116') {
+        // Profile doesn't exist, create it for OAuth user
+        console.log('Creating profile for OAuth user...')
+        const { data: newProfile } = await supabase
+          .from('profiles')
+          .insert([{
+            id: session.user.id,
+            email: session.user.email!,
+            first_name: session.user.user_metadata?.first_name || null,
+            last_name: session.user.user_metadata?.last_name || null,
+            avatar_url: session.user.user_metadata?.avatar_url || null,
+            role: 'creator',
+            is_active: true
+          }])
+          .select('role')
+          .single()
+        
+        if (newProfile?.role === 'admin') {
+          router.push('/admin')
+        } else {
+          router.push('/dashboard')
+        }
+      } else if (profile?.role === 'admin') {
+        router.push('/admin')
+      } else {
+        router.push('/dashboard')
+      }
+    } catch (profileError) {
+      console.log('Could not fetch profile, using default redirect', profileError)
+      router.push(redirectTarget)
+    }
+  }
+
   useEffect(() => {
 
     // Safety timeout - redirect after 5 seconds if still stuck (emergency fallback only)
@@ -50,44 +91,44 @@ function AuthCallbackContent() {
           return
         }
 
-        if (code) {
-          console.log('Found OAuth code, exchanging for session...')
-          setStatus('Quasi fatto...')
+        // For OAuth, let Supabase automatically detect and handle the URL
+        // This approach works better with PKCE flow than manual code exchange
+        console.log('Letting Supabase auto-detect OAuth callback...')
+        setStatus('Elaborazione automatica...')
+        
+        // Listen for auth state changes first
+        const authListener = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log('Auth state change detected:', event, !!session)
           
-          // Direct exchange approach for better performance
-          let data, exchangeError
-          try {
-            console.log('Exchanging code for session...')
-            const sessionResult = await supabase.auth.exchangeCodeForSession(code)
-            console.log('exchangeCodeForSession result:', sessionResult)
-            data = sessionResult.data
-            exchangeError = sessionResult.error
-          } catch (methodError: any) {
-            console.log('Exchange failed, trying getSession fallback...', methodError)
-            const result = await supabase.auth.getSession()
-            console.log('getSession fallback result:', result)
-            data = result.data
-            exchangeError = result.error
-          }
-          
-          if (exchangeError) {
-            console.error('Error exchanging code for session:', exchangeError)
-            setStatus('Errore durante l\'accesso')
-            setTimeout(() => {
-            router.push('/auth/sign-in?error=' + encodeURIComponent(exchangeError.message) + (redirectParam ? `&redirectTo=${redirectParam}` : ''))
-            }, 1000)
-            return
-          }
-          
-          if (data.session) {
-            console.log('Session established successfully')
+          if (event === 'SIGNED_IN' && session) {
+            console.log('OAuth authentication successful via state change')
             setStatus('Accesso completato!')
             clearTimeout(safetyTimeout)
-            
-            // Immediate redirect for better performance
-            router.push(redirectTarget)
+            authListener.data.subscription.unsubscribe()
+            await handleSuccessfulAuth(session)
             return
           }
+          
+          if (event === 'SIGNED_OUT') {
+            console.log('OAuth authentication failed')
+            setStatus('Autenticazione fallita')
+            authListener.data.subscription.unsubscribe()
+            setTimeout(() => {
+              router.push('/auth/sign-in?error=' + encodeURIComponent('Errore durante l\'autenticazione') + (redirectParam ? `&redirectTo=${redirectParam}` : ''))
+            }, 1000)
+          }
+        })
+
+        if (code) {
+          console.log('Found OAuth code - waiting for automatic processing...')
+          setStatus('Elaborazione in corso...')
+          
+          // Clean up auth listener after reasonable time
+          setTimeout(() => {
+            authListener.data.subscription.unsubscribe()
+          }, 8000)
+          
+          return // Let the auth state listener handle everything
         }
         
         // Fallback: try getting current session
@@ -109,7 +150,7 @@ function AuthCallbackContent() {
           console.log('Found existing session')
           setStatus('Accesso trovato! Reindirizzamento...')
           clearTimeout(safetyTimeout)
-          router.push(redirectTarget)
+          await handleSuccessfulAuth(data.session)
         } else {
           console.log('No session found')
           setStatus('Nessuna sessione trovata')

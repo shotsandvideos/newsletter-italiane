@@ -130,15 +130,17 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (authLoading || !isAdmin) return
 
+    // Show UI immediately and load data in background
+    setPageLoading(false)
+    
     const loadData = async () => {
-      setPageLoading(true)
       try {
         await Promise.all([
           fetchPendingNewsletters(),
           fetchUpcomingActivities()
         ])
-      } finally {
-        setPageLoading(false)
+      } catch (error) {
+        console.error('Error loading admin data:', error)
       }
     }
 
@@ -151,9 +153,6 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <div className="ml-4 text-sm text-muted-foreground">
-          Loading... (authLoading: {authLoading.toString()}, pageLoading: {pageLoading.toString()})
-        </div>
       </div>
     )
   }

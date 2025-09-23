@@ -52,22 +52,32 @@ export default function SignInPage() {
     
     try {
       const supabase = createSupabaseClient()
-      const { error } = await supabase.auth.signInWithOAuth({
+      
+      // Get current URL params to preserve redirectTo
+      const currentUrl = new URL(window.location.href)
+      const redirectTo = currentUrl.searchParams.get('redirectTo')
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          scopes: 'openid email profile'
+          redirectTo: `${window.location.origin}/auth/callback${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       })
       
       if (error) {
         console.error('Google Sign-In Error:', error)
-        setError('Errore durante l\'accesso con Google')
+        setError('Errore durante l\'accesso con Google: ' + error.message)
         setGoogleLoading(false)
       }
-    } catch (error) {
+      
+      // If successful, the page will redirect, so we don't need to handle success here
+    } catch (error: any) {
       console.error('Google Sign-In Error:', error)
-      setError('Errore durante l\'accesso con Google')
+      setError('Errore durante l\'accesso con Google: ' + (error.message || 'Errore sconosciuto'))
       setGoogleLoading(false)
     }
   }

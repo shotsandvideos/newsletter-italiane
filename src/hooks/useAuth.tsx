@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .maybeSingle()
       
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database query timeout')), 2000)
+        setTimeout(() => reject(new Error('Database query timeout')), 1000)
       )
       
       const { data, error } = await Promise.race([profilePromise, timeoutPromise]) as any
@@ -155,7 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const timeout = setTimeout(() => {
       console.log('Auth loading timeout - forcing completion')
       setLoading(false)
-    }, 3000) // 3 second timeout
+    }, 1500) // 1.5 second timeout
 
     // Get initial session
     const getSession = async () => {

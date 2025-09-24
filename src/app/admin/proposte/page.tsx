@@ -42,6 +42,7 @@ export default function AdminPropostePage() {
   const [communicationMessage, setCommunicationMessage] = useState('')
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [emailSuccessMessage, setEmailSuccessMessage] = useState('')
+  const [saveSuccessMessage, setSaveSuccessMessage] = useState('')
   const [editedProposal, setEditedProposal] = useState<{
     brand_name: string
     sponsorship_type: string
@@ -197,20 +198,66 @@ export default function AdminPropostePage() {
         return
       }
 
-      // Send notification email to each author (simulate sending)
-      const promises = authors.map(author => {
+      // Send notification email to each author via Resend with rate limiting
+      const results = []
+      for (let i = 0; i < authors.length; i++) {
+        const author = authors[i]
         const subject = `Aggiornamento proposta: ${detailsProposal.brand_name} - ${detailsProposal.sponsorship_type}`
         const newsletterInfo = author.newsletter_title ? ` per "${author.newsletter_title}"` : ''
-        const body = `Gentile ${author.name},\n\nAbbiamo un aggiornamento riguardo alla proposta${newsletterInfo}:\n\n${communicationMessage}\n\n\nCordiali saluti,\nTeam Newsletter Italiane`
-        
-        // Log email details (in a real app, this would send via email service)
-        console.log(`Email prepared for ${author.email}:`, { subject, body })
-        return Promise.resolve()
-      })
+        const body = `Gentile ${author.name},
 
-      await Promise.all(promises)
+Abbiamo un aggiornamento riguardo alla proposta${newsletterInfo}:
+
+${communicationMessage}
+
+
+Cordiali saluti,
+Team Frames`
+        
+        try {
+          const emailResponse = await fetch('/api/send-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              to: author.email,
+              subject: subject,
+              text: body,
+              from: 'Frames <support@meetframes.com>'
+            })
+          })
+
+          if (emailResponse.ok) {
+            console.log(`Email sent successfully to ${author.email}`)
+            results.push({ success: true, email: author.email })
+          } else {
+            const errorText = await emailResponse.text()
+            console.error(`Failed to send email to ${author.email}:`, errorText)
+            results.push({ success: false, email: author.email, error: errorText })
+          }
+        } catch (error) {
+          console.error(`Error sending email to ${author.email}:`, error)
+          results.push({ success: false, email: author.email, error: error.message })
+        }
+
+        // Add delay between emails to respect Resend rate limit (2 req/sec)
+        if (i < authors.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 600)) // 600ms delay
+        }
+      }
+      const successfulEmails = results.filter(result => result.success).length
+      const failedEmails = results.length - successfulEmails
+      
       setCommunicationMessage('')
-      setEmailSuccessMessage(`✅ Messaggio inviato con successo a ${authors.length} autore${authors.length > 1 ? 'i' : ''}`)
+      
+      if (failedEmails === 0) {
+        setEmailSuccessMessage(`✅ Messaggio inviato con successo a ${successfulEmails} autore${successfulEmails > 1 ? 'i' : ''}`)
+      } else if (successfulEmails === 0) {
+        setEmailSuccessMessage(`❌ Invio fallito per tutti gli ${results.length} autori`)
+      } else {
+        setEmailSuccessMessage(`⚠️ Messaggio inviato a ${successfulEmails} autori, ${failedEmails} invii falliti`)
+      }
       
       // Clear success message after 5 seconds
       setTimeout(() => {
@@ -243,13 +290,15 @@ export default function AdminPropostePage() {
         setDetailsProposal(prev => ({ ...prev, ...editedProposal }))
         // Refresh the proposals list
         await fetchProposals()
-        alert('Proposta aggiornata con successo!')
+        setSaveSuccessMessage('Proposta aggiornata con successo!')
+        setTimeout(() => setSaveSuccessMessage(''), 3000)
       } else {
         throw new Error('Errore durante il salvataggio')
       }
     } catch (error) {
       console.error('Error saving proposal:', error)
-      alert('Errore durante il salvataggio della proposta')
+      setSaveSuccessMessage('Errore durante il salvataggio della proposta')
+      setTimeout(() => setSaveSuccessMessage(''), 5000)
     }
   }
 
@@ -281,6 +330,7 @@ export default function AdminPropostePage() {
         setShowNewProposalModal(false)
         setShowEditProposalModal(false)
         setEditingProposal(null)
+        setSaveSuccessMessage('')
         setNewProposal({
           brand_name: '',
           sponsorship_type: '',
@@ -619,6 +669,7 @@ export default function AdminPropostePage() {
                   setShowNewProposalModal(false)
                   setShowEditProposalModal(false)
                   setEditingProposal(null)
+                  setSaveSuccessMessage('')
                 }}
                 className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
               >
@@ -627,6 +678,17 @@ export default function AdminPropostePage() {
             </div>
 
             <form onSubmit={handleSubmitProposal} className="p-6">
+              {/* Success Message */}
+              {saveSuccessMessage && (
+                <div className={`p-3 rounded-lg text-sm font-medium mb-6 ${
+                  saveSuccessMessage.includes('successo') 
+                    ? 'bg-green-50 text-green-700 border border-green-200' 
+                    : 'bg-red-50 text-red-700 border border-red-200'
+                }`}>
+                  {saveSuccessMessage}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Prima colonna - Campi base */}
                 <div className="space-y-6">
@@ -905,6 +967,7 @@ export default function AdminPropostePage() {
                     setShowNewProposalModal(false)
                     setShowEditProposalModal(false)
                     setEditingProposal(null)
+                    setSaveSuccessMessage('')
                   }}
                   className="px-6 py-3 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
                 >
@@ -955,72 +1018,53 @@ export default function AdminPropostePage() {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Editable Campaign Info */}
+              {/* Read-only Campaign Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium text-slate-900 mb-3">Informazioni Campagna</h3>
                   
                   <div>
                     <label className="block text-xs font-medium text-slate-700 mb-1">Nome Brand</label>
-                    <input
-                      type="text"
-                      value={editedProposal.brand_name || ''}
-                      onChange={(e) => setEditedProposal(prev => ({ ...prev, brand_name: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <div className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg">
+                      {detailsProposal.brand_name || <span className="text-slate-400">Non specificato</span>}
+                    </div>
                   </div>
                   
                   <div>
                     <label className="block text-xs font-medium text-slate-700 mb-1">Tipo Sponsorship</label>
-                    <input
-                      type="text"
-                      value={editedProposal.sponsorship_type || ''}
-                      onChange={(e) => setEditedProposal(prev => ({ ...prev, sponsorship_type: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <div className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg">
+                      {detailsProposal.sponsorship_type || <span className="text-slate-400">Non specificato</span>}
+                    </div>
                   </div>
                   
                   <div>
                     <label className="block text-xs font-medium text-slate-700 mb-1">Tipo Prodotto</label>
-                    <input
-                      type="text"
-                      value={editedProposal.product_type || ''}
-                      onChange={(e) => setEditedProposal(prev => ({ ...prev, product_type: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <div className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg">
+                      {detailsProposal.product_type || <span className="text-slate-400">Non specificato</span>}
+                    </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-slate-700 mb-1">Data Inizio</label>
-                      <input
-                        type="date"
-                        value={editedProposal.campaign_start_date || ''}
-                        onChange={(e) => setEditedProposal(prev => ({ ...prev, campaign_start_date: e.target.value }))}
-                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
+                      <div className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg">
+                        {detailsProposal.campaign_start_date ? new Date(detailsProposal.campaign_start_date).toLocaleDateString('it-IT') : <span className="text-slate-400">Non specificata</span>}
+                      </div>
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-slate-700 mb-1">Data Fine</label>
-                      <input
-                        type="date"
-                        value={editedProposal.campaign_end_date || ''}
-                        onChange={(e) => setEditedProposal(prev => ({ ...prev, campaign_end_date: e.target.value }))}
-                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
+                      <div className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg">
+                        {detailsProposal.campaign_end_date ? new Date(detailsProposal.campaign_end_date).toLocaleDateString('it-IT') : <span className="text-slate-400">Non specificata</span>}
+                      </div>
                     </div>
                   </div>
                 </div>
                 
                 <div>
                   <h3 className="text-sm font-medium text-slate-900 mb-3">Target Audience</h3>
-                  <textarea
-                    value={editedProposal.ideal_target_audience || ''}
-                    onChange={(e) => setEditedProposal(prev => ({ ...prev, ideal_target_audience: e.target.value }))}
-                    rows={8}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                    placeholder="Descrivi il target audience ideale..."
-                  />
+                  <div className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg min-h-[8rem]">
+                    {detailsProposal.ideal_target_audience || <span className="text-slate-400">Nessun target audience specificato</span>}
+                  </div>
                 </div>
               </div>
 
@@ -1030,10 +1074,6 @@ export default function AdminPropostePage() {
                   Newsletter Coinvolte ({detailsProposal.proposal_newsletters?.length || 0})
                 </h3>
                 
-                {/* TEST - Questa sezione dovrebbe essere sempre visibile */}
-                <div className="mb-4 p-4 bg-red-100 border-2 border-red-500 rounded-lg">
-                  <p className="text-red-800 font-bold">🔴 TEST: Se vedi questo box rosso, il codice funziona!</p>
-                </div>
                 
                 {detailsProposal.proposal_newsletters && detailsProposal.proposal_newsletters.length > 0 ? (
                   <div className="space-y-4">
@@ -1153,54 +1193,6 @@ export default function AdminPropostePage() {
                   </div>
                 )}
 
-                {/* Newsletter Modification Section - ALWAYS VISIBLE FOR TESTING */}
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h4 className="text-sm font-medium text-slate-900 mb-3 flex items-center gap-2">
-                    <Target className="w-4 h-4" />
-                    Modifica Newsletter Incluse ({editedProposal.target_newsletter_ids?.length || 0} selezionate)
-                  </h4>
-                  
-                  {/* Debug Info */}
-                  <div className="mb-3 p-2 bg-gray-100 rounded text-xs">
-                    <strong>Debug:</strong> Newsletter approvate trovate: {approvedNewsletters.length}
-                    {approvedNewsletters.length > 0 && (
-                      <span> - Selezionate: {editedProposal.target_newsletter_ids?.length || 0}</span>
-                    )}
-                  </div>
-                  
-                  {approvedNewsletters.length === 0 ? (
-                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <p className="text-sm text-yellow-800">Nessuna newsletter approvata disponibile. Controlla che ci siano newsletter con status 'approved'.</p>
-                    </div>
-                  ) : (
-                    <div className="max-h-48 overflow-y-auto border border-slate-300 rounded-lg bg-white">
-                      {approvedNewsletters.map((newsletter) => (
-                        <label
-                          key={newsletter.id}
-                          className="flex items-center p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={editedProposal.target_newsletter_ids?.includes(newsletter.id) || false}
-                            onChange={() => handleDetailsNewsletterSelection(newsletter.id)}
-                            className="mr-3 h-4 w-4 text-red-600 focus:ring-red-500 border-slate-300 rounded"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-slate-900 truncate">
-                              {newsletter.title}
-                            </div>
-                            <div className="text-xs text-slate-600">
-                              {newsletter.author_first_name} {newsletter.author_last_name} • {newsletter.audience_size} iscritti
-                            </div>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                  <p className="text-xs text-slate-600 mt-2">
-                    Modifica la selezione delle newsletter per questa proposta. Le modifiche saranno salvate quando clicchi "Salva Modifiche".
-                  </p>
-                </div>
               </div>
 
               {/* Admin Materials */}
@@ -1210,24 +1202,16 @@ export default function AdminPropostePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Testo Copy</label>
-                    <textarea
-                      value={editedProposal.admin_copy_text || ''}
-                      onChange={(e) => setEditedProposal(prev => ({ ...prev, admin_copy_text: e.target.value }))}
-                      rows={4}
-                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                      placeholder="Inserisci il testo copy per la campagna..."
-                    />
+                    <div className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg min-h-[6rem]">
+                      {detailsProposal.admin_copy_text || <span className="text-slate-400">Nessun testo copy disponibile</span>}
+                    </div>
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Brief / Istruzioni</label>
-                    <textarea
-                      value={editedProposal.admin_brief_text || ''}
-                      onChange={(e) => setEditedProposal(prev => ({ ...prev, admin_brief_text: e.target.value }))}
-                      rows={4}
-                      className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                      placeholder="Inserisci il brief e le istruzioni per la campagna..."
-                    />
+                    <div className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg min-h-[6rem]">
+                      {detailsProposal.admin_brief_text || <span className="text-slate-400">Nessun brief disponibile</span>}
+                    </div>
                   </div>
                 </div>
                 
@@ -1324,13 +1308,6 @@ export default function AdminPropostePage() {
 
               {/* Actions */}
               <div className="flex items-center gap-3 pt-6 border-t border-slate-200">
-                <button
-                  onClick={handleSaveProposal}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  Salva Modifiche
-                </button>
                 <button
                   onClick={() => {
                     setShowDetailsModal(false)

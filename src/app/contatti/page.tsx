@@ -13,10 +13,56 @@ export default function ContattiPage() {
     tipo: 'generale'
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null
+    message: string
+  }>({ type: null, message: '' })
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-    // TODO: Implement form submission logic
+    setIsSubmitting(true)
+    setSubmitStatus({ type: null, message: '' })
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setSubmitStatus({
+          type: 'success',
+          message: result.message || 'Messaggio inviato con successo!'
+        })
+        // Reset form
+        setFormData({
+          nome: '',
+          email: '',
+          azienda: '',
+          messaggio: '',
+          tipo: 'generale'
+        })
+      } else {
+        setSubmitStatus({
+          type: 'error',
+          message: result.error || 'Errore durante l\'invio del messaggio'
+        })
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      setSubmitStatus({
+        type: 'error',
+        message: 'Errore di connessione. Riprova più tardi.'
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -52,6 +98,17 @@ export default function ContattiPage() {
               </h2>
               
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Status Message */}
+                {submitStatus.type && (
+                  <div className={`p-4 rounded-xl border ${
+                    submitStatus.type === 'success' 
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
+                      : 'bg-red-50 border-red-200 text-red-700'
+                  }`}>
+                    <p className="text-sm font-medium">{submitStatus.message}</p>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="nome" className="block text-sm font-medium text-slate-700 mb-2">
@@ -138,10 +195,20 @@ export default function ContattiPage() {
                 
                 <button
                   type="submit"
-                  className="w-full inline-flex items-center justify-center px-8 py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-semibold"
+                  disabled={isSubmitting}
+                  className="w-full inline-flex items-center justify-center px-8 py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send className="w-5 h-5 mr-2" />
-                  Invia Messaggio
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Invio in corso...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-2" />
+                      Invia Messaggio
+                    </>
+                  )}
                 </button>
               </form>
             </div>

@@ -16,7 +16,7 @@ const createSupabaseServiceClient = () => {
   )
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const currentUserData = await getCurrentUser()
 
@@ -28,7 +28,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
-    const proposalId = params.id
+    const { id: proposalId } = await params
     const body = await request.json()
     console.log('Updating proposal:', proposalId, body)
 
@@ -105,20 +105,30 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       if (toAdd.length > 0) {
         const newRelations = []
         for (const newsletterId of toAdd) {
-          // Get newsletter owner
-          const { data: newsletter } = await supabase
-            .from('newsletters')
-            .select('user_id')
-            .eq('id', newsletterId)
+          // Check if relationship already exists to avoid duplicates
+          const { data: existingRelation } = await supabase
+            .from('proposal_newsletters')
+            .select('id')
+            .eq('proposal_id', proposalId)
+            .eq('newsletter_id', newsletterId)
             .single()
 
-          if (newsletter) {
-            newRelations.push({
-              proposal_id: proposalId,
-              newsletter_id: newsletterId,
-              user_id: newsletter.user_id,
-              status: 'pending'
-            })
+          if (!existingRelation) {
+            // Get newsletter owner
+            const { data: newsletter } = await supabase
+              .from('newsletters')
+              .select('user_id')
+              .eq('id', newsletterId)
+              .single()
+
+            if (newsletter) {
+              newRelations.push({
+                proposal_id: proposalId,
+                newsletter_id: newsletterId,
+                user_id: newsletter.user_id,
+                status: 'pending'
+              })
+            }
           }
         }
 

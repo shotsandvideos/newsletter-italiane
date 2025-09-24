@@ -138,23 +138,54 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: `Database error: ${proposalError.message}` }, { status: 500 })
     }
 
-    // Create proposal-newsletter relationships
+    // Create proposal-newsletter relationships and send notifications
     const proposalNewsletters = []
+    const notificationPromises = []
+    
     for (const newsletterId of body.target_newsletter_ids) {
-      // Get newsletter owner
-      const { data: newsletter } = await supabase
+      // Get newsletter details first
+      const { data: newsletter, error: newsletterError } = await supabase
         .from('newsletters')
-        .select('user_id')
+        .select(`
+          user_id,
+          author_email,
+          title
+        `)
         .eq('id', newsletterId)
         .single()
 
       if (newsletter) {
+        // Get user profile separately  
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('id', newsletter.user_id)
+          .single()
+
         proposalNewsletters.push({
           proposal_id: proposal.id,
           newsletter_id: newsletterId,
           user_id: newsletter.user_id,
           status: 'pending'
         })
+
+        // Prepare email notification for this creator
+        const creatorEmail = profile?.email || newsletter.author_email
+        
+        if (creatorEmail) {
+          notificationPromises.push(
+            sendProposalNotification(
+              body.brand_name,
+              creatorEmail,
+              proposal.id,
+              newsletterId
+            )
+          )
+        } else {
+          console.warn(`No email found for newsletter ${newsletterId}, skipping notification`)
+        }
+      } else {
+        console.error(`Newsletter ${newsletterId} not found:`, newsletterError)
       }
     }
 
@@ -169,11 +200,90 @@ export async function POST(request: Request) {
         await supabase.from('proposals').delete().eq('id', proposal.id)
         return NextResponse.json({ success: false, error: `Database error: ${linkError.message}` }, { status: 500 })
       }
+
+      // Send email notifications to creators with rate limiting
+      const emailResults = []
+      for (let i = 0; i < notificationPromises.length; i++) {
+        const result = await notificationPromises[i]
+        emailResults.push({ status: 'fulfilled', value: result })
+        
+        // Add delay between emails to respect Resend rate limit (2 req/sec)
+        if (i < notificationPromises.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 600)) // 600ms delay
+        }
+      }
+      
+      const successfulEmails = emailResults.filter(result => result.status === 'fulfilled' && result.value === true).length
+      const failedEmails = emailResults.length - successfulEmails
+
+      console.log(`Email notifications: ${successfulEmails} sent, ${failedEmails} failed`)
+      
+      // Log notification status for admin reference
+      if (failedEmails > 0) {
+        console.warn(`Some email notifications failed to send for proposal ${proposal.id}`)
+      }
     }
 
     return NextResponse.json({ success: true, data: { ...proposal, target_newsletters: proposalNewsletters.length } })
   } catch (error) {
     console.error('Error in proposals POST API:', error)
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// Helper function to send notification email to creators
+async function sendProposalNotification(brandName: string, creatorEmail: string, proposalId: string, newsletterId: string) {
+  if (!process.env.RESEND_API_KEY) {
+    console.log('RESEND_API_KEY not configured, skipping email notification')
+    return false
+  }
+
+  // Validate required data
+  if (!brandName || !creatorEmail) {
+    console.error('Missing required data for email notification:', { brandName, creatorEmail })
+    return false
+  }
+
+  // Generate marketplace URL for the creator to view the proposal
+  const marketplaceUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://meetframes.com'}/dashboard/marketplace?proposal=${proposalId}&newsletter=${newsletterId}`
+
+  try {
+    const emailSubject = `Nuova proposta di collaborazione con ${brandName}`
+    const emailBody = `Ciao! Abbiamo una nuova proposta per te. Per visualizzarla e accettarla o rifiutarla clicca qui: ${marketplaceUrl}
+
+Grazie,
+A presto,
+Frames`
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Frames <support@meetframes.com>',
+        to: [creatorEmail],
+        subject: emailSubject,
+        text: emailBody,
+        headers: {
+          'X-Entity-Ref-ID': `proposal-${proposalId}-${Date.now()}`,
+          'X-Priority': '3'
+        }
+      }),
+    })
+
+    if (emailResponse.ok) {
+      const result = await emailResponse.json()
+      console.log(`Email notification sent to ${creatorEmail} for proposal ${proposalId}:`, result.id)
+      return true
+    } else {
+      const errorText = await emailResponse.text()
+      console.error(`Failed to send email to ${creatorEmail}:`, errorText)
+      return false
+    }
+  } catch (error) {
+    console.error(`Error sending email to ${creatorEmail}:`, error)
+    return false
   }
 }

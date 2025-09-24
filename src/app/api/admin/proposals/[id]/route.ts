@@ -151,3 +151,60 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const currentUserData = await getCurrentUser()
+
+    if (!currentUserData?.user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (currentUserData.profile?.role !== 'admin') {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { id: proposalId } = await params
+    console.log('Deleting proposal:', proposalId)
+
+    const supabase = createSupabaseServiceClient()
+
+    // First delete related proposal_newsletters entries (cascade delete)
+    const { error: proposalNewslettersError } = await supabase
+      .from('proposal_newsletters')
+      .delete()
+      .eq('proposal_id', proposalId)
+
+    if (proposalNewslettersError) {
+      console.error('Error deleting proposal newsletters:', proposalNewslettersError)
+      return NextResponse.json({ success: false, error: `Database error: ${proposalNewslettersError.message}` }, { status: 500 })
+    }
+
+    // Delete related calendar events if any
+    const { error: calendarError } = await supabase
+      .from('calendar_events')
+      .delete()
+      .eq('proposal_id', proposalId)
+
+    if (calendarError) {
+      console.error('Error deleting calendar events:', calendarError)
+      // Don't fail the operation for calendar deletion errors, just log them
+    }
+
+    // Finally delete the proposal itself
+    const { error: proposalError } = await supabase
+      .from('proposals')
+      .delete()
+      .eq('id', proposalId)
+
+    if (proposalError) {
+      console.error('Error deleting proposal:', proposalError)
+      return NextResponse.json({ success: false, error: `Database error: ${proposalError.message}` }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, message: 'Proposal deleted successfully' })
+  } catch (error) {
+    console.error('Error in proposals DELETE API:', error)
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+  }
+}

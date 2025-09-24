@@ -43,6 +43,9 @@ export default function AdminPropostePage() {
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [emailSuccessMessage, setEmailSuccessMessage] = useState('')
   const [saveSuccessMessage, setSaveSuccessMessage] = useState('')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [proposalToDelete, setProposalToDelete] = useState(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [editedProposal, setEditedProposal] = useState<{
     brand_name: string
     sponsorship_type: string
@@ -173,6 +176,44 @@ export default function AdminPropostePage() {
     setShowDetailsModal(true)
   }
 
+  const handleDeleteProposal = (proposal) => {
+    setProposalToDelete(proposal)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteProposal = async () => {
+    if (!proposalToDelete) return
+    
+    setIsDeleting(true)
+    
+    try {
+      const response = await fetch(`/api/admin/proposals/${proposalToDelete.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        // Remove the proposal from the local state
+        setProposals(prev => prev.filter(p => p.id !== proposalToDelete.id))
+        setShowDeleteModal(false)
+        setProposalToDelete(null)
+        // You could add a success message here if needed
+      } else {
+        const errorData = await response.json()
+        console.error('Error deleting proposal:', errorData.error)
+        alert('Errore durante l\'eliminazione della proposta: ' + errorData.error)
+      }
+    } catch (error) {
+      console.error('Error deleting proposal:', error)
+      alert('Errore durante l\'eliminazione della proposta')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const cancelDeleteProposal = () => {
+    setShowDeleteModal(false)
+    setProposalToDelete(null)
+  }
 
   const handleSendCommunication = async () => {
     if (!communicationMessage.trim() || !detailsProposal) return
@@ -643,6 +684,14 @@ Team Frames`
                             >
                               <Eye className="w-3 h-3" />
                               Dettagli
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteProposal(proposal)}
+                              className="px-3 py-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors flex items-center gap-1"
+                              title="Elimina proposta"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              Elimina
                             </button>
                           </div>
                         </div>
@@ -1329,6 +1378,65 @@ Team Frames`
                   className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   Chiudi
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && proposalToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">Elimina Proposta</h3>
+                  <p className="text-sm text-slate-600">Questa azione è irreversibile</p>
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <p className="text-sm text-slate-700 mb-2">
+                  Sei sicuro di voler eliminare definitivamente la proposta:
+                </p>
+                <div className="p-3 bg-slate-50 rounded-lg">
+                  <p className="font-semibold text-slate-900">
+                    {proposalToDelete.brand_name} - {proposalToDelete.sponsorship_type}
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    {proposalToDelete.product_type}
+                  </p>
+                </div>
+                <p className="text-sm text-red-600 mt-3">
+                  ⚠️ Questa azione eliminerà anche tutte le associazioni con le newsletter e gli eventi del calendario collegati.
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={confirmDeleteProposal}
+                  disabled={isDeleting}
+                  className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isDeleting ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  {isDeleting ? 'Eliminazione...' : 'Elimina Definitivamente'}
+                </button>
+                
+                <button
+                  onClick={cancelDeleteProposal}
+                  disabled={isDeleting}
+                  className="px-6 py-3 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                >
+                  Annulla
                 </button>
               </div>
             </div>

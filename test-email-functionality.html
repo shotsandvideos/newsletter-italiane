@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Functionality Test Suite</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            padding: 20px; 
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { 
+            background: white; 
+            padding: 24px; 
+            border-radius: 8px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+            margin-bottom: 24px;
+        }
+        .test-section { 
+            background: white; 
+            margin: 20px 0; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .button { 
+            background: #3b82f6; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600;
+            margin: 8px 8px 8px 0;
+            transition: all 0.2s;
+        }
+        .button:hover { background: #2563eb; transform: translateY(-1px); }
+        .button:disabled { 
+            background: #9ca3af; 
+            cursor: not-allowed; 
+            transform: none;
+        }
+        .button.success { background: #16a34a; }
+        .button.danger { background: #dc2626; }
+        .button.warning { background: #ea580c; }
+        .log { 
+            background: #f1f5f9; 
+            padding: 16px; 
+            border-radius: 6px; 
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace; 
+            font-size: 13px; 
+            white-space: pre-wrap; 
+            max-height: 400px; 
+            overflow-y: auto; 
+            border-left: 4px solid #3b82f6;
+        }
+        .input { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 8px 0; 
+            border: 1px solid #d1d5db; 
+            border-radius: 6px; 
+            font-size: 14px;
+        }
+        .input:focus { 
+            outline: none; 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-running { background: #fef3c7; color: #92400e; }
+        .status-success { background: #d1fae5; color: #065f46; }
+        .status-error { background: #fee2e2; color: #991b1b; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .progress { 
+            background: #e5e7eb; 
+            height: 6px; 
+            border-radius: 3px; 
+            overflow: hidden; 
+            margin: 16px 0;
+        }
+        .progress-bar { 
+            background: #3b82f6; 
+            height: 100%; 
+            width: 0%; 
+            transition: width 0.3s;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        h1 { color: #1e293b; margin: 0 0 8px 0; }
+        h2 { color: #334155; margin: 0 0 16px 0; }
+        .subtitle { color: #64748b; margin: 0; }
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        .success-box {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        .error { color: #dc2626; }
+        .success { color: #16a34a; }
+        .warning { color: #ea580c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Email System Test Suite</h1>
+            <p class="subtitle">Comprehensive testing for the updated email functionality using support@meetframes.com</p>
+            
+            <div class="warning-box">
+                <strong>⚠️ Prerequisites:</strong>
+                <ul style="margin: 8px 0;">
+                    <li>You must be logged in as an admin user</li>
+                    <li>Navigate to <a href="/admin" target="_blank">/admin</a> first to authenticate</li>
+                    <li>Ensure the development server is running on port 3000</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Test 1: Direct Email API Test</h2>
+            <p>Tests the /api/send-email endpoint directly with the new email address.</p>
+            <input type="email" id="directTestEmail" class="input" placeholder="Your email for testing" value="antoniobellu@icloud.com">
+            <button class="button" onclick="testDirectEmailAPI()">Test Direct Email API</button>
+            <div id="directTestStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🏗️ Test 2: Admin Proposal Email Flow</h2>
+            <p>Tests the complete flow: fetch authors → send emails via admin interface.</p>
+            <input type="text" id="proposalId" class="input" placeholder="Proposal ID (UUID format)">
+            <textarea id="testMessage" class="input" rows="3" placeholder="Test message to send">This is a test message from the updated email system using support@meetframes.com. If you receive this, the fix is working correctly!</textarea>
+            <button class="button" onclick="testProposalEmailFlow()">Test Proposal Email Flow</button>
+            <div id="proposalTestStatus"></div>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <h2>📋 Test 3: Network Monitoring</h2>
+                <p>Monitor network requests and responses.</p>
+                <button class="button" onclick="startNetworkMonitoring()">Start Monitoring</button>
+                <button class="button danger" onclick="stopNetworkMonitoring()">Stop Monitoring</button>
+                <button class="button warning" onclick="clearNetworkLog()">Clear Log</button>
+                <div id="networkMonitorStatus" class="status-badge status-running" style="display: none;">Monitoring Active</div>
+            </div>
+
+            <div class="test-section">
+                <h2>🔍 Test 4: Console Log Capture</h2>
+                <p>Capture browser console logs during email operations.</p>
+                <button class="button" onclick="startConsoleCapture()">Start Console Capture</button>
+                <button class="button danger" onclick="stopConsoleCapture()">Stop Console Capture</button>
+                <button class="button warning" onclick="clearConsoleLog()">Clear Console Log</button>
+                <div id="consoleMonitorStatus" class="status-badge status-running" style="display: none;">Console Capture Active</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Test Results Dashboard</h2>
+            <div class="progress">
+                <div class="progress-bar" id="testProgress"></div>
+            </div>
+            <div id="testSummary" class="summary-card" style="display: none;">
+                <h3>Test Summary</h3>
+                <div id="summaryContent"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 Combined Log Output</h2>
+            <div id="combinedLog" class="log">Ready for testing...\nPlease authenticate as admin first by visiting /admin\n</div>
+        </div>
+    </div>
+
+    <script>
+        let networkMonitoring = false;
+        let consoleMonitoring = false;
+        let originalFetch = window.fetch;
+        let originalConsoleLog = console.log;
+        let originalConsoleError = console.error;
+        let testResults = {
+            directEmail: null,
+            proposalFlow: null,
+            networkErrors: 0,
+            consoleErrors: 0
+        };
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('combinedLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            output.innerHTML += `<span class="${className}">[${timestamp}] ${emoji} ${message}</span>\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function updateProgress() {
+            const total = 2;
+            const completed = Object.values(testResults).slice(0, 2).filter(r => r !== null).length;
+            const percentage = (completed / total) * 100;
+            document.getElementById('testProgress').style.width = percentage + '%';
+            
+            if (completed === total) {
+                showTestSummary();
+            }
+        }
+
+        function showTestSummary() {
+            const summary = document.getElementById('testSummary');
+            const content = document.getElementById('summaryContent');
+            
+            const successCount = Object.values(testResults).slice(0, 2).filter(r => r === true).length;
+            const totalTests = 2;
+            
+            content.innerHTML = `
+                <p><strong>${successCount}/${totalTests}</strong> core tests passed</p>
+                <p>Network Errors: ${testResults.networkErrors}</p>
+                <p>Console Errors: ${testResults.consoleErrors}</p>
+                <p>${successCount === totalTests ? '🎉 All tests passed!' : '⚠️ Some tests failed'}</p>
+            `;
+            
+            summary.style.display = 'block';
+        }
+
+        async function testDirectEmailAPI() {
+            const email = document.getElementById('directTestEmail').value.trim();
+            if (!email) {
+                log('Please enter an email address for testing', 'error');
+                return;
+            }
+
+            log(`Testing direct email API to: ${email}`);
+            document.getElementById('directTestStatus').innerHTML = '<div class="status-badge status-running">Running Test...</div>';
+            
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: 'Test Email - Updated System (support@meetframes.com)',
+                        text: 'This is a test email from the updated admin system. The email is now being sent from support@meetframes.com instead of onboarding@resend.dev. If you receive this, the fix is working correctly!',
+                        from: 'Newsletter Italiane <support@meetframes.com>'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                log(`Direct Email API - Status: ${response.status}`);
+                log(`Direct Email API - Response: ${JSON.stringify(result, null, 2)}`);
+                
+                if (response.ok) {
+                    log(`✅ Direct email sent successfully! Email ID: ${result.emailId}`, 'success');
+                    document.getElementById('directTestStatus').innerHTML = '<div class="status-badge status-success">✅ Success</div>';
+                    testResults.directEmail = true;
+                } else {
+                    log(`❌ Direct email failed: ${result.error}`, 'error');
+                    document.getElementById('directTestStatus').innerHTML = '<div class="status-badge status-error">❌ Failed</div>';
+                    testResults.directEmail = false;
+                    
+                    if (response.status === 401) {
+                        log('🔑 Authentication required - please login as admin first', 'warning');
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Direct email test exception: ${error.message}`, 'error');
+                document.getElementById('directTestStatus').innerHTML = '<div class="status-badge status-error">❌ Error</div>';
+                testResults.directEmail = false;
+            }
+            
+            updateProgress();
+        }
+
+        async function testProposalEmailFlow() {
+            const proposalId = document.getElementById('proposalId').value.trim();
+            const message = document.getElementById('testMessage').value.trim();
+            
+            if (!proposalId) {
+                log('Please enter a proposal ID', 'error');
+                return;
+            }
+            
+            if (!message) {
+                log('Please enter a test message', 'error');
+                return;
+            }
+
+            log(`Testing proposal email flow for: ${proposalId}`);
+            document.getElementById('proposalTestStatus').innerHTML = '<div class="status-badge status-running">Running Flow Test...</div>';
+            
+            try {
+                // Step 1: Test authors endpoint
+                log('Step 1: Fetching proposal authors...');
+                const authorsResponse = await fetch(`/api/admin/proposals/${proposalId}/emails`);
+                const authorsResult = await authorsResponse.json();
+                
+                log(`Authors API - Status: ${authorsResponse.status}`);
+                log(`Authors API - Response: ${JSON.stringify(authorsResult, null, 2)}`);
+                
+                if (!authorsResult.success) {
+                    log(`❌ Authors fetch failed: ${authorsResult.error}`, 'error');
+                    document.getElementById('proposalTestStatus').innerHTML = '<div class="status-badge status-error">❌ Failed</div>';
+                    testResults.proposalFlow = false;
+                    updateProgress();
+                    return;
+                }
+                
+                const authors = authorsResult.data.authors || [];
+                log(`✅ Found ${authors.length} authors`, 'success');
+                
+                if (authors.length === 0) {
+                    log('⚠️ No authors found for this proposal', 'warning');
+                    document.getElementById('proposalTestStatus').innerHTML = '<div class="status-badge status-warning">⚠️ No Authors</div>';
+                    testResults.proposalFlow = false;
+                    updateProgress();
+                    return;
+                }
+                
+                // Step 2: Test email sending
+                log('Step 2: Testing email sending to authors...');
+                let successCount = 0;
+                let errorCount = 0;
+                
+                for (let i = 0; i < authors.length; i++) {
+                    const author = authors[i];
+                    log(`Sending test email ${i + 1}/${authors.length} to: ${author.email}`);
+                    
+                    const emailData = {
+                        to: author.email,
+                        subject: `Test: Aggiornamento proposta (Updated System)`,
+                        text: `Gentile ${author.name},\n\n${message}\n\nQuesto email è stato inviato dal sistema aggiornato usando support@meetframes.com.\n\nCordiali saluti,\nTeam Newsletter Italiane`,
+                        from: 'Newsletter Italiane <support@meetframes.com>'
+                    };
+                    
+                    try {
+                        const emailResponse = await fetch('/api/send-email', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(emailData)
+                        });
+                        
+                        const emailResult = await emailResponse.json();
+                        
+                        if (emailResponse.ok) {
+                            log(`✅ Email sent to ${author.email} - ID: ${emailResult.emailId}`, 'success');
+                            successCount++;
+                        } else {
+                            log(`❌ Email failed for ${author.email}: ${emailResult.error}`, 'error');
+                            errorCount++;
+                        }
+                    } catch (error) {
+                        log(`❌ Email exception for ${author.email}: ${error.message}`, 'error');
+                        errorCount++;
+                    }
+                    
+                    // Rate limiting
+                    if (i < authors.length - 1) {
+                        log('⏳ Waiting 600ms for rate limiting...');
+                        await new Promise(resolve => setTimeout(resolve, 600));
+                    }
+                }
+                
+                log(`\n=== PROPOSAL EMAIL FLOW SUMMARY ===`);
+                log(`Total authors: ${authors.length}`);
+                log(`Successful emails: ${successCount}`, successCount > 0 ? 'success' : '');
+                log(`Failed emails: ${errorCount}`, errorCount > 0 ? 'error' : '');
+                
+                if (errorCount === 0) {
+                    log('🎉 All emails in flow sent successfully!', 'success');
+                    document.getElementById('proposalTestStatus').innerHTML = '<div class="status-badge status-success">✅ All Sent</div>';
+                    testResults.proposalFlow = true;
+                } else if (successCount === 0) {
+                    log('💥 All emails in flow failed!', 'error');
+                    document.getElementById('proposalTestStatus').innerHTML = '<div class="status-badge status-error">❌ All Failed</div>';
+                    testResults.proposalFlow = false;
+                } else {
+                    log('⚠️ Some emails in flow failed', 'warning');
+                    document.getElementById('proposalTestStatus').innerHTML = '<div class="status-badge status-warning">⚠️ Partial</div>';
+                    testResults.proposalFlow = false;
+                }
+                
+            } catch (error) {
+                log(`❌ Proposal flow test exception: ${error.message}`, 'error');
+                document.getElementById('proposalTestStatus').innerHTML = '<div class="status-badge status-error">❌ Error</div>';
+                testResults.proposalFlow = false;
+            }
+            
+            updateProgress();
+        }
+
+        function startNetworkMonitoring() {
+            if (networkMonitoring) return;
+            
+            networkMonitoring = true;
+            document.getElementById('networkMonitorStatus').style.display = 'inline-block';
+            log('🔍 Network monitoring started');
+            
+            // Override fetch to monitor network requests
+            window.fetch = async function(...args) {
+                const startTime = Date.now();
+                log(`🌐 Network Request: ${args[0]}`);
+                
+                try {
+                    const response = await originalFetch.apply(this, args);
+                    const duration = Date.now() - startTime;
+                    log(`🌐 Network Response: ${response.status} (${duration}ms)`);
+                    
+                    if (!response.ok) {
+                        testResults.networkErrors++;
+                        log(`❌ Network Error: ${response.status} ${response.statusText}`, 'error');
+                    }
+                    
+                    return response;
+                } catch (error) {
+                    testResults.networkErrors++;
+                    log(`❌ Network Exception: ${error.message}`, 'error');
+                    throw error;
+                }
+            };
+        }
+
+        function stopNetworkMonitoring() {
+            if (!networkMonitoring) return;
+            
+            networkMonitoring = false;
+            window.fetch = originalFetch;
+            document.getElementById('networkMonitorStatus').style.display = 'none';
+            log('🔍 Network monitoring stopped');
+        }
+
+        function startConsoleCapture() {
+            if (consoleMonitoring) return;
+            
+            consoleMonitoring = true;
+            document.getElementById('consoleMonitorStatus').style.display = 'inline-block';
+            log('📝 Console capture started');
+            
+            console.log = function(...args) {
+                log(`Console Log: ${args.join(' ')}`);
+                originalConsoleLog.apply(this, args);
+            };
+            
+            console.error = function(...args) {
+                testResults.consoleErrors++;
+                log(`Console Error: ${args.join(' ')}`, 'error');
+                originalConsoleError.apply(this, args);
+            };
+        }
+
+        function stopConsoleCapture() {
+            if (!consoleMonitoring) return;
+            
+            consoleMonitoring = false;
+            console.log = originalConsoleLog;
+            console.error = originalConsoleError;
+            document.getElementById('consoleMonitorStatus').style.display = 'none';
+            log('📝 Console capture stopped');
+        }
+
+        function clearNetworkLog() {
+            testResults.networkErrors = 0;
+            log('🧹 Network error count reset');
+        }
+
+        function clearConsoleLog() {
+            testResults.consoleErrors = 0;
+            log('🧹 Console error count reset');
+        }
+
+        // Auto-start monitoring
+        window.addEventListener('load', function() {
+            log('🚀 Email test suite loaded');
+            log('📋 Please authenticate as admin at /admin before running tests');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Email System</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .button { background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .button:hover { background: #005a87; }
+        .log { background: #f5f5f5; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+        .error { color: red; }
+        .success { color: green; }
+        .input { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Email System</h1>
+        <p>Questo strumento ti aiuta a diagnosticare i problemi di invio email. <strong>Assicurati di essere autenticato come admin nel pannello di controllo.</strong></p>
+        
+        <div class="section">
+            <h2>1. Test Endpoint Authors</h2>
+            <p>Inserisci l'ID di una proposta per testare il recupero degli autori:</p>
+            <input type="text" id="proposalId" class="input" placeholder="ID della proposta (es: 123e4567-e89b-12d3-a456-426614174000)">
+            <button class="button" onclick="testAuthorsEndpoint()">Test Authors Endpoint</button>
+        </div>
+        
+        <div class="section">
+            <h2>2. Test Direct Email</h2>
+            <p>Test diretto dell'endpoint di invio email:</p>
+            <input type="email" id="testEmail" class="input" placeholder="La tua email per il test" value="antoniobellu@icloud.com">
+            <button class="button" onclick="testDirectEmail()">Test Direct Email</button>
+        </div>
+        
+        <div class="section">
+            <h2>3. Test Complete Flow</h2>
+            <p>Test del flusso completo (recupera autori + invia email):</p>
+            <input type="text" id="fullTestProposalId" class="input" placeholder="ID della proposta">
+            <textarea id="testMessage" class="input" rows="3" placeholder="Messaggio di test">Questo è un messaggio di test del sistema di comunicazione admin.</textarea>
+            <button class="button" onclick="testCompleteFlow()">Test Complete Flow</button>
+        </div>
+        
+        <div class="section">
+            <h2>📋 Log Output</h2>
+            <div id="logOutput" class="log">Pronto per i test...\n</div>
+            <button class="button" onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('logOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            output.innerHTML += `<span class="${className}">[${timestamp}] ${prefix} ${message}</span>\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logOutput').innerHTML = 'Log cleared...\n';
+        }
+
+        async function testAuthorsEndpoint() {
+            const proposalId = document.getElementById('proposalId').value.trim();
+            if (!proposalId) {
+                log('Please enter a proposal ID', 'error');
+                return;
+            }
+
+            log(`Testing authors endpoint for proposal: ${proposalId}`);
+            
+            try {
+                const response = await fetch(`/api/admin/proposals/${proposalId}/emails`);
+                const result = await response.json();
+                
+                log(`Authors API Status: ${response.status}`);
+                log(`Authors API Response: ${JSON.stringify(result, null, 2)}`);
+                
+                if (result.success) {
+                    log(`Found ${result.data.authors.length} authors`, 'success');
+                    result.data.authors.forEach((author, index) => {
+                        log(`Author ${index + 1}: ${author.name} (${author.email}) - Newsletter: ${author.newsletter_title || 'N/A'}`);
+                    });
+                } else {
+                    log(`Authors API failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`Authors API exception: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDirectEmail() {
+            const email = document.getElementById('testEmail').value.trim();
+            if (!email) {
+                log('Please enter an email address', 'error');
+                return;
+            }
+
+            log(`Testing direct email to: ${email}`);
+            
+            const emailData = {
+                to: email,
+                subject: 'Test Email from Debug Tool',
+                text: 'This is a test email from the admin debug tool. If you receive this, the email system is working correctly.',
+                from: 'Newsletter Italiane <support@meetframes.com>'
+            };
+            
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(emailData)
+                });
+                
+                const result = await response.json();
+                
+                log(`Email API Status: ${response.status}`);
+                log(`Email API Response: ${JSON.stringify(result, null, 2)}`);
+                
+                if (response.ok) {
+                    log(`Email sent successfully! ID: ${result.emailId}`, 'success');
+                } else {
+                    log(`Email failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`Email API exception: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCompleteFlow() {
+            const proposalId = document.getElementById('fullTestProposalId').value.trim();
+            const message = document.getElementById('testMessage').value.trim();
+            
+            if (!proposalId) {
+                log('Please enter a proposal ID', 'error');
+                return;
+            }
+            
+            if (!message) {
+                log('Please enter a test message', 'error');
+                return;
+            }
+
+            log(`Starting complete flow test for proposal: ${proposalId}`);
+            
+            try {
+                // Step 1: Get authors
+                log('Step 1: Fetching authors...');
+                const authorsResponse = await fetch(`/api/admin/proposals/${proposalId}/emails`);
+                const authorsResult = await authorsResponse.json();
+                
+                log(`Authors API Status: ${authorsResponse.status}`);
+                
+                if (!authorsResult.success) {
+                    log(`Authors fetch failed: ${authorsResult.error}`, 'error');
+                    return;
+                }
+                
+                const authors = authorsResult.data.authors || [];
+                log(`Found ${authors.length} authors`, 'success');
+                
+                if (authors.length === 0) {
+                    log('No authors found, stopping test', 'error');
+                    return;
+                }
+                
+                // Step 2: Send emails
+                log('Step 2: Sending emails...');
+                const results = [];
+                
+                for (let i = 0; i < authors.length; i++) {
+                    const author = authors[i];
+                    log(`Sending email ${i + 1}/${authors.length} to: ${author.email}`);
+                    
+                    const emailData = {
+                        to: author.email,
+                        subject: `Test: Aggiornamento proposta`,
+                        text: `Gentile ${author.name},\n\n${message}\n\nCordiali saluti,\nTeam Frames`,
+                        from: 'Newsletter Italiane <support@meetframes.com>'
+                    };
+                    
+                    try {
+                        const emailResponse = await fetch('/api/send-email', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(emailData)
+                        });
+                        
+                        const emailResult = await emailResponse.json();
+                        
+                        if (emailResponse.ok) {
+                            log(`✅ Email sent to ${author.email} - ID: ${emailResult.emailId}`, 'success');
+                            results.push({ success: true, email: author.email });
+                        } else {
+                            log(`❌ Email failed for ${author.email}: ${emailResult.error}`, 'error');
+                            results.push({ success: false, email: author.email, error: emailResult.error });
+                        }
+                    } catch (error) {
+                        log(`❌ Email exception for ${author.email}: ${error.message}`, 'error');
+                        results.push({ success: false, email: author.email, error: error.message });
+                    }
+                    
+                    // Rate limiting
+                    if (i < authors.length - 1) {
+                        log('⏳ Waiting 600ms...');
+                        await new Promise(resolve => setTimeout(resolve, 600));
+                    }
+                }
+                
+                // Summary
+                const successful = results.filter(r => r.success).length;
+                const failed = results.length - successful;
+                
+                log(`\n=== SUMMARY ===`);
+                log(`Total emails: ${results.length}`);
+                log(`Successful: ${successful}`, successful > 0 ? 'success' : '');
+                log(`Failed: ${failed}`, failed > 0 ? 'error' : '');
+                
+                if (failed === 0) {
+                    log('🎉 All emails sent successfully!', 'success');
+                } else if (successful === 0) {
+                    log('💥 All emails failed!', 'error');
+                } else {
+                    log('⚠️ Some emails failed', 'error');
+                }
+                
+            } catch (error) {
+                log(`Complete flow exception: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

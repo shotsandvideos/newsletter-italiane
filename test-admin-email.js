@@ -14,7 +14,7 @@ const testAdminEmail = async () => {
         to: 'antoniobellu@icloud.com',
         subject: 'Test Admin Communication',
         text: 'Questo è un test del sistema di messaggistica admin.',
-        from: 'Frames <onboarding@resend.dev>'
+        from: 'Newsletter Italiane <support@meetframes.com>'
       })
     });
 

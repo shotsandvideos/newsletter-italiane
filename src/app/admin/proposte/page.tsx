@@ -220,22 +220,29 @@ export default function AdminPropostePage() {
     if (!communicationMessage.trim() || !detailsProposal) return
     
     setIsSendingEmail(true)
+    console.log('🚀 Starting email communication for proposal:', detailsProposal.id)
     
     try {
       // Fetch author emails using the new API endpoint
+      console.log('📡 Fetching authors for proposal:', detailsProposal.id)
       const response = await fetch(`/api/admin/proposals/${detailsProposal.id}/emails`)
       
+      console.log('📡 Authors API response status:', response.status)
       const result = await response.json()
+      console.log('📡 Authors API response data:', result)
       
       if (!result.success) {
+        console.error('❌ Failed to fetch authors:', result.error)
         setEmailSuccessMessage(`❌ Errore nel recupero degli autori: ${result.error}`)
         return
       }
       
       const authors = result.data.authors || []
+      console.log('👥 Authors found:', authors.length, authors)
       devLog('Authors found:', authors)
       
       if (authors.length === 0) {
+        console.warn('⚠️ No authors found for this proposal')
         setEmailSuccessMessage('❌ Nessun autore trovato per questa proposta')
         return
       }
@@ -244,6 +251,8 @@ export default function AdminPropostePage() {
       const results = []
       for (let i = 0; i < authors.length; i++) {
         const author = authors[i]
+        console.log(`📧 Processing email ${i + 1}/${authors.length} for author:`, author.email)
+        
         const subject = `Aggiornamento proposta: ${detailsProposal.brand_name} - ${detailsProposal.sponsorship_type}`
         const newsletterInfo = author.newsletter_title ? ` per "${author.newsletter_title}"` : ''
         const body = `Gentile ${author.name},
@@ -256,35 +265,46 @@ ${communicationMessage}
 Cordiali saluti,
 Team Frames`
         
+        const emailData = {
+          to: author.email,
+          subject: subject,
+          text: body,
+          from: 'Newsletter Italiane <support@meetframes.com>'
+        }
+        
+        console.log('📧 Sending email with data:', emailData)
+        
         try {
           const emailResponse = await fetch('/api/send-email', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              to: author.email,
-              subject: subject,
-              text: body,
-              from: 'Frames <onboarding@resend.dev>'
-            })
+            body: JSON.stringify(emailData)
           })
 
+          console.log('📧 Email API response status:', emailResponse.status)
+          
           if (emailResponse.ok) {
+            const emailResult = await emailResponse.json()
+            console.log('✅ Email sent successfully to', author.email, '- Response:', emailResult)
             devLog(`Email sent successfully to ${author.email}`)
             results.push({ success: true, email: author.email })
           } else {
             const errorText = await emailResponse.text()
+            console.error('❌ Email failed for', author.email, '- Status:', emailResponse.status, '- Error:', errorText)
             logger.error(`Failed to send email to ${author.email}:`, errorText)
             results.push({ success: false, email: author.email, error: errorText })
           }
         } catch (error) {
+          console.error('❌ Email exception for', author.email, ':', error)
           logger.error(`Error sending email to ${author.email}:`, error)
           results.push({ success: false, email: author.email, error: error.message })
         }
 
         // Add delay between emails to respect Resend rate limit (2 req/sec)
         if (i < authors.length - 1) {
+          console.log('⏳ Waiting 600ms before next email...')
           await new Promise(resolve => setTimeout(resolve, 600)) // 600ms delay
         }
       }

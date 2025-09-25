@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
 import { useRequireAdmin } from '../../../hooks/useRequireAdmin'
+import { devLog, logger } from '../../../lib/logger'
 
 export default function AdminPropostePage() {
   const { isAdmin, loading: authLoading } = useRequireAdmin()
@@ -199,11 +200,11 @@ export default function AdminPropostePage() {
         // You could add a success message here if needed
       } else {
         const errorData = await response.json()
-        console.error('Error deleting proposal:', errorData.error)
+        logger.error('Error deleting proposal:', errorData.error)
         alert('Errore durante l\'eliminazione della proposta: ' + errorData.error)
       }
     } catch (error) {
-      console.error('Error deleting proposal:', error)
+      logger.error('Error deleting proposal:', error)
       alert('Errore durante l\'eliminazione della proposta')
     } finally {
       setIsDeleting(false)
@@ -232,7 +233,7 @@ export default function AdminPropostePage() {
       }
       
       const authors = result.data.authors || []
-      console.log('Authors found:', authors)
+      devLog('Authors found:', authors)
       
       if (authors.length === 0) {
         setEmailSuccessMessage('❌ Nessun autore trovato per questa proposta')
@@ -270,15 +271,15 @@ Team Frames`
           })
 
           if (emailResponse.ok) {
-            console.log(`Email sent successfully to ${author.email}`)
+            devLog(`Email sent successfully to ${author.email}`)
             results.push({ success: true, email: author.email })
           } else {
             const errorText = await emailResponse.text()
-            console.error(`Failed to send email to ${author.email}:`, errorText)
+            logger.error(`Failed to send email to ${author.email}:`, errorText)
             results.push({ success: false, email: author.email, error: errorText })
           }
         } catch (error) {
-          console.error(`Error sending email to ${author.email}:`, error)
+          logger.error(`Error sending email to ${author.email}:`, error)
           results.push({ success: false, email: author.email, error: error.message })
         }
 
@@ -306,7 +307,7 @@ Team Frames`
       }, 5000)
       
     } catch (error) {
-      console.error('Error sending communication:', error)
+      logger.error('Error sending communication:', error)
       setEmailSuccessMessage('❌ Errore durante l\'invio delle email')
     } finally {
       setIsSendingEmail(false)
@@ -337,7 +338,7 @@ Team Frames`
         throw new Error('Errore durante il salvataggio')
       }
     } catch (error) {
-      console.error('Error saving proposal:', error)
+      logger.error('Error saving proposal:', error)
       setSaveSuccessMessage('Errore durante il salvataggio della proposta')
       setTimeout(() => setSaveSuccessMessage(''), 5000)
     }

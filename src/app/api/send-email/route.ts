@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '../../../lib/supabase-server'
+import { logger, devLog } from '../../../lib/logger'
 
 export async function POST(request: Request) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
 
     // Check if Resend API key is configured
     if (!process.env.RESEND_API_KEY) {
-      console.error('RESEND_API_KEY not configured')
+      logger.error('RESEND_API_KEY not configured')
       return NextResponse.json({ success: false, error: 'Email service not configured' }, { status: 500 })
     }
 
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
 
       if (emailResponse.ok) {
         const result = await emailResponse.json()
-        console.log(`Email sent successfully to ${to}:`, result.id)
+        devLog(`Email sent successfully to ${to}:`, result.id)
         
         return NextResponse.json({ 
           success: true, 
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
         })
       } else {
         const errorText = await emailResponse.text()
-        console.error(`Failed to send email to ${to}:`, errorText)
+        logger.error(`Failed to send email to ${to}:`, errorText)
         
         return NextResponse.json({ 
           success: false, 
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
         }, { status: 500 })
       }
     } catch (emailError) {
-      console.error(`Error calling Resend API:`, emailError)
+      logger.error(`Error calling Resend API:`, emailError)
       return NextResponse.json({ 
         success: false, 
         error: 'Failed to send email via Resend service' 
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
     }
 
   } catch (error) {
-    console.error('Error in send-email API:', error)
+    logger.error('Error in send-email API:', error)
     return NextResponse.json({ 
       success: false, 
       error: 'Internal server error' 

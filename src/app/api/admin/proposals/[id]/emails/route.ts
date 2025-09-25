@@ -1,20 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getCurrentUser } from '../../../../../../lib/supabase-server'
-import { createClient } from '@supabase/supabase-js'
-
-// Create a service role client for admin operations
-const createSupabaseServiceClient = () => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    }
-  )
-}
+import { getCurrentUser, createSupabaseServiceClient } from '../../../../../../lib/supabase-server'
+import { logger, devLog } from '../../../../../../lib/logger'
 
 export async function GET(
   request: Request,
@@ -56,7 +42,7 @@ export async function GET(
       .single()
 
     if (proposalError) {
-      console.error('Error fetching proposal:', proposalError)
+      logger.error('Error fetching proposal:', proposalError)
       return NextResponse.json({ success: false, error: 'Proposal not found' }, { status: 404 })
     }
 
@@ -124,11 +110,11 @@ export async function GET(
           }).filter(author => author.email)
         }
       } catch (authError) {
-        console.error('Error fetching auth users:', authError)
+        logger.error('Error fetching auth users:', authError)
       }
     }
 
-    console.log(`Found ${authorEmails.length} author emails for proposal ${proposalId}`)
+    devLog(`Found ${authorEmails.length} author emails for proposal ${proposalId}`)
 
     return NextResponse.json({
       success: true,
@@ -139,7 +125,7 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error in proposal emails API:', error)
+    logger.error('Error in proposal emails API:', error)
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import "../styles/animations.css";
 import { Providers } from "./providers";
 import ErrorBoundary from "../components/ErrorBoundary";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta-sans",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
   display: "swap",
   weight: ["200", "300", "400", "500", "600", "700", "800"],
@@ -29,7 +29,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#fcfcfc" />
       </head>
       <body
-        className={`${plusJakartaSans.variable} font-sans antialiased`}
+        className={`${dmSans.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
         {/* Skip to main content link for accessibility */}

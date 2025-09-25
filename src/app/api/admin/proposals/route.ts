@@ -1,20 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { getCurrentUser } from '../../../../lib/supabase-server'
-
-// Create a service role client for admin operations
-const createSupabaseServiceClient = () => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    }
-  )
-}
+import { getCurrentUser, createSupabaseServiceClient } from '../../../../lib/supabase-server'
 
 export async function GET() {
   try {

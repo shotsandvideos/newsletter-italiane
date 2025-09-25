@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '../../../lib/supabase-server'
 import { createSupabaseServerClient } from '../../../lib/supabase-server'
+import { logger, devLog } from '../../../lib/logger'
 
 export async function GET() {
   try {
@@ -42,13 +43,13 @@ export async function GET() {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching newsletters:', error)
+      logger.error('Error fetching newsletters:', error)
       return NextResponse.json({ success: false, error: 'Database error' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, data: newsletters || [] })
   } catch (error) {
-    console.error('Error in newsletters API:', error)
+    logger.error('Error in newsletters API:', error)
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    console.log('Received POST data:', body)
+    devLog('Received POST data:', body)
     const supabase = await createSupabaseServerClient()
 
     // Validate required fields
@@ -133,14 +134,14 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      console.error('Error creating newsletter:', error)
-      console.error('Newsletter data being inserted:', newsletterData)
+      logger.error('Error creating newsletter:', error)
+      devLog('Newsletter data being inserted:', newsletterData)
       return NextResponse.json({ success: false, error: `Database error: ${error.message}` }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, data: newsletter })
   } catch (error) {
-    console.error('Error in newsletters POST API:', error)
+    logger.error('Error in newsletters POST API:', error)
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -229,13 +230,13 @@ export async function PATCH(request: Request) {
       .single()
 
     if (error) {
-      console.error('Error updating newsletter:', error)
+      logger.error('Error updating newsletter:', error)
       return NextResponse.json({ success: false, error: `Database error: ${error.message}` }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, data: updatedNewsletter })
   } catch (error) {
-    console.error('Error in newsletters PATCH API:', error)
+    logger.error('Error in newsletters PATCH API:', error)
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }

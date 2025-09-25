@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import { logClientSecurityEvent } from '../lib/client-security'
+import { logger, devError } from '../lib/logger'
 
 export interface AppError {
   message: string
@@ -55,7 +56,13 @@ export function useErrorHandler() {
     }
 
     // Log error for monitoring
-    console.error('useErrorHandler caught error:', appError)
+    if (appError.originalError) {
+      logger.error('useErrorHandler caught error:', appError.originalError)
+      devError('Error context:', appError.context)
+    } else {
+      logger.error('useErrorHandler caught error:', appError.message)
+      devError('Error details:', appError)
+    }
 
     // Log security-related errors
     if (appError.statusCode === 401 || appError.statusCode === 403) {

@@ -49,7 +49,7 @@ export async function POST(request: Request) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: from || 'Frames <support@meetframes.com>',
+          from: from || 'Frames <onboarding@resend.dev>',
           to: [to],
           subject: subject,
           text: text,

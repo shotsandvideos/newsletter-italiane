@@ -266,7 +266,7 @@ Team Frames`
               to: author.email,
               subject: subject,
               text: body,
-              from: 'Frames <support@meetframes.com>'
+              from: 'Frames <onboarding@resend.dev>'
             })
           })
 

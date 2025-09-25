@@ -247,7 +247,7 @@ Frames`
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Frames <support@meetframes.com>',
+        from: 'Frames <onboarding@resend.dev>',
         to: [creatorEmail],
         subject: emailSubject,
         text: emailBody,

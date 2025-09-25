@@ -1,25 +1,22 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseAdmin } from '../../lib/supabase-admin'
+import { logSecurityEvent } from '../../../lib/security-checks'
 import { cookies } from 'next/headers'
-
-const createSupabaseServiceClient = () => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    }
-  )
-}
 
 export async function POST(request: Request) {
   try {
     const { email } = await request.json()
 
-    const supabase = createSupabaseServiceClient()
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!email || !emailRegex.test(email)) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Valid email is required' 
+      }, { status: 400 })
+    }
+
+    const supabase = getSupabaseAdmin()
 
     // Find the user by email
     const { data: allUsers, error: listError } = await supabase.auth.admin.listUsers({
@@ -28,19 +25,50 @@ export async function POST(request: Request) {
     })
     
     if (listError) {
+      console.error('Error listing users:', listError.message)
       return NextResponse.json({ 
         success: false, 
-        error: listError.message 
+        error: 'Authentication service error' 
       }, { status: 500 })
     }
     
     const user = allUsers.users.find(u => u.email === email)
     
     if (!user) {
+      // Don't reveal if user exists or not for security
       return NextResponse.json({ 
         success: false, 
-        error: 'User not found' 
-      }, { status: 404 })
+        error: 'Invalid credentials or insufficient permissions' 
+      }, { status: 403 })
+    }
+
+    // CRITICAL: Verify user has admin role before generating magic link
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError.message)
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Authentication service error' 
+      }, { status: 500 })
+    }
+
+    if (!profile || profile.role !== 'admin') {
+      logSecurityEvent('unauthorized_admin_login_attempt', {
+        email,
+        userId: user.id,
+        userRole: profile?.role || 'unknown',
+        timestamp: new Date().toISOString()
+      })
+      
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Invalid credentials or insufficient permissions' 
+      }, { status: 403 })
     }
 
     // Generate a session for the user using service role
@@ -53,12 +81,19 @@ export async function POST(request: Request) {
     })
 
     if (sessionError) {
-      console.error('Error generating session:', sessionError)
+      console.error('Error generating magic link:', sessionError.message)
       return NextResponse.json({ 
         success: false, 
-        error: sessionError.message 
+        error: 'Failed to generate authentication link' 
       }, { status: 500 })
     }
+
+    // Log successful admin login for security monitoring
+    logSecurityEvent('admin_magic_link_generated', {
+      email,
+      userId: user.id,
+      timestamp: new Date().toISOString()
+    })
 
     return NextResponse.json({ 
       success: true,

@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import "../styles/animations.css";
 import { Providers } from "./providers";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -38,11 +39,13 @@ export default function RootLayout({
         >
           Vai al contenuto principale
         </a>
-        <Providers>
-          <div id="main-content">
-            {children}
-          </div>
-        </Providers>
+        <ErrorBoundary>
+          <Providers>
+            <div id="main-content">
+              {children}
+            </div>
+          </Providers>
+        </ErrorBoundary>
       </body>
     </html>
   );

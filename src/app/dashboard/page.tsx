@@ -9,6 +9,8 @@ import { Mail, Euro, TrendingUp, MessageSquare, CheckCircle, Users, Calendar, Ho
 import { Newsletter, ApiResponse } from '../lib/validations'
 import Sidebar from '../components/Sidebar'
 import { cachedFetch } from '../lib/api-cache'
+import { LocalErrorBoundary } from '../../components/ErrorBoundary'
+import { useErrorHandler } from '../../hooks/useErrorHandler'
 
 function SuccessMessage() {
   const searchParams = useSearchParams()
@@ -45,6 +47,7 @@ function SuccessMessage() {
 export default function DashboardPage() {
   const { user, profile, loading: authLoading } = useAuth()
   const router = useRouter()
+  const { handleError, withErrorHandling } = useErrorHandler()
   const [newsletters, setNewsletters] = useState<Newsletter[]>([])
   const [loading, setLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -88,65 +91,56 @@ export default function DashboardPage() {
     }
   }, [currentMonth, user])
 
-  const fetchNewsletters = async () => {
-    try {
+  const fetchNewsletters = withErrorHandling(
+    async () => {
       console.log('Fetching newsletters...')
       const result: ApiResponse<Newsletter[]> = await cachedFetch('/api/newsletters', undefined, 60000) // 1 minute cache
       console.log('Newsletters result:', result)
       
       if (result.success && result.data) {
         setNewsletters(result.data)
+      } else if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch newsletters')
       }
-    } catch (error) {
-      console.error('Error fetching newsletters:', error)
-    } finally {
-      console.log('Setting loading to false')
+      
       setLoading(false)
-    }
-  }
+    },
+    { context: 'dashboard_fetch_newsletters' }
+  )
 
-  const fetchCalendarEvents = async () => {
-    setLoadingEvents(true)
-    try {
+  const fetchCalendarEvents = withErrorHandling(
+    async () => {
+      setLoadingEvents(true)
       const month = currentMonth.getMonth() + 1
       const year = currentMonth.getFullYear()
-      console.log('Fetching calendar for month:', month, 'year:', year) // Debug log
+      console.log('Fetching calendar for month:', month, 'year:', year)
       
       const response = await fetch(`/api/calendar?month=${month}&year=${year}`)
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Calendar API response:', data) // Debug log
-        
-        // L'API restituisce data.data, non data.events
-        const events = data.data || []
-        console.log('Raw events from API:', events) // Debug log
-        
-        // Since we're already filtering by month/year in the API, we don't need to filter again
-        // Just map and sort the events
-        const currentMonthEvents = events
-          .map((event: any) => ({
-            title: event.brand_name || event.title || 'Evento',
-            date: event.event_date,
-            time: new Date(event.event_date).toLocaleTimeString('it-IT', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })
-          }))
-          .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
-        
-        console.log('Processed calendar events:', currentMonthEvents) // Debug log
-        setCalendarEvents(currentMonthEvents)
-      } else {
-        console.error('Calendar API error:', response.status, response.statusText)
-        setCalendarEvents([])
+      if (!response.ok) {
+        throw new Error(`Calendar API error: ${response.status} ${response.statusText}`)
       }
-    } catch (error) {
-      console.error('Error fetching calendar events:', error)
-      setCalendarEvents([])
-    } finally {
+      
+      const data = await response.json()
+      console.log('Calendar API response:', data)
+      
+      const events = data.data || []
+      const currentMonthEvents = events
+        .map((event: any) => ({
+          title: event.brand_name || event.title || 'Evento',
+          date: event.event_date,
+          time: new Date(event.event_date).toLocaleTimeString('it-IT', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          })
+        }))
+        .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      
+      console.log('Processed calendar events:', currentMonthEvents)
+      setCalendarEvents(currentMonthEvents)
       setLoadingEvents(false)
-    }
-  }
+    },
+    { context: 'dashboard_fetch_calendar' }
+  )
 
   const getStatusColor = (status: Newsletter['status']) => {
     switch (status) {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '../../../lib/supabase-server'
-import { createSupabaseServerClient } from '../../../lib/supabase-server'
+import { createSupabaseServiceClient } from '../../../lib/supabase-server'
 
 export async function PATCH(request: Request) {
   try {
@@ -33,9 +33,11 @@ export async function PATCH(request: Request) {
     // Add rejection reason if status is rejected
     if (review_status === 'rejected' && rejection_reason) {
       updateData.rejection_reason = rejection_reason
+    } else if (review_status !== 'rejected') {
+      updateData.rejection_reason = null
     }
 
-    const supabase = await createSupabaseServerClient()
+    const supabase = createSupabaseServiceClient()
     const { data, error } = await supabase
       .from('newsletters')
       .update(updateData)

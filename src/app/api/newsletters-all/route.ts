@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '../../../lib/supabase-server'
-import { createSupabaseServerClient } from '../../../lib/supabase-server'
+import { createSupabaseServiceClient } from '../../../lib/supabase-server'
 
 export async function GET() {
   try {
@@ -15,7 +15,7 @@ export async function GET() {
     }
     
     // Get all newsletters with new field structure
-    const supabase = await createSupabaseServerClient()
+    const supabase = createSupabaseServiceClient()
     const { data: newsletters, error } = await supabase
       .from('newsletters')
       .select(`

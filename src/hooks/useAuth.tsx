@@ -182,7 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(null)
         setProfileLoaded(false)
         setLoading(false)
-        router.push('/')
+        router.replace('/auth/sign-in')
       } else if (event === 'TOKEN_REFRESHED') {
         // Just update session, don't refetch profile
         setLoading(false)
@@ -288,12 +288,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(null)
       setProfile(null)
       setProfileLoaded(false)
+      setLoading(false)
       
       // Call Supabase signout - don't wait for it to complete
       const signOutPromise = supabase.auth.signOut()
       
       // Navigate immediately for better UX
-      router.push('/')
+      router.replace('/auth/sign-in')
       
       // Wait for actual signout in background
       const { error } = await signOutPromise
@@ -308,7 +309,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(null)
       setProfile(null)
       setProfileLoaded(false)
-      router.push('/')
+      setLoading(false)
+      router.replace('/auth/sign-in')
     }
   }
 

@@ -435,12 +435,14 @@ Team Frames`
       const response = await fetch('/api/newsletters-all')
       if (response.ok) {
         const data = await response.json()
-        // Filter only approved newsletters
-        const approved = data.data?.filter(newsletter => newsletter.review_status === 'approved') || []
-        setApprovedNewsletters(approved)
+        // Filter approved and in_review newsletters for proposal targeting
+        const available = data.data?.filter(newsletter => 
+          newsletter.review_status === 'approved' || newsletter.review_status === 'in_review'
+        ) || []
+        setApprovedNewsletters(available)
       }
     } catch (error) {
-      console.error('Error fetching approved newsletters:', error)
+      console.error('Error fetching available newsletters:', error)
     }
   }
 
@@ -869,7 +871,7 @@ Team Frames`
                     </label>
                     {approvedNewsletters.length === 0 ? (
                       <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <p className="text-sm text-yellow-800">Nessuna newsletter approvata disponibile</p>
+                        <p className="text-sm text-yellow-800">Nessuna newsletter disponibile per targeting</p>
                       </div>
                     ) : (
                       <div className="max-h-48 overflow-y-auto border border-slate-300 rounded-lg">

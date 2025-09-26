@@ -30,9 +30,9 @@ export default function AdminDashboard() {
         
         if (data.success && data.data) {
           // Filter newsletters by review_status (not status)
-          const pending = data.data.filter((n: any) => n.review_status === 'pending')
+          const pending = data.data.filter((n: any) => n.review_status === 'in_review')
           const approved = data.data.filter((n: any) => n.review_status === 'approved')
-          const inReview = data.data.filter((n: any) => n.review_status === 'in_review')
+          const rejected = data.data.filter((n: any) => n.review_status === 'rejected')
           
           // Count unique authors who have at least one approved newsletter (active authors)
           const activeAuthorIds = new Set(approved.map((n: any) => n.user_id))
@@ -41,12 +41,12 @@ export default function AdminDashboard() {
           setPendingNewsletters(pending)
           setStats(prev => ({
             ...prev,
-            pendingProposals: inReview.length,
+            pendingProposals: pending.length,
             activeNewsletters: approved.length,
             activeAuthors: activeAuthors
           }))
           
-          console.log(`Found: ${approved.length} approved, ${inReview.length} in review, ${activeAuthors} active authors`)
+          console.log(`Found: ${approved.length} approved, ${pending.length} in review, ${rejected.length} rejected, ${activeAuthors} active authors`)
         }
       } else {
         console.log('Failed to fetch newsletters:', response.status)
@@ -327,16 +327,16 @@ export default function AdminDashboard() {
                         <div key={newsletter.id} className="flex items-center justify-between p-12px bg-accent rounded-lg">
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h4 className="heading-sub text-foreground">{newsletter.nome_newsletter}</h4>
+                              <h4 className="heading-sub text-foreground">{newsletter.title}</h4>
                               <span className="px-2 py-1 text-micro rounded-full bg-slate-100 text-slate-700">
                                 In revisione
                               </span>
                             </div>
                             <p className="text-micro text-muted-foreground mt-1">
-                              {newsletter.profiles?.first_name} {newsletter.profiles?.last_name} - {newsletter.categoria}
+                              {newsletter.author?.first_name} {newsletter.author?.last_name} - {newsletter.category}
                             </p>
                             <p className="text-micro text-muted-foreground mt-1">
-                              {newsletter.descrizione?.substring(0, 80)}...
+                              {newsletter.description?.substring(0, 80)}...
                             </p>
                           </div>
                           <div className="flex gap-2 ml-3">

@@ -14,8 +14,7 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
-  X,
-  Send
+  X
 } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
 import { useRequireAdmin } from '../../../hooks/useRequireAdmin'
@@ -174,14 +173,6 @@ export default function AdminNewslettersPage() {
       ctr: newsletter.ctr || 3.5,
       subscribers: newsletter.subscribers || 0
     })
-  }
-
-  const handleSendEmail = (newsletter: any) => {
-    // Apre il client email con i dati precompilati
-    const subject = `Riguardo la newsletter: ${newsletter.title}`
-    const body = `Gentile ${newsletter.author.name},\\n\\nSpero che questo messaggio ti trovi bene.\\n\\nMi riferisco alla tua newsletter \"${newsletter.title}\".\\n\\n\\n\\nCordiali saluti,\\nTeam Newsletter Italiane`
-    const mailtoLink = `mailto:${newsletter.author.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-    window.open(mailtoLink)
   }
 
   const handleSaveEdit = async () => {
@@ -913,13 +904,6 @@ export default function AdminNewslettersPage() {
                         >
                           <Edit className="w-3 h-3" />
                           Modifica
-                        </button>
-                        <button
-                          onClick={() => handleSendEmail(selectedNewsletter)}
-                          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                        >
-                          <Send className="w-3 h-3" />
-                          Invia Email
                         </button>
                       </>
                     )}

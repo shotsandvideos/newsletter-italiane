@@ -27,6 +27,12 @@ export async function GET() {
           status,
           selected_run_date,
           decline_reason,
+          creator_preview_url,
+          creator_results_views,
+          creator_results_open_rate,
+          creator_results_ctr,
+          creator_results_clicks,
+          creator_results_submitted_at,
           newsletters (
             id,
             title,

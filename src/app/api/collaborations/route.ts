@@ -96,7 +96,17 @@ export async function GET() {
         admin_copy_text: collab.proposals.admin_copy_text,
         admin_brief_text: collab.proposals.admin_brief_text,
         admin_tracking_links: collab.proposals.admin_tracking_links,
-        calendar_event: calendarEvent || null
+        calendar_event: calendarEvent || null,
+        creator_preview_url: collab.creator_preview_url,
+        creator_results_views: collab.creator_results_views ?? null,
+        creator_results_open_rate: collab.creator_results_open_rate !== null && collab.creator_results_open_rate !== undefined
+          ? Number(collab.creator_results_open_rate)
+          : null,
+        creator_results_ctr: collab.creator_results_ctr !== null && collab.creator_results_ctr !== undefined
+          ? Number(collab.creator_results_ctr)
+          : null,
+        creator_results_clicks: collab.creator_results_clicks ?? null,
+        creator_results_submitted_at: collab.creator_results_submitted_at
       }
     }) || []
 

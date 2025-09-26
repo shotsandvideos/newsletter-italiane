@@ -38,6 +38,12 @@ interface Collaboration {
   admin_brief_text?: string
   admin_tracking_links?: string[]
   calendar_event?: any
+  creator_preview_url?: string | null
+  creator_results_views?: number | null
+  creator_results_open_rate?: number | null
+  creator_results_ctr?: number | null
+  creator_results_clicks?: number | null
+  creator_results_submitted_at?: string | null
 }
 
 const statusFilters = [
@@ -71,6 +77,19 @@ export default function CollaborationsPage() {
   const [loading, setLoading] = useState(true)
   const [selectedCollaboration, setSelectedCollaboration] = useState<Collaboration | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState('')
+  const [isSavingPreview, setIsSavingPreview] = useState(false)
+  const [previewSuccess, setPreviewSuccess] = useState<string | null>(null)
+  const [previewError, setPreviewError] = useState<string | null>(null)
+  const [resultsForm, setResultsForm] = useState({
+    views: '',
+    openRate: '',
+    ctr: '',
+    clicks: ''
+  })
+  const [isSavingResults, setIsSavingResults] = useState(false)
+  const [resultsSuccess, setResultsSuccess] = useState<string | null>(null)
+  const [resultsError, setResultsError] = useState<string | null>(null)
   const itemsPerPage = 12
 
   useEffect(() => {
@@ -89,6 +108,11 @@ export default function CollaborationsPage() {
     try {
       setLoading(true)
       const response = await fetch('/api/collaborations')
+      if (response.status === 401) {
+        router.push('/auth/sign-in?redirectTo=%2Fdashboard%2Fcollaborations')
+        return
+      }
+
       const result = await response.json()
       
       if (result.success) {
@@ -102,6 +126,156 @@ export default function CollaborationsPage() {
       setLoading(false)
     }
   }
+
+  const handleSavePreview = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!selectedCollaboration) return
+
+    setIsSavingPreview(true)
+    setPreviewSuccess(null)
+    setPreviewError(null)
+
+    try {
+      const response = await fetch(`/api/collaborations/${selectedCollaboration.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ type: 'preview', previewUrl })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Errore durante il salvataggio della preview')
+      }
+
+      const updatedUrl = result.data?.creator_preview_url || null
+      setPreviewSuccess('Link alla preview salvato con successo')
+      setSelectedCollaboration(prev => prev ? { ...prev, creator_preview_url: updatedUrl } : prev)
+      setCollaborations(prev => prev.map(collab => collab.id === selectedCollaboration.id ? { ...collab, creator_preview_url: updatedUrl } : collab))
+      setTimeout(() => setPreviewSuccess(null), 3000)
+    } catch (error: any) {
+      setPreviewError(error.message || 'Errore inatteso durante il salvataggio')
+    } finally {
+      setIsSavingPreview(false)
+    }
+  }
+
+  const handleSaveResults = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!selectedCollaboration) return
+
+    setIsSavingResults(true)
+    setResultsSuccess(null)
+    setResultsError(null)
+
+    const parsedOpenRate = parseFloat(resultsForm.openRate)
+    const parsedCtr = parseFloat(resultsForm.ctr)
+    const parsedClicks = parseInt(resultsForm.clicks, 10)
+    const parsedViews = resultsForm.views ? parseInt(resultsForm.views, 10) : null
+
+    if (Number.isNaN(parsedOpenRate) || Number.isNaN(parsedCtr) || Number.isNaN(parsedClicks)) {
+      setResultsError('Compila tutti i campi obbligatori con valori numerici validi')
+      setIsSavingResults(false)
+      return
+    }
+
+    if (parsedOpenRate < 0 || parsedOpenRate > 100 || parsedCtr < 0 || parsedCtr > 100) {
+      setResultsError('Open rate e CTR devono essere compresi tra 0 e 100')
+      setIsSavingResults(false)
+      return
+    }
+
+    if (parsedClicks < 0 || (parsedViews !== null && parsedViews < 0)) {
+      setResultsError('Inserisci valori positivi per visualizzazioni e click')
+      setIsSavingResults(false)
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/collaborations/${selectedCollaboration.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'results',
+          views: parsedViews ?? undefined,
+          openRate: parsedOpenRate,
+          ctr: parsedCtr,
+          clicks: parsedClicks
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Errore durante il salvataggio dei risultati')
+      }
+
+      const updatedData = result.data || {}
+      const updatedViews = updatedData.creator_results_views ?? null
+      const updatedOpenRate = updatedData.creator_results_open_rate !== null && updatedData.creator_results_open_rate !== undefined
+        ? Number(updatedData.creator_results_open_rate)
+        : null
+      const updatedCtr = updatedData.creator_results_ctr !== null && updatedData.creator_results_ctr !== undefined
+        ? Number(updatedData.creator_results_ctr)
+        : null
+      const updatedClicks = updatedData.creator_results_clicks ?? null
+      const updatedSubmittedAt = updatedData.creator_results_submitted_at || new Date().toISOString()
+
+      setResultsSuccess('Risultati salvati con successo')
+      setSelectedCollaboration(prev => prev ? {
+        ...prev,
+        creator_results_views: updatedViews,
+        creator_results_open_rate: updatedOpenRate,
+        creator_results_ctr: updatedCtr,
+        creator_results_clicks: updatedClicks,
+        creator_results_submitted_at: updatedSubmittedAt
+      } : prev)
+      setCollaborations(prev => prev.map(collab => collab.id === selectedCollaboration.id ? {
+        ...collab,
+        creator_results_views: updatedViews,
+        creator_results_open_rate: updatedOpenRate,
+        creator_results_ctr: updatedCtr,
+        creator_results_clicks: updatedClicks,
+        creator_results_submitted_at: updatedSubmittedAt
+      } : collab))
+      setTimeout(() => setResultsSuccess(null), 3000)
+    } catch (error: any) {
+      setResultsError(error.message || 'Errore inatteso durante il salvataggio dei risultati')
+    } finally {
+      setIsSavingResults(false)
+    }
+  }
+
+  useEffect(() => {
+    if (selectedCollaboration) {
+      setPreviewUrl(selectedCollaboration.creator_preview_url || '')
+      setResultsForm({
+        views: selectedCollaboration.creator_results_views !== null && selectedCollaboration.creator_results_views !== undefined
+          ? String(selectedCollaboration.creator_results_views)
+          : '',
+        openRate: selectedCollaboration.creator_results_open_rate !== null && selectedCollaboration.creator_results_open_rate !== undefined
+          ? String(selectedCollaboration.creator_results_open_rate)
+          : '',
+        ctr: selectedCollaboration.creator_results_ctr !== null && selectedCollaboration.creator_results_ctr !== undefined
+          ? String(selectedCollaboration.creator_results_ctr)
+          : '',
+        clicks: selectedCollaboration.creator_results_clicks !== null && selectedCollaboration.creator_results_clicks !== undefined
+          ? String(selectedCollaboration.creator_results_clicks)
+          : ''
+      })
+      setPreviewSuccess(null)
+      setPreviewError(null)
+      setResultsSuccess(null)
+      setResultsError(null)
+    } else {
+      setPreviewUrl('')
+      setResultsForm({ views: '', openRate: '', ctr: '', clicks: '' })
+    }
+  }, [selectedCollaboration])
 
   // Filter and pagination
   const filteredCollaborations = collaborations.filter(collaboration => {
@@ -448,6 +622,207 @@ export default function CollaborationsPage() {
                   )}
                 </div>
               </div>
+
+              {selectedCollaboration && (
+                <div className="mt-6 space-y-6">
+                  {/* Preview Section */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-slate-900">Preview della campagna</h3>
+                      {selectedCollaboration.creator_preview_url && (
+                        <a
+                          href={selectedCollaboration.creator_preview_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:text-blue-800"
+                        >
+                          Apri anteprima
+                        </a>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2">
+                      Condividi un link alla versione di anteprima della campagna. Sarà visibile anche allo staff admin.
+                    </p>
+
+                    <form className="mt-4 space-y-3" onSubmit={handleSavePreview}>
+                      <label className="block text-xs font-medium text-slate-700">
+                        Link Preview
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://..."
+                        value={previewUrl}
+                        onChange={(event) => setPreviewUrl(event.target.value)}
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="submit"
+                          disabled={isSavingPreview}
+                          className="px-4 py-2 bg-slate-700 text-white text-sm rounded-lg hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isSavingPreview ? 'Salvataggio…' : 'Salva Preview'}
+                        </button>
+                        {previewSuccess && (
+                          <span className="text-xs text-emerald-600">{previewSuccess}</span>
+                        )}
+                        {previewError && (
+                          <span className="text-xs text-red-600">{previewError}</span>
+                        )}
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Results Section */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-medium text-slate-900">Risultati campagna</h3>
+                      {selectedCollaboration.creator_results_submitted_at && (
+                        <span className="text-xs text-slate-500">
+                          Aggiornato il {new Date(selectedCollaboration.creator_results_submitted_at).toLocaleDateString('it-IT')}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      Compila i risultati finali una volta concluso il periodo della campagna. I campi contrassegnati con * sono obbligatori.
+                    </p>
+
+                    {(() => {
+                      const campaignEnd = new Date(selectedCollaboration.campaign_end_date)
+                      const campaignFinished = new Date() > campaignEnd
+                      if (!campaignFinished && !selectedCollaboration.creator_results_submitted_at) {
+                        return (
+                          <div className="mt-3 p-3 bg-slate-100 rounded-lg text-xs text-slate-600">
+                            Potrai inserire i risultati solo dopo la fine della campagna ({campaignEnd.toLocaleDateString('it-IT')}).
+                          </div>
+                        )
+                      }
+
+                      return (
+                        <form className="mt-4 space-y-3" onSubmit={handleSaveResults}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-medium text-slate-700">
+                                Visualizzazioni
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={resultsForm.views}
+                                onChange={(event) => setResultsForm(prev => ({ ...prev, views: event.target.value }))}
+                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                                placeholder="Es. 15000"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-slate-700">
+                                Open rate *
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                required
+                                value={resultsForm.openRate}
+                                onChange={(event) => setResultsForm(prev => ({ ...prev, openRate: event.target.value }))}
+                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                                placeholder="Percentuale"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-slate-700">
+                                CTR *
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                required
+                                value={resultsForm.ctr}
+                                onChange={(event) => setResultsForm(prev => ({ ...prev, ctr: event.target.value }))}
+                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                                placeholder="Percentuale"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-slate-700">
+                                Click sul link *
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                required
+                                value={resultsForm.clicks}
+                                onChange={(event) => setResultsForm(prev => ({ ...prev, clicks: event.target.value }))}
+                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                                placeholder="Es. 320"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="submit"
+                              disabled={isSavingResults}
+                              className="px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isSavingResults ? 'Salvataggio…' : 'Salva Risultati'}
+                            </button>
+                            {resultsSuccess && (
+                              <span className="text-xs text-emerald-600">{resultsSuccess}</span>
+                            )}
+                            {resultsError && (
+                              <span className="text-xs text-red-600">{resultsError}</span>
+                            )}
+                          </div>
+
+                          {(() => {
+                            const hasResults = [
+                              selectedCollaboration.creator_results_views,
+                              selectedCollaboration.creator_results_open_rate,
+                              selectedCollaboration.creator_results_ctr,
+                              selectedCollaboration.creator_results_clicks
+                            ].some(value => value !== null && value !== undefined)
+
+                            if (!hasResults) return null
+
+                            return (
+                              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-slate-600">
+                                {selectedCollaboration.creator_results_views !== null && selectedCollaboration.creator_results_views !== undefined && (
+                                  <div className="bg-white border border-slate-200 rounded-lg p-3">
+                                    <span className="block text-[11px] uppercase tracking-wide text-slate-500">Visualizzazioni</span>
+                                    <span className="text-sm font-semibold text-slate-900">{selectedCollaboration.creator_results_views.toLocaleString()}</span>
+                                  </div>
+                                )}
+                                {selectedCollaboration.creator_results_open_rate !== null && (
+                                  <div className="bg-white border border-slate-200 rounded-lg p-3">
+                                    <span className="block text-[11px] uppercase tracking-wide text-slate-500">Open rate</span>
+                                    <span className="text-sm font-semibold text-slate-900">{selectedCollaboration.creator_results_open_rate}%</span>
+                                  </div>
+                                )}
+                                {selectedCollaboration.creator_results_ctr !== null && (
+                                  <div className="bg-white border border-slate-200 rounded-lg p-3">
+                                    <span className="block text-[11px] uppercase tracking-wide text-slate-500">CTR</span>
+                                    <span className="text-sm font-semibold text-slate-900">{selectedCollaboration.creator_results_ctr}%</span>
+                                  </div>
+                                )}
+                                {selectedCollaboration.creator_results_clicks !== null && (
+                                  <div className="bg-white border border-slate-200 rounded-lg p-3">
+                                    <span className="block text-[11px] uppercase tracking-wide text-slate-500">Click</span>
+                                    <span className="text-sm font-semibold text-slate-900">{selectedCollaboration.creator_results_clicks.toLocaleString()}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })()}
+                        </form>
+                      )
+                    })()}
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-end mt-6 pt-4 border-t">
                 <button

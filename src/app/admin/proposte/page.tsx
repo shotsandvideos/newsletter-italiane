@@ -1253,6 +1253,73 @@ Team Frames`
                                   <p className="text-red-600 mt-1">{pn.decline_reason}</p>
                                 </div>
                               )}
+
+                              <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                <div className="bg-white border border-slate-200 rounded-lg p-3">
+                                  <span className="text-xs font-medium text-slate-500">Preview campagna</span>
+                                  {pn.creator_preview_url ? (
+                                    <a
+                                      href={pn.creator_preview_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="block mt-1 text-sm text-blue-600 hover:text-blue-800 break-all"
+                                    >
+                                      {pn.creator_preview_url}
+                                    </a>
+                                  ) : (
+                                    <p className="mt-1 text-sm text-slate-600">Nessuna preview fornita</p>
+                                  )}
+                                </div>
+
+                                <div className="bg-white border border-slate-200 rounded-lg p-3">
+                                  <span className="text-xs font-medium text-slate-500">Risultati campagna</span>
+                                  {(() => {
+                                    const views = pn.creator_results_views ?? null
+                                    const openRate = pn.creator_results_open_rate !== null && pn.creator_results_open_rate !== undefined ? Number(pn.creator_results_open_rate) : null
+                                    const ctr = pn.creator_results_ctr !== null && pn.creator_results_ctr !== undefined ? Number(pn.creator_results_ctr) : null
+                                    const clicks = pn.creator_results_clicks ?? null
+                                    const hasResults = [views, openRate, ctr, clicks].some(value => value !== null && value !== undefined)
+
+                                    if (!hasResults) {
+                                      return <p className="mt-1 text-sm text-slate-600">Risultati non ancora comunicati</p>
+                                    }
+
+                                    return (
+                                      <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-600">
+                                        {views !== null && views !== undefined && (
+                                          <div>
+                                            <span className="block text-[11px] uppercase tracking-wide text-slate-500">Views</span>
+                                            <span className="text-sm font-semibold text-slate-900">{Number(views).toLocaleString()}</span>
+                                          </div>
+                                        )}
+                                        {openRate !== null && (
+                                          <div>
+                                            <span className="block text-[11px] uppercase tracking-wide text-slate-500">Open rate</span>
+                                            <span className="text-sm font-semibold text-slate-900">{openRate}%</span>
+                                          </div>
+                                        )}
+                                        {ctr !== null && (
+                                          <div>
+                                            <span className="block text-[11px] uppercase tracking-wide text-slate-500">CTR</span>
+                                            <span className="text-sm font-semibold text-slate-900">{ctr}%</span>
+                                          </div>
+                                        )}
+                                        {clicks !== null && clicks !== undefined && (
+                                          <div>
+                                            <span className="block text-[11px] uppercase tracking-wide text-slate-500">Click</span>
+                                            <span className="text-sm font-semibold text-slate-900">{Number(clicks).toLocaleString()}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )
+                                  })()}
+                                  {pn.creator_results_submitted_at && (
+                                    <p className="mt-2 text-[11px] text-slate-500">
+                                      Aggiornato il {new Date(pn.creator_results_submitted_at).toLocaleDateString('it-IT')}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
